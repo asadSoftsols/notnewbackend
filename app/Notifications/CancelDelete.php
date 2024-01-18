@@ -52,7 +52,7 @@ class CancelDelete extends Notification
         $baseMailable = new BaseMailable();
         $user = $this->user;
 
-        return $baseMailable->to('Support@flexemarket.com')
+        return $baseMailable->to('Support@NotNew.com')
         ->subject($notifiable->name . '- Account Delete Cancel Request!')
         ->markdown('emails.deleteAccount.cancelDelete', [
             'user' => $user

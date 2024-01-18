@@ -22,7 +22,6 @@ Route::group(['prefix' => 'auth'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('logout', [Api\AuthController::class, 'logout']);
         Route::get('user', [Api\AuthController::class, 'user']);
-        Route::post('logout', [Api\AuthController::class, 'logout']);
     });
 });
 
@@ -37,14 +36,15 @@ Route::group(['prefix' => '/auth', ['middleware' => 'throttle:20,5']], function 
     Route::post('/facebook-login', [Api\Auth\LoginController::class, 'facebookLogin']);
     Route::post('/google-login', [Api\Auth\LoginController::class, 'googleLogin']);
     Route::post('/apple-login', [Api\Auth\LoginController::class, 'appleLogin']);
+    Route::post('logout', [Api\AuthController::class, 'logout']);
 });
 
 //===============================All the below route should be in Secure routes==============================
 Route::group(['middleware' => 'auth:api'], function () {
         Route::get('categories-secure', [Api\CategoryController::class, 'index']);
-        Route::post('forgot-password', [Api\Auth\ForgotPasswordController::class, 'check']);
-        Route::post('verify/otp', [Api\Auth\ForgotPasswordController::class, 'verifyOtp']);
-        Route::post('password/reset', [Api\Auth\ResetPasswordController::class, 'reset']);
+        // Route::post('forgot-password', [Api\Auth\ForgotPasswordController::class, 'check']);
+        // Route::post('verify/otp', [Api\Auth\ForgotPasswordController::class, 'verifyOtp']);
+        // Route::post('password/reset', [Api\Auth\ResetPasswordController::class, 'reset']);
         Route::group(['prefix' => '/categories'], function () {
             //Route::get('/', [Api\CategoryController::class, 'index']);
             //Route::get('categories', [Api\CategoryController::class, 'index']);
@@ -162,6 +162,9 @@ Route::group(['prefix' => '/products'], function () {
 Route::group(['prefix' => '/location'], function () {
     Route::post('/getCityStatebyPostal/{zipcode}', [Api\CityStateController::class, 'getCityStatebyPostal']);
 });
-Route::get('countries', [Api\CityStateController::class, 'index']);
+Route::get('countries', [Api\CityStateController::class, 'getCountries']);
 Route::get('city', [Api\CityStateController::class, 'index']);
 Route::get('state', [Api\CityStateController::class, 'getState']);
+Route::post('forgot-password', [Api\Auth\ForgotPasswordController::class, 'check']);
+Route::post('verify/otp', [Api\Auth\ForgotPasswordController::class, 'verifyOtp']);
+Route::post('password/reset', [Api\Auth\ResetPasswordController::class, 'reset']);

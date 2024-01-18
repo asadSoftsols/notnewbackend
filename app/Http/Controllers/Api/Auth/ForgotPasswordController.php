@@ -24,6 +24,7 @@ class ForgotPasswordController extends Controller
          }else{
             throw ValidationException::withMessages(['email' => trans($user)]);
          }
+         return $this->genericResponse(true, 'User Found',200);
     }
     public function verifyOtp(Request $request){
 

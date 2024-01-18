@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Address;
 use App\Models\City;
+use App\Models\Countries;
 use App\Models\State;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,12 @@ class CityStateController extends Controller
     {
         // dd('sss');
         return State::orderBy('id')->get();
+    }
+
+    public function getCountries()
+    {
+        // dd('sss');
+        return Countries::orderBy('id')->get();
     }
 
     public function getCityStatebyPostal($zipcode)

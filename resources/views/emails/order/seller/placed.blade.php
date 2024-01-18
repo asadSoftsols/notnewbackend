@@ -122,9 +122,9 @@
       </td>
     </tr>
   </table>
-  <p>Thank you for using FlexEmarket as a marketplace for your products. We look forward to continued success working with you.</p>
+  <p>Thank you for using NotNew as a marketplace for your products. We look forward to continued success working with you.</p>
   <p>Best regards,</p>
-  <p>Flexemarket Support Team</p>
+  <p>NotNew Support Team</p>
 </div>
 <style>
   body{

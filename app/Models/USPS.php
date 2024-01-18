@@ -197,7 +197,7 @@ class USPS
         return '<CarrierPickupScheduleRequest USERID="974FLEXM7409">
                     <FirstName>John</FirstName>
                     <LastName>Doe</LastName>
-                    <FirmName>FlexeMarket</FirmName>
+                    <FirmName>NotNew</FirmName>
                     <SuiteOrApt>Suite 101</SuiteOrApt>
                     <Address2>9600 colesville road</Address2>
                     <Urbanization></Urbanization>

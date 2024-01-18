@@ -89,7 +89,7 @@ class RegisterController extends Controller
             'guid' => $data['guid'],
             'customer_stripe_id' => $stripe_data->id,
         ]);
-        $accountLink = StripeHelper::createAccountLink($user);
+        // $accountLink = StripeHelper::createAccountLink($user);
 
         return $user;
     }

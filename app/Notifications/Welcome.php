@@ -53,7 +53,7 @@ class Welcome extends Notification
         $user = $this->user;
 
         return $baseMailable->to($notifiable->email)
-        ->subject($notifiable->name . '- Welcome to Flexemarket')
+        ->subject($notifiable->name . '- Welcome to NotNew')
         ->markdown('emails.auth.welcome', [
             'user' => $user
         ]);
