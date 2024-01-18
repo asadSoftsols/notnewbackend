@@ -82,7 +82,7 @@ class EasyPost
               "state": "'. $data['state'] .'",
               "zip": "'. $data['zip'] .'",
               "country": "US",
-              "company": "flexeMarket",
+              "company": "NotNew",
               "phone": "415-123-4567"
             },
             "verify": true

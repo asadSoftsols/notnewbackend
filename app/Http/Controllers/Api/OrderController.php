@@ -109,7 +109,7 @@ class OrderController extends Controller
                     $resp = '<CarrierPickupScheduleRequest USERID="974FLEXM7409">
                                 <FirstName>'. $buyer->name .'</FirstName>
                                 <LastName>'. $buyer->name .'</LastName>
-                                <FirmName>FlexeMarket</FirmName>
+                                <FirmName>NotNew</FirmName>
                                 <SuiteOrApt>Suite 101</SuiteOrApt>
                                 <Address2>'. $buyer_shipping->street_address .'</Address2>
                                 <Urbanization></Urbanization>
@@ -502,7 +502,7 @@ class OrderController extends Controller
                                 $resp = '<CarrierPickupScheduleRequest USERID="974FLEXM7409">
                                 <FirstName>'. $buyer->name .'</FirstName>
                                 <LastName>'. $buyer->name .'</LastName>
-                                <FirmName>FlexeMarket</FirmName>
+                                <FirmName>NotNew</FirmName>
                                 <SuiteOrApt>Suite 101</SuiteOrApt>
                                 <Address2>'. $buyer_shipping->street_address .'</Address2>
                                 <Urbanization></Urbanization>

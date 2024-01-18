@@ -45,7 +45,7 @@ class TrustedSellerNotification extends Notification
     {
         $baseMailable = new BaseMailable();
 
-        return $baseMailable->to('support@flexemarket.com')
+        return $baseMailable->to('support@NotNew.com')
         ->subject('Trusted Seller Request')
         ->markdown('emails.user.detail', [
             'user' => $this->user[0],

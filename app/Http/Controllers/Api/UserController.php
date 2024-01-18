@@ -27,8 +27,10 @@ class UserController extends Controller
 
     public function detail()
     {
-        return User::find(\Auth::user()->id)
-        ->withNotifications()->trusted();//
+        $user = User::find(\Auth::user()->id)
+        ->withNotifications()->trusted();
+        // return encrypt($user);
+        return $user;
     }
     
     public function detailById($id)

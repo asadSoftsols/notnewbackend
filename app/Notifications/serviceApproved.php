@@ -57,7 +57,7 @@ class serviceApproved extends Notification
         $url = env('FRONT_END_URL', 'https://localhost:3000/');
 
         return $baseMailable->to($notifiable->email)
-        ->subject($notifiable->name . '- Your Ad is Now Live on Flexemarket!')
+        ->subject($notifiable->name . '- Your Ad is Now Live on NotNew!')
         ->markdown('emails.ServiceApproved.add', [
             'user' => $notifiable,
             'verificationUrl' => $url.'/service/'.$service->guid,

@@ -21,7 +21,7 @@ deploy-staging:
   only:
   - master
   before_script:
-    - echo "\n ======= Initilizaling The FLEXEMARKET Backend Staging Deploy JOB =========== \n"
+    - echo "\n ======= Initilizaling The NotNew Backend Staging Deploy JOB =========== \n"
     - apk add --update
     - apk add --no-cache openssh
     - eval $(ssh-agent -s)
