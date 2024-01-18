@@ -162,5 +162,6 @@ Route::group(['prefix' => '/products'], function () {
 Route::group(['prefix' => '/location'], function () {
     Route::post('/getCityStatebyPostal/{zipcode}', [Api\CityStateController::class, 'getCityStatebyPostal']);
 });
+Route::get('countries', [Api\CityStateController::class, 'index']);
 Route::get('city', [Api\CityStateController::class, 'index']);
 Route::get('state', [Api\CityStateController::class, 'getState']);

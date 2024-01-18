@@ -230,4 +230,20 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return StripeHelper::checkAccount(\Auth::user());
     }
+
+    public function countries()
+    {
+        return $this->hasOne('App\Models\countries');
+    }
+
+    public function cities()
+    {
+        return $this->hasOne('App\Models\cities');
+    }
+
+    public function states()
+    {
+        return $this->hasOne('App\Models\states');
+    }
+
 }

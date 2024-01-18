@@ -21,6 +21,10 @@ class City extends Model
      /**
      * @var array
      */
-    protected $fillable = ['name', 'created_at', 'updated_at'];
+    protected $fillable = ['name', 'state_id', 'created_at', 'updated_at'];
 
+    public function user()
+    {
+        return $this->hasMany('App\Models\User');
+    }
 }

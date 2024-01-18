@@ -103,9 +103,18 @@ class LoginController extends Controller
                 $user->update();
             }
             $tokenResult = $user->createToken('Personal Access Token')->accessToken;
-
+            /**
+             * encrypting and decrypting starts
+             */
+                // $encrypted = encrypt('my plain text'); 
+                // echo $encrypted;
+                // $decrypted = decrypt($encrypted); 
+                // echo $decrypted;
+            /**
+             * encrypting and decrypting ends
+             */
             return $this->genericResponse(true, 'Login Successful',
-                200, ['data' => $request->user(),
+                200, ['data' => encrypt($request->user()),
                     'token' => $tokenResult
                 ]);
         }
