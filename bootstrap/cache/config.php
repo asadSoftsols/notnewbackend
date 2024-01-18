@@ -304,7 +304,7 @@
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:VUogbwp4u8BhU7dBPhzR1pY5Vv292z+amD7wnRguuMk=',
+    'key' => 'base64:iI0KB9pzm0kj9pKn3xb1zUSIAHOCK+INMXL9JmrhslM=',
     'cipher' => 'AES-256-CBC',
     'providers' => 
     array (
@@ -428,12 +428,12 @@
       'pusher' => 
       array (
         'driver' => 'pusher',
-        'key' => NULL,
-        'secret' => NULL,
-        'app_id' => NULL,
+        'key' => '',
+        'secret' => '',
+        'app_id' => '',
         'options' => 
         array (
-          'cluster' => NULL,
+          'cluster' => 'mt1',
           'useTLS' => true,
           'encrypted' => true,
           'host' => NULL,
@@ -484,7 +484,7 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'C:\\xampp\\htdocs\\backend\\storage\\framework/cache/data',
+        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -651,12 +651,12 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\xampp\\htdocs\\backend\\storage\\app',
+        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\xampp\\htdocs\\backend\\storage\\app',
+        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
       ),
@@ -673,7 +673,7 @@
     ),
     'links' => 
     array (
-      'C:\\xampp\\htdocs\\backend\\public\\storage' => 'C:\\xampp\\htdocs\\backend\\storage\\app',
+      'C:\\xamppp\\htdocs\\notnewbackend\\public\\storage' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
     ),
   ),
   'hashing' => 
@@ -743,13 +743,13 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\xampp\\htdocs\\backend\\storage\\logs/laravel.log',
+        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/laravel.log',
         'level' => 'debug',
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'C:\\xampp\\htdocs\\backend\\storage\\logs/laravel.log',
+        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
       ),
@@ -799,12 +799,12 @@
       ),
       'emergency' => 
       array (
-        'path' => 'C:\\xampp\\htdocs\\backend\\storage\\logs/laravel.log',
+        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/laravel.log',
       ),
       'cronjobs' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\xampp\\htdocs\\backend\\storage\\logs/cronjobs.log',
+        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/cronjobs.log',
         'level' => 'debug',
       ),
     ),
@@ -862,7 +862,7 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'C:\\xampp\\htdocs\\backend\\resources\\views/vendor/mail',
+        0 => 'C:\\xamppp\\htdocs\\notnewbackend\\resources\\views/vendor/mail',
       ),
     ),
   ),
@@ -941,7 +941,7 @@
     'lifetime' => '120',
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'C:\\xampp\\htdocs\\backend\\storage\\framework/sessions',
+    'files' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -961,9 +961,9 @@
   array (
     'paths' => 
     array (
-      0 => 'C:\\xampp\\htdocs\\backend\\resources\\views',
+      0 => 'C:\\xamppp\\htdocs\\notnewbackend\\resources\\views',
     ),
-    'compiled' => 'C:\\xampp\\htdocs\\backend\\storage\\framework\\views',
+    'compiled' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\framework\\views',
   ),
   'websockets' => 
   array (
@@ -975,10 +975,10 @@
     array (
       0 => 
       array (
-        'id' => NULL,
+        'id' => '',
         'name' => 'notnew',
-        'key' => NULL,
-        'secret' => NULL,
+        'key' => '',
+        'secret' => '',
         'path' => NULL,
         'capacity' => NULL,
         'enable_client_messages' => false,
@@ -1047,46 +1047,6 @@
     ),
     'disk' => 'local',
   ),
-  'flare' => 
-  array (
-    'key' => NULL,
-    'reporting' => 
-    array (
-      'anonymize_ips' => true,
-      'collect_git_information' => false,
-      'report_queries' => true,
-      'maximum_number_of_collected_queries' => 200,
-      'report_query_bindings' => true,
-      'report_view_data' => true,
-      'grouping_type' => NULL,
-      'report_logs' => true,
-      'maximum_number_of_collected_logs' => 200,
-      'censor_request_body_fields' => 
-      array (
-        0 => 'password',
-      ),
-    ),
-    'send_logs_as_events' => true,
-    'censor_request_body_fields' => 
-    array (
-      0 => 'password',
-    ),
-  ),
-  'ignition' => 
-  array (
-    'editor' => 'phpstorm',
-    'theme' => 'light',
-    'enable_share_button' => true,
-    'register_commands' => false,
-    'ignored_solution_providers' => 
-    array (
-      0 => 'Facade\\Ignition\\SolutionProviders\\MissingPackageSolutionProvider',
-    ),
-    'enable_runnable_solutions' => NULL,
-    'remote_sites_path' => '',
-    'local_sites_path' => '',
-    'housekeeping_endpoint_prefix' => '_ignition',
-  ),
   'image' => 
   array (
     'driver' => 'gd',
@@ -1109,10 +1069,90 @@
       ),
     ),
   ),
-  'trustedproxy' => 
+  'flare' => 
   array (
-    'proxies' => NULL,
-    'headers' => 30,
+    'key' => NULL,
+    'flare_middleware' => 
+    array (
+      0 => 'Spatie\\FlareClient\\FlareMiddleware\\RemoveRequestIp',
+      1 => 'Spatie\\FlareClient\\FlareMiddleware\\AddGitInformation',
+      2 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddNotifierName',
+      3 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddEnvironmentInformation',
+      4 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddExceptionInformation',
+      5 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddDumps',
+      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddLogs' => 
+      array (
+        'maximum_number_of_collected_logs' => 200,
+      ),
+      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddQueries' => 
+      array (
+        'maximum_number_of_collected_queries' => 200,
+        'report_query_bindings' => true,
+      ),
+      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddJobs' => 
+      array (
+        'max_chained_job_reporting_depth' => 5,
+      ),
+      'Spatie\\FlareClient\\FlareMiddleware\\CensorRequestBodyFields' => 
+      array (
+        'censor_fields' => 
+        array (
+          0 => 'password',
+          1 => 'password_confirmation',
+        ),
+      ),
+      'Spatie\\FlareClient\\FlareMiddleware\\CensorRequestHeaders' => 
+      array (
+        'headers' => 
+        array (
+          0 => 'API-KEY',
+        ),
+      ),
+    ),
+    'send_logs_as_events' => true,
+  ),
+  'ignition' => 
+  array (
+    'editor' => 'phpstorm',
+    'theme' => 'auto',
+    'enable_share_button' => true,
+    'register_commands' => false,
+    'solution_providers' => 
+    array (
+      0 => 'Spatie\\Ignition\\Solutions\\SolutionProviders\\BadMethodCallSolutionProvider',
+      1 => 'Spatie\\Ignition\\Solutions\\SolutionProviders\\MergeConflictSolutionProvider',
+      2 => 'Spatie\\Ignition\\Solutions\\SolutionProviders\\UndefinedPropertySolutionProvider',
+      3 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\IncorrectValetDbCredentialsSolutionProvider',
+      4 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\MissingAppKeySolutionProvider',
+      5 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\DefaultDbNameSolutionProvider',
+      6 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\TableNotFoundSolutionProvider',
+      7 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\MissingImportSolutionProvider',
+      8 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\InvalidRouteActionSolutionProvider',
+      9 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\ViewNotFoundSolutionProvider',
+      10 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\RunningLaravelDuskInProductionProvider',
+      11 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\MissingColumnSolutionProvider',
+      12 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\UnknownValidationSolutionProvider',
+      13 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\MissingMixManifestSolutionProvider',
+      14 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\MissingViteManifestSolutionProvider',
+      15 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\MissingLivewireComponentSolutionProvider',
+      16 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\UndefinedViewVariableSolutionProvider',
+      17 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\GenericLaravelExceptionSolutionProvider',
+    ),
+    'ignored_solution_providers' => 
+    array (
+    ),
+    'enable_runnable_solutions' => NULL,
+    'remote_sites_path' => 'C:\\xamppp\\htdocs\\notnewbackend',
+    'local_sites_path' => '',
+    'housekeeping_endpoint_prefix' => '_ignition',
+    'settings_file_path' => '',
+    'recorders' => 
+    array (
+      0 => 'Spatie\\LaravelIgnition\\Recorders\\DumpRecorder\\DumpRecorder',
+      1 => 'Spatie\\LaravelIgnition\\Recorders\\JobRecorder\\JobRecorder',
+      2 => 'Spatie\\LaravelIgnition\\Recorders\\LogRecorder\\LogRecorder',
+      3 => 'Spatie\\LaravelIgnition\\Recorders\\QueryRecorder\\QueryRecorder',
+    ),
   ),
   'tinker' => 
   array (
@@ -1141,7 +1181,7 @@
     'include_helpers' => false,
     'helper_files' => 
     array (
-      0 => 'C:\\xampp\\htdocs\\backend/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
+      0 => 'C:\\xamppp\\htdocs\\notnewbackend/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
     ),
     'model_locations' => 
     array (
