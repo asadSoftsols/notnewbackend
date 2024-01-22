@@ -84,10 +84,14 @@ class ProductController extends Controller
             ->with(['savedUsers'])
             ->where($this->applyFilters($request))
             ->where('products.is_sold', false)
-            ->where('products.IsSaved', true)
+            // ->where('products.IsSaved', true)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
-            ->paginate($this->pageSize, [
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get([
                 'categories.name as category',
                 'products.*'
             ]);

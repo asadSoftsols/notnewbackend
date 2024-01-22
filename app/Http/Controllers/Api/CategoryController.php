@@ -17,7 +17,7 @@ class CategoryController extends Controller
         return Category::select(['id', 'name', 'description'])
             ->where('parent_id', '=', null)
             ->where('active','=',true)
-            ->where('type', $request->get('type') == 1 ? Category::PRODUCT : Category::SERVICE)
+            // ->where('type', $request->get('type') == 1 ? Category::PRODUCT : Category::SERVICE)
             ->with(['childrenRecursive' => function (HasMany $hasMany) {
 //                $hasMany->select(['id', 'name', 'parent_id']);
             }])

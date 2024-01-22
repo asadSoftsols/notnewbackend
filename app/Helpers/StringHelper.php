@@ -55,4 +55,10 @@ class StringHelper extends Str
     {
         return is_int($string);
     }
+
+    public static function createKey()
+    {
+        $str=rand();
+        return md5($str);
+    }
 }

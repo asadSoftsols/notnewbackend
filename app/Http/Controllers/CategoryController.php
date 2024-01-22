@@ -11,6 +11,7 @@ use App\Models\CategoryAttributes;
 use App\Models\Product;
 use App\Models\ProductsAttribute;
 use Illuminate\Http\Request;
+use Image;
 
 class CategoryController extends Controller
 {
@@ -71,10 +72,26 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-        $category = new Category();
-        $category->guid = GuidHelper::getGuid();
-        $category->fill($request->all())->save();
-        return redirect('admin/category')->with('success', 'Category Added.');
+        if($request->hasFile('file')) {
+            if($request->hasFile('file')) {
+                $image = Image::make($request->file('file'));
+                /**
+                 * Main Image Upload on Folder Code
+                 */
+                $imageName = time().'-'.$request->file('file')->getClientOriginalName();
+                $destinationPath = public_path('image/category');
+                // $image->resize(1024,1024);
+                $image->resize(1024, 1024, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                $image->save($destinationPath.$imageName);
+            }
+        }
+        // $category = new Category();
+        // $category->guid = GuidHelper::getGuid();
+        // $category->fill($request->all())->save();
+        // return redirect('admin/category')->with('success', 'Category Added.');
     }
 
     /**

@@ -55,7 +55,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             // Route::get('/depositfund', [Api\StripeController::class, 'depositFund']);
             Route::get('detail/', [Api\UserController::class, 'detail']);
             Route::get('detail/{id}', [Api\UserController::class, 'detailById']);
-            Route::post('upload', [Api\UserController::class, 'upload']);
+            // Route::post('upload', [Api\UserController::class, 'upload']);
             Route::get('conversations', [Api\UserController::class, 'conversations']);
             Route::get('{user}/messages', [Api\UserController::class, 'messages']);
             Route::post('{user}/send-message', [Api\UserController::class, 'sendMessage']);
@@ -162,9 +162,22 @@ Route::group(['prefix' => '/products'], function () {
 Route::group(['prefix' => '/location'], function () {
     Route::post('/getCityStatebyPostal/{zipcode}', [Api\CityStateController::class, 'getCityStatebyPostal']);
 });
-Route::get('countries', [Api\CityStateController::class, 'getCountries']);
-Route::get('city', [Api\CityStateController::class, 'index']);
-Route::get('state', [Api\CityStateController::class, 'getState']);
+Route::group(['prefix' => '/city'], function () {
+    Route::get('/', [Api\CityStateController::class, 'index']);
+    Route::get('/states/{id}', [Api\CityStateController::class, 'getCityByStates']);
+});
+Route::group(['prefix' => '/state'], function () {
+    Route::get('/', [Api\CityStateController::class, 'getState']);
+    Route::get('country/{id}', [Api\CityStateController::class, 'getStateByCountry']);
+});
+Route::group(['prefix' => '/countries'], function () {
+    Route::get('/', [Api\CityStateController::class, 'getCountries']);
+});
+Route::post('/getCityStatebyPostal/{zipcode}', [Api\CityStateController::class, 'getCityStatebyPostal']);
 Route::post('forgot-password', [Api\Auth\ForgotPasswordController::class, 'check']);
 Route::post('verify/otp', [Api\Auth\ForgotPasswordController::class, 'verifyOtp']);
+Route::post('verify/Auth/otp', [Api\Auth\ForgotPasswordController::class, 'verifyAuthOtp']);
 Route::post('password/reset', [Api\Auth\ResetPasswordController::class, 'reset']);
+Route::group(['prefix' => '/user'], function () {
+    Route::post('upload', [Api\UserController::class, 'upload']);
+});
