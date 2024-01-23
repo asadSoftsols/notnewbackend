@@ -20,6 +20,7 @@ use App\Models\CategoryAttributes;
 use App\Models\Attribute;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\RecentView;
 use App\Models\ProductRatings;
 use App\Models\SavedUsersProduct;
 use App\Models\ProductShippingDetail;
@@ -121,6 +122,11 @@ class ProductController extends Controller
             
             //return $service;//$products->merge($service);//array_merge(json_decode($products),json_decode($service));
     }
+
+    public function recentView(Request $request){
+        return RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+    }
+
 
     /**
      * Show the form for creating a new resource.

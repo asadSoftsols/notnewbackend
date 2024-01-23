@@ -31,7 +31,7 @@
             <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Parent Name</th>
+                <th scope="col">Image</th>
                 <th scope="col">Name</th>
                 <th scope="col">Description</th>
                 <th scope="col">Status</th>
@@ -47,7 +47,8 @@
             @forelse($category as $item)
                 <tr>
                     <td>{{$count++}}</td>
-                    <td>{{$item->parent_id}}</td>
+                    <td> @foreach($item->media as $media)<img src="{{url('/image/category/')}}/{{$media->name}}" alt="{{ $media->name }}" width="100" height="100" /> @endforeach</td>
+
                     <td>{{$item->name}}</td>
                     <td>{{$item->description}}</td>
                     <td><span

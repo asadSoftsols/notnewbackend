@@ -127,6 +127,11 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
         Route::post('refund', [Api\RefundController::class, 'store']);
         Route::patch('refund/{id}/{status}', [Api\RefundController::class, 'update']);
+        Route::group(['prefix' => '/seller'], function () {
+            Route::get('/', [Api\SellerDataController::class, 'index']);
+            Route::post('/add', [Api\SellerDataController::class, 'store']);
+            Route::post('/setbank', [Api\SellerDataController::class, 'setBankData']);
+        });
 });
 
 Route::group(['prefix' => '/stripe', ['middleware' => 'auth:api']], function () {
@@ -157,6 +162,7 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/userRating/{product:user_id}', [Api\ProductController::class, 'userRating']);
     Route::get('/getAttributes/{categoryID}', [Api\ProductController::class, 'getAttributes']);
     Route::get('/getProductAttributes/{id}', [Api\ProductController::class, 'getProductAttributes']);
+    Route::get('/recent', [Api\ProductController::class, 'recentView']);
 });
 
 Route::group(['prefix' => '/location'], function () {
@@ -180,4 +186,7 @@ Route::post('verify/Auth/otp', [Api\Auth\ForgotPasswordController::class, 'verif
 Route::post('password/reset', [Api\Auth\ResetPasswordController::class, 'reset']);
 Route::group(['prefix' => '/user'], function () {
     Route::post('upload', [Api\UserController::class, 'upload']);
+});
+Route::group(['prefix' => '/bank'], function () {
+    Route::get('/get', [Api\SellerDataController::class, 'getBank']);
 });

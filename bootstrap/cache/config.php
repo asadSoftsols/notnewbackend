@@ -177,6 +177,12 @@
         'url' => 'admin/settings',
         'icon' => 'fas fa-fw fa-lock',
       ),
+      20 => 
+      array (
+        'text' => 'Bank',
+        'url' => 'admin/banks',
+        'icon' => 'fas fa-fw fa-lock',
+      ),
     ),
     'filters' => 
     array (

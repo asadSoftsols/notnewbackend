@@ -48,6 +48,7 @@ class Category extends Model
 
     const PRODUCT = 'Product',
         SERVICE = 'Service';
+    const MEDIA_UPLOAD = "Category";
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -91,5 +92,10 @@ class Category extends Model
     public function childrenRecursive()
     {
         return $this->children()->with('childrenRecursive');
+    }
+
+    public function media()
+    {
+        return $this->hasMany('App\Models\Media');
     }
 }

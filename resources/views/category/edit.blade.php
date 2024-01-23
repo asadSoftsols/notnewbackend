@@ -8,7 +8,7 @@
                 {{ session('success') }}
             </div>
         @endif
-        <form action="{{route('category.update',$category->id)}}" method="POST">
+        <form action="{{route('category.update',$category->id)}}" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="_method" value="PUT">
             @csrf
             <div class="form-group">
@@ -43,6 +43,11 @@
                                 value={{$cat->id}}>{{$cat->name}}</option>
                     @endforeach
                 </select>
+            </div>
+            <div class="form-group">
+                <label>Related Image</label>
+                <input type="file" require name="file" class="form-control">
+                @foreach($category->media as $media)<img src="{{url('/image/category/')}}/{{$media->name}}" alt="{{ $media->name }}" width="100" height="100" /> @endforeach
             </div>
             <div class="form-group">
                 <label>Description</label>
