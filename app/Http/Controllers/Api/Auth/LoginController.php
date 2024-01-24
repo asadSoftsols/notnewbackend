@@ -64,7 +64,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'email' => 'required|string|email',
             'password' => 'required|string',
             'remember_me' => 'boolean'
         ]);
@@ -82,15 +82,21 @@ class LoginController extends Controller
                 ]]);
         }
       
-        $checkuser = User::where('name', strtolower(request('username')))->first();
-        if(!$checkuser){
-            return 'NotExits';
-        }else{
-            if (!Auth::attempt(['name' => strtolower(request('username')), 'password' => request('password')])) {
-
-                throw ValidationException::withMessages([
-                    $this->username() => [trans('auth.failed')],
+        $checkuser = User::where('email', strtolower(request('email')))->first();
+        // if(!$checkuser){
+        //     return $this->genericResponse(false, 'Invalid Email', 403, [
+        //         'status' => 'fail',
+        //         'message' => 'Email is not Valid'
+        //     ]);
+        // }else{
+            if (!Auth::attempt(['email' => strtolower(request('email')), 'password' => request('password')])) {
+                return $this->genericResponse(false, 'Login Failed', 403, [
+                    'status' => 'fail',
+                    'message' => [trans('auth.failed')]
                 ]);
+                // throw ValidationException::withMessages([
+                //     $this->username() => [trans('auth.failed')],
+                // ]);
             }
             // If the login attempt was unsuccessful we will increment the number of attempts
             // to login and redirect the user back to the login form. Of course, when this
@@ -128,7 +134,7 @@ class LoginController extends Controller
                 ]);
             }
 
-        }
+        // }
     }
 
     private function unProcessEntityResponse($message = '')
