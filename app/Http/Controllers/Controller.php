@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Traits\AppliesQueryParams;
 use App\Traits\Paginates;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

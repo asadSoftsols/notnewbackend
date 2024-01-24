@@ -59,6 +59,8 @@ class VerificationController extends Controller
         if (!hash_equals((string)$request->route('id'), (string)$user->getKey())) {
             throw new AuthorizationException;
         }
+
+        
         $envKey = env('APP_KEY');
         if (!hash_equals((string)$request->route('hash'), sha1($user->getEmailForVerification() . $envKey))) {
             throw new AuthorizationException;

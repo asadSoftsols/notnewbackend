@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Notifications;
-
 use App\Mail\BaseMailable;
 use App\Models\Order;
 use App\Models\Media;
