@@ -15,7 +15,7 @@ use Illuminate\Notifications\DatabaseNotification;
  * @property string $created_at
  * @property string $updated_at
  */
-class Notification extends DatabaseNotification
+class Notifications extends DatabaseNotification
 {
     /**
      * The "type" of the auto-incrementing ID.

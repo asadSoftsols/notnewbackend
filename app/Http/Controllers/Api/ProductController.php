@@ -20,6 +20,7 @@ use App\Models\CategoryAttributes;
 use App\Models\Attribute;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\RecentView;
 use App\Models\ProductRatings;
 use App\Models\SavedUsersProduct;
 use App\Models\ProductShippingDetail;
@@ -84,10 +85,14 @@ class ProductController extends Controller
             ->with(['savedUsers'])
             ->where($this->applyFilters($request))
             ->where('products.is_sold', false)
-            ->where('products.IsSaved', true)
+            // ->where('products.IsSaved', true)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
-            ->paginate($this->pageSize, [
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get([
                 'categories.name as category',
                 'products.*'
             ]);
@@ -117,6 +122,11 @@ class ProductController extends Controller
             
             //return $service;//$products->merge($service);//array_merge(json_decode($products),json_decode($service));
     }
+
+    public function recentView(Request $request){
+        return RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+    }
+
 
     /**
      * Show the form for creating a new resource.

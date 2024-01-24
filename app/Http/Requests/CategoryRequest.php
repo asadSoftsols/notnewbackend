@@ -27,7 +27,8 @@ class CategoryRequest extends FormRequest
             //
             'name' => 'required|string',
             'type' => 'required',
-            'active' => 'required'
+            'active' => 'required',
+            "file" => 'required'
         ];
     }
     public function messages()
@@ -35,7 +36,8 @@ class CategoryRequest extends FormRequest
         return [
             'name.required' => 'Name is required!',
             'type.required' => 'Type is required!',
-            'active.required' => 'Status is required!'
+            'active.required' => 'Status is required!',
+            'file.required' => 'File is required for Uploading!'
         ];
     }
 }

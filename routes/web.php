@@ -38,12 +38,15 @@ Route::get('/users', 'UserController@index')->name('users.index');
         'attribute' => AttributeController::class,
         'unit-type' => UnitTypeController::class,
         'media' => MediaController::class,
+        'banks' => BankController::class
     ]);
 
 
     Route::get('category', 'CategoryController@search')->name('category.search');
     
     Route::get('prices', 'PriceController@search')->name('prices.search');
+    Route::get('banks', 'BankController@search')->name('banks.search');
+    Route::get('bank/{id}', 'BankController@edit')->name('bank.edit');
     Route::get('attributes', 'AttributeController@search')->name('attributes.search');
     Route::get('category/{category}/attributes/{product?}', 'CategoryController@attributes')->name('category.attributes');
 

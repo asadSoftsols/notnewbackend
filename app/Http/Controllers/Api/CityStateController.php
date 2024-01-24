@@ -46,6 +46,16 @@ class CityStateController extends Controller
     {
         return Address::getDatabyApi($zipcode);
     }
+    public function getStateByCountry($id)
+    {
+        // dd('sss');
+        return State::where('country_id', $id)->get();
+    }
+    public function getCityByStates($id)
+    {
+        // dd('sss');
+        return City::where('state_id', $id)->get();
+    }
 
     /**
      * Show the form for creating a new resource.

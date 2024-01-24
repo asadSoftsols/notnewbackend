@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Mail\BaseMailable;
+use App\Helpers\ArrayHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,6 +11,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
+use App\Models\Otp;
 
 class RegistrationVerificationNotification extends Notification
 {
@@ -42,14 +44,32 @@ class RegistrationVerificationNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $verificationUrl = $this->verificationUrl($notifiable);
+        $verificationUrl = $this->verificationOTP($notifiable);
+        $verificationCode = ArrayHelper::otpGenerate();
+        $otp = new Otp();
+        $otp->otp = $verificationCode;
+        $otp->email = $notifiable->email;
+        $otp->name = $notifiable->name;
+        $otp->save();
         $baseMailable = new BaseMailable();
 
         return $baseMailable->to($notifiable->email)
             ->subject($notifiable->name . '- Registration Activation')
             ->markdown('emails.auth.registration-activation', [
                 'user' => $notifiable,
+                'otp'=> $verificationCode,
                 'verificationUrl' => $verificationUrl]);
+    }
+
+    protected function verificationOTP($notifiable)
+    {
+        $domain = env('FRONT_END_URL') . '/emailverification';
+        $envKey = env('APP_KEY');
+        $expires = Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60));
+        $key = $notifiable->getKey();
+        $hash = sha1($notifiable->getEmailForVerification() . $envKey);
+        $url = "$domain/$key/$hash/expires=$expires/$notifiable->email";
+        return $url;
     }
 
     /**

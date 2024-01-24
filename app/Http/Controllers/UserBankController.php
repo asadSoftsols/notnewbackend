@@ -1,22 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Helpers\GuidHelper;
 use App\Helpers\StringHelper;
-use App\Http\Requests\CategoryRequest;
-use App\Models\Attribute;
-use App\Models\Category;
-use App\Models\CategoryAttributes;
 use App\Models\Product;
-use App\Models\Media;
-use App\Models\ProductsAttribute;
+use App\Models\Bank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Image;
-use File;
 
-class CategoryController extends Controller
+class UserBankController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,19 +17,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return view('category.index', ['category' =>
-            Category::where('active', true)
-                ->with(['media'])
-                ->orderBy('created_at', 'DESC')
-                ->paginate(10)]);
-    }
-
-    public function inActive()
-    {
-        return view('category.in-active', ['category' =>
-            Category::where('active', false)
-                ->orderBy('created_at', 'DESC')
-                ->paginate(10)]);
+        return Bank::orderBy('created_at', 'DESC')
+                ->get();
     }
 
     /**
@@ -45,8 +26,6 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $categories = Category::where('active', true)->get();
-
         return view('category.create', ['categories' => $categories]);
     }
 
