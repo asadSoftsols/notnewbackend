@@ -63,7 +63,8 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            // 'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'confirmed'],
         ]);
     }
 
@@ -100,8 +101,6 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        return $request->all();
-        die();
         return DB::transaction(function () use ($request) {
             $user = User::where('email', $request->get('email'))->first();
             $checkUser = $user ? $user:null;

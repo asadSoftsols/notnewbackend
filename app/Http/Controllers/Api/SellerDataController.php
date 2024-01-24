@@ -66,6 +66,9 @@ class SellerDataController extends Controller
             $sellerData->guid = GuidHelper::getGuid();
             $sellerData->save();
             $user = User::where('id', \Auth::user()->id)->first();
+            User::where('id', \Auth::user()->id)->update([
+                "isTrustedSeller" => true
+            ]);
             $user->notify(new SellerDataNotify($user));
             return "You have SuccessFully Registered as Seller in NotNew";
         });
@@ -79,9 +82,13 @@ class SellerDataController extends Controller
      */
     public function show($id)
     {
-        //
+      //
     }
 
+    public function getShopDetails($id)
+    {
+        return SellerData::where('user_id', $id)->first();
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -105,6 +112,21 @@ class SellerDataController extends Controller
         //
     }
 
+    public function updateSellerData(Request $request)
+    {
+        $sellerData = SellerData::update([
+            'user_id' => $request->user_id,
+            'country_id' => $request->country_id,
+            'state_id' => $request->state_id,
+            'city_id' => $request->city_id,
+            'fullname' => $request->fullname,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'zip' => $request->zip
+        ]);
+        return "You have SuccessFully Update Shop Data!";
+    }
     /**
      * Remove the specified resource from storage.
      *
