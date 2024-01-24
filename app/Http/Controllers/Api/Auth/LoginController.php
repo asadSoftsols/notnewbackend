@@ -63,9 +63,8 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-       
         $request->validate([
-            'email' => 'required|string|email',
+            'username' => 'required|string',
             'password' => 'required|string',
             'remember_me' => 'boolean'
         ]);
@@ -82,11 +81,12 @@ class LoginController extends Controller
                     "you've been locked"
                 ]]);
         }
-        $checkuser = User::where('email', strtolower(request('email')))->first();
+      
+        $checkuser = User::where('name', strtolower(request('username')))->first();
         if(!$checkuser){
             return 'NotExits';
         }else{
-            if (!Auth::attempt(['email' => strtolower(request('email')), 'password' => request('password')])) {
+            if (!Auth::attempt(['name' => strtolower(request('username')), 'password' => request('password')])) {
 
                 throw ValidationException::withMessages([
                     $this->username() => [trans('auth.failed')],
@@ -113,10 +113,21 @@ class LoginController extends Controller
             /**
              * encrypting and decrypting ends
              */
-            return $this->genericResponse(true, 'Login Successful',
-                200, ['data' => encrypt($request->user()),
+            if(request('remember_me') == 1){
+                return $this->genericResponse(true, 'Login Successful',
+                200, [
+                    'data' => encrypt($request->user()),
+                    'token' => $tokenResult,
+                    'rememberme' => true
+                ]);
+            }
+            else{
+                return $this->genericResponse(true, 'Login Successful',
+                200, [
                     'token' => $tokenResult
                 ]);
+            }
+
         }
     }
 

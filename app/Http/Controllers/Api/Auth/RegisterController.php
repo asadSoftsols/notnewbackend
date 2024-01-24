@@ -89,7 +89,7 @@ class RegisterController extends Controller
             'guid' => $data['guid'],
             'customer_stripe_id' => $stripe_data->id,
         ]);
-        $accountLink = StripeHelper::createAccountLink($user);
+        // $accountLink = StripeHelper::createAccountLink($user);
 
         return $user;
     }
@@ -100,25 +100,46 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
+        return $request->all();
+        die();
         return DB::transaction(function () use ($request) {
-            $validator = $this->validator($request->all());
-            if (!$validator->fails()) {
-                // dd(ArrayHelper::merge($request->all(),['guid'=>GuidHelper::getGuid()]));
-
-                event(new Registered($user = $this->create(ArrayHelper::merge($request->all(), ['guid' => GuidHelper::getGuid()]))));
-//            $user = Auth::user();
-//            $token = $user->createToken('Personal Access Token')->accessToken;
+            $user = User::where('email', $request->get('email'))->first();
+            $checkUser = $user ? $user:null;
+            if($checkUser){
                 return response()->json([
-                    'success' => true,
-//                'data' => $user,
-                    'message' => "Please verify your email"
-                ], 200);
+                    'status' => 'email',
+                    'message' => "Email Already Exists"
+                ]);
+            }else{
+                $CheckUser = User::where('name', $request->get('name'))->first();
+                if($CheckUser){
+                    return response()->json([
+                        'status' => 'username',
+                        'message' => "User Name Already Exists Please Try Different!"
+                    ]); 
+                }else{
+                    $validator = $this->validator($request->all());
+                    if (!$validator->fails()) {
+                        // dd(ArrayHelper::merge($request->all(),['guid'=>GuidHelper::getGuid()]));
+        
+                        event(new Registered($user = $this->create(ArrayHelper::merge($request->all(), ['guid' => GuidHelper::getGuid()]))));
+        //            $user = Auth::user();
+        //            $token = $user->createToken('Personal Access Token')->accessToken;
+                        return response()->json([
+                            'success' => true,
+                            'status' => 'registered',
+        //                'data' => $user,
+                            'message' => "Please verify your email"
+                        ], 200);
+                    }
+                    return response()->json([
+                        'success' => false,
+                        'status' => 'fails',
+                        'errors' => $this,
+                        'message' => $validator->getMessageBag()
+                    ], 401);
+                }
             }
-            return response()->json([
-                'success' => false,
-                'errors' => $this,
-                'message' => $validator->getMessageBag()
-            ], 401);
         });
     }
 }

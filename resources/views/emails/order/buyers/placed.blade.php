@@ -119,9 +119,9 @@
       </td>
     </tr>
   </table>
-  <p>If you have any questions or concerns about your order, please feel free to contact us at <a href="mailto:support@flexemarket.com">support@flexemarket.com</a>.</p>
+  <p>If you have any questions or concerns about your order, please feel free to contact us at <a href="mailto:support@NotNew.com">support@NotNew.com</a>.</p>
   <p>Best regards,</p>
-  <p>Flexemarket Support Team</p>
+  <p>NotNew Support Team</p>
 </div>
 <style>
   body{

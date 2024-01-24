@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container">
-        <form action="{{route('category.store')}}" method="POST">
+        <form action="{{route('category.store')}}" method="POST"  enctype="multipart/form-data">
             @csrf
             <div class="form-group">
                 <label>Name</label>
@@ -32,6 +32,10 @@
                         <option value={{$category->id}}>{{$category->name}}</option>
                     @endforeach
                 </select>
+            </div>
+            <div class="form-group">
+                <label>Related Image</label>
+                <input type="file" require name="file" class="form-control">
             </div>
             <div class="form-group">
                 <label>Description</label>

@@ -299,6 +299,11 @@ return [
             'url'  => 'admin/settings',
             'icon' => 'fas fa-fw fa-lock',
         ],
+        [
+            'text' => 'Bank',
+            'url'  => 'admin/banks',
+            'icon' => 'fas fa-fw fa-lock',
+        ],
     ],
 
     /*

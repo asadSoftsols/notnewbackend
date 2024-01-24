@@ -9,8 +9,12 @@ use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\CategoryAttributes;
 use App\Models\Product;
+use App\Models\Media;
 use App\Models\ProductsAttribute;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Image;
+use File;
 
 class CategoryController extends Controller
 {
@@ -23,6 +27,7 @@ class CategoryController extends Controller
     {
         return view('category.index', ['category' =>
             Category::where('active', true)
+                ->with(['media'])
                 ->orderBy('created_at', 'DESC')
                 ->paginate(10)]);
     }
@@ -71,10 +76,35 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-        $category = new Category();
-        $category->guid = GuidHelper::getGuid();
-        $category->fill($request->all())->save();
-        return redirect('admin/category')->with('success', 'Category Added.');
+        return DB::transaction(function () use ($request) {
+            $category = new Category();
+            $category->guid = GuidHelper::getGuid();
+            $category->fill($request->all())->save();
+            if ($request->hasFile('file')) {
+                $image = Image::make($request->file('file'));
+                $imageName = time().'-'.$request->file('file')->getClientOriginalName();
+                $extension = $request->file('file')->getClientOriginalExtension();
+                $destinationPath = public_path('image/category/');
+                $image->resize(1024, 1024, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                $image->save($destinationPath.$imageName);
+                $media = new Media();
+                $guid = GuidHelper::getGuid();
+                $properties = [
+                    'name' => $imageName,
+                    'extension' => $extension,
+                    'type' => Category::MEDIA_UPLOAD,
+                    'user_id' => \Auth::user()->id,
+                    'active' => true,
+                    'category_id'=> $category->id,
+                ];
+                $media->fill($properties);
+                $media->save();
+            }
+            return redirect('admin/category')->with('success', 'Category Added.');
+        });
     }
 
     /**
@@ -96,7 +126,7 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $categories = Category::where('active', true)->get();
-        return view('category.edit', ['category' => Category::findOrFail($id), 'categories' => $categories]);
+        return view('category.edit', ['category' => Category::with(['media'])->findOrFail($id), 'categories' => $categories]);
     }
 
     /**
@@ -108,12 +138,48 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        if ($request->get('activateOne') == "activateOnlyOne") {
-            $category->update(['active' => StringHelper::isValueTrue($request->get('active'))]);
-            return back()->with('success', "{$category->name} Activated Successfully.");
-        }
-        $category->fill($request->all())->update();
-        return back()->with('success', 'Category Updated');
+        return DB::transaction(function () use ($request, $category) {
+            $category->fill($request->all())->update();
+            if ($request->hasFile('file')) {
+                $media = Media::where('category_id', $category->id)->first();
+                if($media){
+                    $image_path = "http://localhost:8000/image/category/". $media->name;  // Value is not URL but directory file path
+                    if(File::exists($image_path)) {
+                        dd($image_path);
+                        File::delete($image_path);
+                    }
+                    Media::where('category_id', $category->id)->delete();
+                }
+                $image = Image::make($request->file('file'));
+                $imageName = time().'-'.$request->file('file')->getClientOriginalName();
+                $extension = $request->file('file')->getClientOriginalExtension();
+                $destinationPath = public_path('image/category/');
+                $image->resize(1024, 1024, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                $image->save($destinationPath.$imageName);
+                $media = new Media();
+                $guid = GuidHelper::getGuid();
+                $properties = [
+                    'name' => $imageName,
+                    'extension' => $extension,
+                    'type' => Category::MEDIA_UPLOAD,
+                    'user_id' => \Auth::user()->id,
+                    'active' => true,
+                    'category_id'=> $category->id,
+                ];
+                $media->fill($properties);
+                $media->save();
+            }
+            return redirect('admin/category')->with('success', 'Category Updated.');
+        });
+        // if ($request->get('activateOne') == "activateOnlyOne") {
+        //     $category->update(['active' => StringHelper::isValueTrue($request->get('active'))]);
+        //     return back()->with('success', "{$category->name} Activated Successfully.");
+        // }
+        // $category->fill($request->all())->update();
+        // return back()->with('success', 'Category Updated');
     }
 
     public function activateAll()

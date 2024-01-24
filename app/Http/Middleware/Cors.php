@@ -20,8 +20,8 @@ class Cors
             'http://127.0.0.1',
             'http://front.letsdeploy.us',
             'https://front.letsdeploy.us',
-            'https://flexemarket.com',
-            'https://api.flexemarket.com'
+            'https://NotNew.com',
+            'https://api.NotNew.com'
         ];
         $requestOrigin = $request->headers->get('origin');
 
