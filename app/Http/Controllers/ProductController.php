@@ -93,7 +93,7 @@ class ProductController extends Controller
         $search = $request->get('search');
         $products = Product::withoutGlobalScope(ActiveScope::class)
             ->withoutGlobalScope(SoldScope::class)
-            ->where('name', 'ilike', '%' . $search . '%')
+            ->where('name', 'like', '%' . $search . '%')
             ->where('IsSaved',true)
             ->paginate(15);
         return view('products.index', ['products' => $products]);
