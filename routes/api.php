@@ -68,7 +68,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
         });
         Route::group(['prefix' => '/products'], function () {
-            Route::post('/', [Api\ProductController::class, 'store']);
+            Route::post('/add', [Api\ProductController::class, 'store']);
             Route::patch('/{product:guid}', [Api\ProductController::class, 'update']);
             Route::patch('/ratings/{product:guid}', [Api\ProductController::class, 'ratings']);
             Route::get('/checkRatings/{productId}/{userId}/{orderId}', [Api\ProductController::class, 'checkRatings']);
@@ -153,6 +153,7 @@ Route::group(['prefix' => '/categories', ['middleware' => 'throttle:20,5']], fun
     Route::get('tabs/list', [Api\CategoryController::class, 'tabs']);
     Route::get('/product-attributes/{category}', [Api\CategoryController::class, 'productAttributes']);
     Route::get('/', [Api\CategoryController::class, 'index']);
+    Route::get('/overAll', [Api\CategoryController::class, 'all']);
 });
 
 Route::group(['prefix' => '/products'], function () {

@@ -191,38 +191,81 @@ class ProductController extends Controller
             $active = false;
             $product = new Product();
             //temporary 1, for testing\
-            $parentCategory =  Category::where('id',$request->get('category_id'))->first();
+            $parentCategory =  Category::where('id',$request->get('category'))->first();
             $user = User::where('id', Auth::user()->id)->first();
-            if($user->is_autoAdd){
-                $active = true;
-            }
-            $product->fill(ArrayHelper::merge($request->all(),
-                [
-                    'user_id' => Auth::user()->id,
-                    'status' => 'DRAFT',
-                    'parent_category_id' => $parentCategory->parent_id,
-                    'height' => $request->get('ounces'),
-                    'width' => $request->get('ounces'),
-                    'length' => $request->get('ounces'),
-                    'weight' => $request->get('ounces'),
-                    'active' => $active
-                ]
-            ));
+            // $product->fill(ArrayHelper::merge($request->all(),
+            //     [
+            //         'name' => $request->get('title'),
+            //         'category_id ' => '1',//$request->get('category'),
+            //         'description ' => $request->get('description'),
+            //         'price'=> $request->get('price'),
+            //         'city'=> $request->get('city'),
+            //         'state'=> $request->get('states'),
+            //         'user_id' => Auth::user()->id,
+            //         'status' => 'DRAFT',
+            //         'height' => $request->get('ounces'),
+            //         'width' => $request->get('ounces'),
+            //         'length' => $request->get('ounces'),
+            //         'weight' => $request->get('ounces'),
+            //         'active' => $active
+            //     ]
+            // ));
+            // $product->fill(
+            //     [
+            //         'name' => $request->get('title'),
+            //         'category_id ' => '1',//$request->get('category'),
+            //         'description ' => $request->get('description'),
+            //         // 'price'=> $request->get('price'),
+            //         // 'city'=> $request->get('city'),
+            //         // 'state'=> $request->get('states'),
+            //         // 'user_id' => Auth::user()->id,
+            //         // 'status' => 'DRAFT',
+            //         // 'height' => $request->get('ounces'),
+            //         // 'width' => $request->get('ounces'),
+            //         // 'length' => $request->get('ounces'),
+            //         // 'weight' => $request->get('ounces'),
+            //         // 'active' => $active
+            //     ]
+            // );
+            $product->category_id = $request->get('category');
+            $product->user_id = Auth::user()->id;//$request->get('user_id');
+            $product->name = $request->get('title');
+            $product->model = $request->get('model');
+            $product->brand = $request->get('brand');
+            $product->stockcapacity = $request->get('stockCapacity');
+            $product->description = $request->get('description');
+            $product->price = $request->get('price');
+            $product->sale_price = $request->get('sale_price');
+            $product->selling_now = $request->get('sellingNow');
+            $product->auctioned = $request->get('auctions');
+            $product->listing = $request->get('listing');
+            $product->buyitnow = $request->get('buyitnow');
+            $product->deliverd_domestic = $request->get('deliverddomestic');
+            $product->deliverd_international = $request->get('deliverdinternational');
+            $product->company = $request->get('deliverycompany');
+            $product->country = $request->get('country');
+            $product->city = $request->get('city');
+            $product->state = $request->get('states');
+            $product->shipping_price = $request->get('shippingprice');
+            $product->shipping_start = $request->get('shippingstart');
+            $product->shipping_end = $request->get('shippingend');
+            $product->condition = $request->get('condition');
+            $product->attributes= json_encode($request->get('sizes'));
+            // $product->shipping_duration_limit = $request->get('shippingend');
+            // $product->postal_address= $request->get('postal_address');
             $product->save();
-            $product->name = $request->get('name');
-            $product->update();
             //@todo inherit attribute functionality
-            foreach ($request->get('attributes', []) as $attribute) {
+            // foreach ($request->get('attributes', []) as $attribute) {
                 
-                $data = [
-                    'attribute_id' => $attribute['id'],
-                    'product_id' => $product->id,
-                    'value' =>  $attribute['value']
-                ];
+            //     $data = [
+            //         'attribute_id' => $attribute['id'],
+            //         'product_id' => $product->id,
+            //         'value' =>  $attribute['value']
+            //     ];
 
-                $productAttribute = new ProductsAttribute($data);
-                $productAttribute->save();
-            }
+            //     $productAttribute = new ProductsAttribute($data);
+            //     $productAttribute->save();
+            // }
            
             DB::commit();
         } catch (\Exception $e) {

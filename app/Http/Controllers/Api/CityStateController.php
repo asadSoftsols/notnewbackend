@@ -21,8 +21,7 @@ class CityStateController extends Controller
     {
         $value = request()->get('value');
 
-        return City::where('name', 'ILIKE', "%{$value}%")
-            ->distinct('name')
+        return City::distinct('name')
             ->orderBy('name')
             ->get();
 

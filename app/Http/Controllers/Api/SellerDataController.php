@@ -114,7 +114,8 @@ class SellerDataController extends Controller
 
     public function updateSellerData(Request $request)
     {
-        $sellerData = SellerData::update([
+        $sellerData = SellerData::where('id', $request->get('id'))
+            ->update([
             'user_id' => $request->user_id,
             'country_id' => $request->country_id,
             'state_id' => $request->state_id,

@@ -101,11 +101,15 @@ class Product extends Base implements IMediaInteraction
     /**
      * @var array
      */
-    protected $fillable = ['category_id', 'street_address', 'city', 'zip', 'state', 'user_id', 'name', 
+    protected $fillable = ['name', 'street_address', 'city', 'zip', 'state', 'user_id', 'category_id', 
     'is_sold', 'shipping_size_id', 'has_shipping', 'description', 'status', 'price', 'sale_price',
      'location', 'google_address', 'postal_address', 'longitude', 'latitude', 'active', 'guid', 
      'created_at', 'updated_at', 'weight', 'height', 'IsSaved', 'ounces', 'parent_category_id',
-    'length', 'width', 'policies', 'in_review', 'steps', 'shipment_type'];
+    'length', 'width', 'policies', 'in_review', 'steps', 'shipment_type', 'condition','auctioned','state',
+    'model', 'brand', 'stockcapacity', 'selling_now', 'listing', 'buyitnow', 'deliverd_domestic', 
+    'deliverd_international', 'company','country', 'shipping_price', 'shipping_start', 'shipping_end',
+    'return_shipping_price', 'return_ship_duration_limt', 'return_ship_paid_by', 'return_ship_location',
+    'featured', 'featured_until','shipping_type', 'city', 'ratings_count','attributes'];
 
     protected $appends = ['cover_image', 'is_owner'];
 
