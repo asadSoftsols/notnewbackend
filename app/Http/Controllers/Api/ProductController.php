@@ -126,7 +126,22 @@ class ProductController extends Controller
     public function recentView(Request $request){
         return RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
     }
+    public function createRecentView(Request $request){
+        DB::beginTransaction();
+        try{
+            $product = Product::where('guid',$request->get('id'))->first();
 
+            RecentView::where('product_id',$product->id)->delete();
+            // RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+            $recentview = new RecentView();
+            $recentview->product_id = $product->id;
+            $recentview->save();
+           DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -176,6 +191,89 @@ class ProductController extends Controller
             'categories.name as category',
             'products.*'
         ]);
+    }
+    public function selfItems(Request $request, $status)
+    {
+        // return Product::where('user_id', \Auth::user()->id)
+        //     ->with(['category', 'media'])
+        //     ->withoutGlobalScope(ActiveScope::class)
+        //     ->withoutGlobalScope(SoldScope::class)
+        //     ->paginate($this->pageSize);
+        if($status=="active"){
+            return Product::join('categories as categories','categories.id','=','products.category_id')
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->with(['user'])
+            ->where('user_id', \Auth::user()->id)
+            ->where('products.active', true)
+            // ->where('products.weight', '<>', null)
+            // ->where($this->applyFilters($request))
+            // ->where('products.is_sold', false)
+            ->withoutGlobalScope(ActiveScope::class)
+            ->withoutGlobalScope(SoldScope::class)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            ->paginate($this->pageSize, [
+                'categories.name as category',
+                'products.*'
+            ]);
+
+        }else if($status=="inactive"){
+            return Product::join('categories as categories','categories.id','=','products.category_id')
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->with(['user'])
+            ->where('user_id', \Auth::user()->id)
+            ->where('products.active', false)
+            // ->where('products.weight', '<>', null)
+            // ->where($this->applyFilters($request))
+            // ->where('products.is_sold', false)
+            ->withoutGlobalScope(ActiveScope::class)
+            ->withoutGlobalScope(SoldScope::class)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            ->paginate($this->pageSize, [
+                'categories.name as category',
+                'products.*'
+            ]);
+            
+        }else if($status=="scheduled"){
+            return Product::join('categories as categories','categories.id','=','products.category_id')
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->with(['user'])
+            ->where('scheduled', true)
+            ->where('user_id', \Auth::user()->id)
+            // ->where('products.weight', '<>', null)
+            // ->where($this->applyFilters($request))
+            // ->where('products.is_sold', false)
+            ->withoutGlobalScope(ActiveScope::class)
+            ->withoutGlobalScope(SoldScope::class)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            ->paginate($this->pageSize, [
+                'categories.name as category',
+                'products.*'
+            ]);
+            
+        }else{
+            return Product::join('categories as categories','categories.id','=','products.category_id')
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->with(['user'])
+            ->where('user_id', \Auth::user()->id)
+            // ->where('products.weight', '<>', null)
+            // ->where($this->applyFilters($request))
+            // ->where('products.is_sold', false)
+            ->withoutGlobalScope(ActiveScope::class)
+            ->withoutGlobalScope(SoldScope::class)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            ->paginate($this->pageSize, [
+                'categories.name as category',
+                'products.*'
+            ]);
+        }
     }
 
     /**
@@ -251,6 +349,7 @@ class ProductController extends Controller
             $product->shipping_end = $request->get('shippingend');
             $product->condition = $request->get('condition');
             $product->attributes= json_encode($request->get('sizes'));
+            $product->scheduled = $request->get('scheduled');
             // $product->shipping_duration_limit = $request->get('shippingend');
             // $product->postal_address= $request->get('postal_address');
             $product->save();
