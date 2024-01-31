@@ -73,6 +73,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::patch('/ratings/{product:guid}', [Api\ProductController::class, 'ratings']);
             Route::get('/checkRatings/{productId}/{userId}/{orderId}', [Api\ProductController::class, 'checkRatings']);
             Route::get('/self/', [Api\ProductController::class, 'self']);
+            Route::get('/self/{value}', [Api\ProductController::class, 'selfItems']);
+            
             // HOTFIX
             // @TODO check why /upload is not working maybe another route with the same name (GIVING 404 on /upload route) is declared.
             Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);
@@ -166,6 +168,7 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/getAttributes/{categoryID}', [Api\ProductController::class, 'getAttributes']);
     Route::get('/getProductAttributes/{id}', [Api\ProductController::class, 'getProductAttributes']);
     Route::get('/recent', [Api\ProductController::class, 'recentView']);
+    Route::post('/createRecent', [Api\ProductController::class, 'createRecentView']);
 });
 
 Route::group(['prefix' => '/location'], function () {

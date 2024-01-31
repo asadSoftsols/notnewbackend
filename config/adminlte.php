@@ -263,7 +263,7 @@ return [
         ['header' => 'Products'],
         [
             'text' => 'Active Products',
-            'url' => 'admin/products ',
+            'url' => 'admin/products',
             'icon' => 'fab fa-product-hunt'
         ],
         [

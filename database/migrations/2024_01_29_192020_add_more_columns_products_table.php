@@ -24,10 +24,10 @@ return new class extends Migration
             $table->boolean('deliverd_international')->default(false);
             $table->string('company');
             $table->string('country');
-            $table->double('shipping_price');
+            $table->double('shipping_price')->default(0);
             $table->integer('shipping_start');
             $table->integer('shipping_end');
-            $table->integer('return_shipping_price')->nullable();
+            $table->integer('return_shipping_price')->default(0);
             $table->integer('return_ship_duration_limt')->nullable();
             $table->integer('return_ship_paid_by')->nullable();
             $table->integer('return_ship_location')->nullable();

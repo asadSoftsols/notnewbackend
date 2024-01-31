@@ -45,7 +45,7 @@ class ProductController extends Controller
     public function index()
     {
         return view('products.index', [
-            'products' => Product::where('active', true)->where('IsSaved',true)->paginate(10)
+            'products' => Product::paginate(10)
         ]);
     }
 
@@ -94,7 +94,7 @@ class ProductController extends Controller
         $products = Product::withoutGlobalScope(ActiveScope::class)
             ->withoutGlobalScope(SoldScope::class)
             ->where('name', 'like', '%' . $search . '%')
-            ->where('IsSaved',true)
+            // ->where('IsSaved',true)
             ->paginate(15);
         return view('products.index', ['products' => $products]);
     }
