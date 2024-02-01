@@ -25,8 +25,8 @@ return new class extends Migration
             $table->string('company');
             $table->string('country');
             $table->double('shipping_price')->default(0);
-            $table->integer('shipping_start');
-            $table->integer('shipping_end');
+            $table->timestamp('shipping_start')->nullable();
+            $table->timestamp('shipping_end')->nullable();
             $table->integer('return_shipping_price')->default(0);
             $table->integer('return_ship_duration_limt')->nullable();
             $table->integer('return_ship_paid_by')->nullable();
