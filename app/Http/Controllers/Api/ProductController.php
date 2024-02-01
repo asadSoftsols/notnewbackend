@@ -15,6 +15,9 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Models\ProductsAttribute;
 use App\Models\User;
+use App\Models\Countries;
+use App\Models\City;
+use App\Models\State;
 use App\Models\Fedex;
 use App\Models\CategoryAttributes;
 use App\Models\Attribute;
@@ -325,6 +328,9 @@ class ProductController extends Controller
             //         // 'active' => $active
             //     ]
             // );
+            $country = Countries::where('id', $request->get('country'))->first();
+            $states = State::where('id', $request->get('states'))->first();
+            $city = City::where('id', $request->get('city'))->first();
             $product->category_id = $request->get('category');
             $product->user_id = Auth::user()->id;//$request->get('user_id');
             $product->name = $request->get('title');
@@ -341,15 +347,17 @@ class ProductController extends Controller
             $product->deliverd_domestic = $request->get('deliverddomestic');
             $product->deliverd_international = $request->get('deliverdinternational');
             $product->company = $request->get('deliverycompany');
-            $product->country = $request->get('country');
-            $product->city = $request->get('city');
-            $product->state = $request->get('states');
+            $product->country = $country->name;
+            $product->city = $city->name;
+            $product->state = $states->name;
             $product->shipping_price = $request->get('shippingprice');
             $product->shipping_start = $request->get('shippingstart');
             $product->shipping_end = $request->get('shippingend');
             $product->condition = $request->get('condition');
             $product->attributes= json_encode($request->get('sizes'));
             $product->scheduled = $request->get('scheduled');
+            $product->available_colors = json_encode($request->get('availableColors')); 
+            $product->location = $states->name.', '.$country->name; 
             // $product->shipping_duration_limit = $request->get('shippingend');
             // $product->postal_address= $request->get('postal_address');
             $product->save();
