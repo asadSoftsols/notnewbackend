@@ -135,6 +135,9 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/setbank', [Api\SellerDataController::class, 'setBankData']);
             Route::post('/update', [Api\SellerDataController::class, 'updateSellerData']);
             Route::get('/getshopdetails/{id}', [Api\SellerDataController::class, 'getShopDetails']);
+            Route::get('/getallshops/{id}', [Api\SellerDataController::class, 'getAllShopDetails']);
+            Route::post('/saveSeller', [Api\SellerDataController::class, 'saveSeller']);
+            
         });
 });
 
@@ -169,6 +172,8 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/getProductAttributes/{id}', [Api\ProductController::class, 'getProductAttributes']);
     Route::get('/recent', [Api\ProductController::class, 'recentView']);
     Route::post('/createRecent', [Api\ProductController::class, 'createRecentView']);
+    Route::delete('/destory/{guid}', [Api\ProductController::class, 'destory']);
+    Route::get('/storeproduct/{storeid}', [Api\ProductController::class, 'getProductbyStore']);
 });
 
 Route::group(['prefix' => '/location'], function () {

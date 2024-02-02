@@ -166,7 +166,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return !empty($this->email_verified_at);
     }
 
-
+    public function saveseller()
+    {
+        return $this->hasMany(SaveSeller::class);
+    }
+    
     public function isTrusted()
     {
         return $this->hasOne('App\Models\TrustedSeller');
