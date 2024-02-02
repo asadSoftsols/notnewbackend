@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\SellerData;
 use App\Models\User;
 use App\Models\UserBank;
+use App\Models\SaveSeller;
 use App\Models\Bank;
 use App\Http\Requests\SellerDataRequest;
 use App\Notifications\SellerDataNotify;
@@ -87,7 +88,12 @@ class SellerDataController extends Controller
 
     public function getShopDetails($id)
     {
-        return SellerData::where('user_id', $id)->first();
+        return SellerData::where('id', $id)->first();
+    }
+
+    public function getAllShopDetails($id)
+    {
+        return SellerData::where('user_id', $id)->get();
     }
     /**
      * Show the form for editing the specified resource.
@@ -159,6 +165,16 @@ class SellerDataController extends Controller
                 "user" => $user,
                 "message" =>"Your Info is Save!"
             ];
+        });
+    }
+
+    public function saveSeller(Request $request){
+        return DB::transaction(function () use ($request) {
+            $saveseller = new SaveSeller();
+            $saveseller->shop_id = $request->get('shop_id');
+            $saveseller->user_id = \Auth::user()->id;
+            $saveseller->save();
+            return "You have SuccessFully Update Shop Data!";
         });
     }
 }

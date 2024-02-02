@@ -358,6 +358,7 @@ class ProductController extends Controller
             $product->scheduled = $request->get('scheduled');
             $product->available_colors = json_encode($request->get('availableColors')); 
             $product->location = $states->name.', '.$country->name; 
+            // $product->shop_id = = $states->name.', '.$country->name; 
             // $product->shipping_duration_limit = $request->get('shippingend');
             // $product->postal_address= $request->get('postal_address');
             $product->save();
@@ -599,8 +600,10 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        Product::destroy($id);
-        return response()->json(['message' => 'Product Deleted Successfully'], 200);
+        return DB::transaction(function () use (&$request, &$id) {
+            Product::where('guid', $id)->delete();
+            return response()->json(['message' => 'Product Deleted Successfully'], 200);
+        });
     }
 
     public function ratings($id, Request $request)
@@ -1110,5 +1113,22 @@ class ProductController extends Controller
             ->first();
         return $offer;
 
+    }
+
+    public function getProductbyStore(Request $request, $storeId)
+    {
+        
+        $products=Product::join('categories as categories','categories.id','=','products.category_id')
+            ->where('products.active', true)
+            ->where('products.price', '<>', null)
+            ->with(['user'])
+            ->with(['savedUsers'])
+            ->where($this->applyFilters($request))
+            ->orderByDesc('products.created_at')
+            ->get([
+                'categories.name as category',
+                'products.*'
+            ]);
+        return $products; 
     }
 }
