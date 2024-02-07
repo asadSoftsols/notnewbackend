@@ -177,4 +177,26 @@ class SellerDataController extends Controller
             return "You have SuccessFully Update Shop Data!";
         });
     }
+    public function updateBank(Request $request){
+        return DB::transaction(function () use ($request) {
+            UserBank::where('user_id', \Auth::user()->id)
+                ->update([
+                    "bank_id" => $request->bank_id,
+                    "accountName" => $request->accountName,
+                    "accountNumber" => $request->accountNumber,
+                    "bic_swift" => $request->bic_swift,
+                ]);
+            // $userbank = new UserBank();
+            // $userbank->bank_id = $request->bank_id;
+            // $userbank->accountName = $request->accountName;
+            // $userbank->accountNumber = $request->accountNumber;
+            // $userbank->bic_swift = $request->bic_swift;
+            // $userbank->update();
+            return "You have SuccessFully Update Bank Details!";
+        });
+    }
+    public function getBankDetails(Request $request){
+            return UserBank::where('user_id', \Auth::user()->id)->first();
+    }
+    
 }

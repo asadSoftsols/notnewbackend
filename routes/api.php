@@ -137,7 +137,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/getshopdetails/{id}', [Api\SellerDataController::class, 'getShopDetails']);
             Route::get('/getallshops/{id}', [Api\SellerDataController::class, 'getAllShopDetails']);
             Route::post('/saveSeller', [Api\SellerDataController::class, 'saveSeller']);
-            
+            Route::post('/updateBank', [Api\SellerDataController::class, 'updateBank']);
+            Route::get('/getBankDetails', [Api\SellerDataController::class, 'getBankDetails']);
         });
 });
 
