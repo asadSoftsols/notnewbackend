@@ -44,4 +44,12 @@ class SellerData extends Model
     {
         return $this->belongsTo(City::class, 'city_id');
     }
+
+    public function product()
+    {
+        return $this->hasMany(Product::class);
+    }
+    public function cart(){
+        return $this->hasMany(UserCart::class);
+    }
 }

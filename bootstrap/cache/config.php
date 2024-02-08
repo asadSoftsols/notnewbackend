@@ -183,6 +183,22 @@
         'url' => 'admin/banks',
         'icon' => 'fas fa-fw fa-lock',
       ),
+      21 => 
+      array (
+        'header' => 'Settings',
+      ),
+      22 => 
+      array (
+        'text' => ' Active Prices',
+        'url' => 'admin/price',
+        'icon' => 'fa fa-list-alt',
+      ),
+      23 => 
+      array (
+        'text' => ' In-Active Prices',
+        'url' => 'admin/in-active-prices',
+        'icon' => 'fa fa-times',
+      ),
     ),
     'filters' => 
     array (

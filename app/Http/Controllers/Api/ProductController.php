@@ -86,6 +86,7 @@ class ProductController extends Controller
             ->where('products.price', '<>', null)
             ->with(['user'])
             ->with(['savedUsers'])
+            ->with(['shop'])
             ->where($this->applyFilters($request))
             ->where('products.is_sold', false)
             // ->where('products.IsSaved', true)
@@ -182,6 +183,7 @@ class ProductController extends Controller
         ->with(['media'])
         ->with(['savedUsers'])
         ->with(['user'])
+        ->with(['shop'])
         ->where('user_id', \Auth::user()->id)
         // ->where('products.weight', '<>', null)
         // ->where($this->applyFilters($request))
@@ -413,6 +415,7 @@ class ProductController extends Controller
 
         return $product->withCategory()
             ->withProductsAttributes()
+            ->withShop()
             ->appendDetailAttribute()
             ->withUser();
     }
@@ -632,6 +635,7 @@ class ProductController extends Controller
     {
         return $product->images();
     }
+
     public function upload_(Product $product, Request $request)
     {
         if($request->hasFile('file')) {

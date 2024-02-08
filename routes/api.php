@@ -55,6 +55,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             // Route::get('/depositfund', [Api\StripeController::class, 'depositFund']);
             Route::get('detail/', [Api\UserController::class, 'detail']);
             Route::get('detail/{id}', [Api\UserController::class, 'detailById']);
+            Route::get('self', [Api\UserController::class, 'self']);
             // Route::post('upload', [Api\UserController::class, 'upload']);
             Route::get('conversations', [Api\UserController::class, 'conversations']);
             Route::get('{user}/messages', [Api\UserController::class, 'messages']);
@@ -86,7 +87,15 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::delete('media/{media:guid}', [Api\ProductController::class, 'deleteMedia']);
             Route::get('offers/buying', [Api\ProductController::class, 'getBuyingOffers']);
             Route::get('offers/selling', [Api\ProductController::class, 'getSellingOffers']);
-            
+        });
+        Route::group(['prefix' => '/cart'], function () {
+            Route::post('/add', [Api\UserCartController::class, 'store']);
+            Route::get('/', [Api\UserCartController::class, 'index']);
+            Route::get('/self', [Api\UserCartController::class, 'self']);    
+            Route::post('/clear/{id}', [Api\UserCartController::class, 'clear']);    
+            Route::delete('/destroy/{id}', [Api\UserCartController::class, 'destroy']);    
+            Route::put('/update/{id}', [Api\UserCartController::class, 'update']); 
+            Route::get('/count', [Api\UserCartController::class, 'count']); 
         });
         Route::group(['prefix' => '/offer'], function () {
             Route::post('status/{offer:guid}', [Api\OfferController::class, 'statusHandler']);
@@ -97,6 +106,12 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/get', [Api\NotificationController::class, 'index']);
             Route::get('/count', [Api\NotificationController::class, 'count']);
             Route::patch('/update/{notificationId}', [Api\NotificationController::class, 'update']);
+        });
+        Route::group(['prefix' => '/savelater'], function () {
+            Route::post('/add', [Api\SaveCartLaterController::class, 'store']);
+            Route::get('/', [Api\SaveCartLaterController::class, 'index']);
+            Route::get('/getById/{id}', [Api\SaveCartLaterController::class, 'getById']);
+            Route::get('/getByUser', [Api\SaveCartLaterController::class, 'getByUser']);
         });
         Route::get('/message/conversations/{productId}', [Api\MessageController::class, 'conversations']);
         Route::get('/message/conversations', [Api\MessageController::class, 'getUserConversations']);
