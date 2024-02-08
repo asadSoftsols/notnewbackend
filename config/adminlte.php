@@ -304,6 +304,17 @@ return [
             'url'  => 'admin/banks',
             'icon' => 'fas fa-fw fa-lock',
         ],
+        ['header' => 'Settings'],
+        [
+            'text' => ' Active Prices',
+            'url' => 'admin/price',
+            'icon' => 'fa fa-list-alt'
+        ],
+        [
+            'text' => ' In-Active Prices',
+            'url' => 'admin/in-active-prices',
+            'icon' => 'fa fa-times'
+        ],
     ],
 
     /*

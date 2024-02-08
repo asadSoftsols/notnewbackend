@@ -218,6 +218,11 @@ class Product extends Base implements IMediaInteraction
 //        }]);
     }
 
+    public function cart()
+    {
+        return $this->hasMany(UserCart::class);
+    }
+
     public function withoutScopesQuery()
     {
         return function (Builder $query) use (&$request) {
@@ -313,5 +318,13 @@ class Product extends Base implements IMediaInteraction
     {
         return $this->hasOne(Order::class, 'product_id');
         // return $this->hasOne(Order::class, 'product_id');
+    }
+    public function shop()
+    {
+        return $this->belongsTo(SellerData::class, 'shop_id');
+    }
+    public function withShop()
+    {
+        return $this->load('shop');
     }
 }

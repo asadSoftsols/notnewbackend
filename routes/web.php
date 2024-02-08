@@ -38,7 +38,8 @@ Route::get('/users', 'UserController@index')->name('users.index');
         'attribute' => AttributeController::class,
         'unit-type' => UnitTypeController::class,
         'media' => MediaController::class,
-        'banks' => BankController::class
+        'banks' => BankController::class,
+        'price' => PriceController::class,
     ]);
 
 

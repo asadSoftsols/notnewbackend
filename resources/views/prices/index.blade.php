@@ -11,7 +11,7 @@
         @endif
         <div class="row">
             <div class="col-md-8">
-                <a href="{{route('prices.create')}}" class="btn btn-primary">Add New</a>
+                <a href="{{route('price.create')}}" class="btn btn-primary">Add New</a>
             </div>
             <div class="col-md-4 text-right">
                 <form action="{{route('prices.search')}}" method="GET">
@@ -51,20 +51,20 @@
                     </td>
                     <td>{{$price->created_at}}</td>
                     <td>
-                        <a href="{{route('prices.edit', $price->id)}}" class="btn btn-info"><i
+                        <a href="{{route('price.edit', $price->id)}}" class="btn btn-info"><i
                                 class="fa fa-pen"></i></a>
                                 <button type="button"
                                 class="btn btn-danger"
                                 data-toggle="modal" data-target="#products1{{$price->id}}">
                                 <i class="fa fa-trash" style="color: white"></i></button>
-                        <!-- <form action="{{ route('prices.destroy', $price->id) }}" method="POST"
+                        <!-- <form action="{{ route('price.destroy', $price->id) }}" method="POST"
                               style="display: unset">
                             <input type="hidden" name="_method" value="DELETE">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <button class="btn btn-danger" type="submit"><i class="fa fa-trash"
                                                                             style="color: white"></i></button>
                         </form> -->
-                        @include('partials.delete-modal',['data' => $price,'route'=> "prices"])
+                        @include('partials.delete-modal',['data' => $price,'route'=> "price"])
                     </td>
                 </tr>
             @endforeach

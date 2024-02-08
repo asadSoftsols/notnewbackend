@@ -32,7 +32,16 @@ class UserController extends Controller
         // return encrypt($user);
         return $user;
     }
-    
+
+    public function self()
+    {
+        $user = User::where('id',\Auth::user()->id)
+        ->with(['savelater'])
+        ->first();
+        // return encrypt($user);
+        return $user;
+    }
+
     public function detailById($id)
     {
         return User::find($id);

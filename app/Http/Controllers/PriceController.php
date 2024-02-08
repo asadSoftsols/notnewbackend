@@ -41,7 +41,7 @@ class PriceController extends Controller
         $prices = new Prices();
         $prices = $prices->fill($request->all());
         $prices->save();
-        return redirect('admin/prices')->with('success', 'Price Added.');
+        return redirect('admin/price')->with('success', 'Price Added.');
     }
 
     /**
