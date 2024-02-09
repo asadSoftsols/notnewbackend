@@ -26,7 +26,7 @@ return new class extends Migration
             $table->uuid('guid')->unique()->default(\App\Helpers\GuidHelper::getGuid());
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('cart_id')->references('id')->on('tbl_cart')->onDelete('cascade')->onUpdate('cascade');
+            // $table->foreign('cart_id')->references('id')->on('tbl_cart')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

@@ -8,6 +8,9 @@ use App\Helpers\StripeHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegistrationRequest;
 use App\Models\User;
+use App\Models\State;
+use App\Models\City;
+use App\Models\ShippingDetail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
@@ -85,12 +88,24 @@ class RegisterController extends Controller
           ]);
         $user = User::create([
             'name' => $data['name'],
+            'phone' => $data['phone'],
             'email' => strtolower($data['email']),
             'password' => Hash::make($data['password']),
             'guid' => $data['guid'],
             'customer_stripe_id' => $stripe_data->id,
         ]);
+        $city = City::where('id', $data['city'])->first();
+        $state = State::where('id', $data['state'])->first();
+
         // $accountLink = StripeHelper::createAccountLink($user);
+        $shippingdetails = new ShippingDetail();
+        $shippingdetails->user_id = $user->id;
+        $shippingdetails->name = $user->name;
+        $shippingdetails->street_address = $data['address'];
+        $shippingdetails->state = $state->name;
+        $shippingdetails->city = $city->name;
+        $shippingdetails->zip = $data['zip'];
+        $shippingdetails->save();
 
         return $user;
     }

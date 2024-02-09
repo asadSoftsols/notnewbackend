@@ -70,7 +70,7 @@ class SellerDataController extends Controller
             User::where('id', \Auth::user()->id)->update([
                 "isTrustedSeller" => true
             ]);
-            $user->notify(new SellerDataNotify($user));
+            // $user->notify(new SellerDataNotify($user));
             return "You have SuccessFully Registered as Seller in NotNew";
         });
     }

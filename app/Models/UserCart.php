@@ -39,6 +39,13 @@ class UserCart extends Model
         return $this->belongsTo('App\Models\SellerData', 'shop_id');
     }
     public function savelater(){
+
         return $this->belongsTo('App\Models\SaveCartLater');
+
+    }
+    public function checkout(){
+
+        return $this->belongsTo('App\Models\CheckOut');
+
     }
 }

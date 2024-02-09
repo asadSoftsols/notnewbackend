@@ -1,11 +1,10 @@
 <?php
-namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
-use App\Models\SaveCartLater;
 
-class SaveCartLaterController extends Controller
+class CheckoutController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +13,7 @@ class SaveCartLaterController extends Controller
      */
     public function index()
     {
-        return SaveCartLater::get();
+        //
     }
 
     /**
@@ -35,30 +34,9 @@ class SaveCartLaterController extends Controller
      */
     public function store(Request $request)
     {
-        //Delete Existing Record
-        SaveCartLater::where('cart_id', $request->get('cart_id'))
-            ->where('user_id', \Auth::user()->id)->delete();
-        //Save New Record
-        $saveforLater = new SaveCartLater();
-        $saveforLater->cart_id = $request->get('cart_id');
-        $saveforLater->user_id = \Auth::user()->id;
-        $saveforLater->save();
-        return response()->json([
-            'message' => 'Cart Item has Been Added to Save Later'
-        ]);
+        //
     }
 
-    public function getById(Request $request, $id){
-        return $id;
-    }
-    public function getByUser(Request $request){
-        return SaveCartLater::where('user_id', \Auth::user()->id)
-        ->with(['user'])
-        ->with(['cart'])
-        // ->where('cart_id', $request->get('product_id'))
-        ->get();
-    }
-    
     /**
      * Display the specified resource.
      *

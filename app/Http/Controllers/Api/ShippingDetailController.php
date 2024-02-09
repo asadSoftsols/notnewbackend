@@ -1,11 +1,14 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\SaveCartLater;
+use App\Http\Controllers\Controller;
+use App\Models\ShippingDetail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-class SaveCartLaterController extends Controller
+class ShippingDetailController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +17,9 @@ class SaveCartLaterController extends Controller
      */
     public function index()
     {
-        return SaveCartLater::get();
+        return ShippingDetail::with(['user'])
+            ->with(['orders'])
+            ->get();
     }
 
     /**
@@ -35,30 +40,9 @@ class SaveCartLaterController extends Controller
      */
     public function store(Request $request)
     {
-        //Delete Existing Record
-        SaveCartLater::where('cart_id', $request->get('cart_id'))
-            ->where('user_id', \Auth::user()->id)->delete();
-        //Save New Record
-        $saveforLater = new SaveCartLater();
-        $saveforLater->cart_id = $request->get('cart_id');
-        $saveforLater->user_id = \Auth::user()->id;
-        $saveforLater->save();
-        return response()->json([
-            'message' => 'Cart Item has Been Added to Save Later'
-        ]);
+       //
     }
 
-    public function getById(Request $request, $id){
-        return $id;
-    }
-    public function getByUser(Request $request){
-        return SaveCartLater::where('user_id', \Auth::user()->id)
-        ->with(['user'])
-        ->with(['cart'])
-        // ->where('cart_id', $request->get('product_id'))
-        ->get();
-    }
-    
     /**
      * Display the specified resource.
      *
@@ -70,6 +54,10 @@ class SaveCartLaterController extends Controller
         //
     }
 
+    public function self()
+    {
+        return ShippingDetail::where('user_id', Auth::user()->id)->first();
+    }
     /**
      * Show the form for editing the specified resource.
      *

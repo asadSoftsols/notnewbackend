@@ -102,6 +102,11 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/{offer:guid}', [Api\OfferController::class, 'pendingOffer']);
             Route::post('offerCancel/{id}', [Api\OfferController::class, 'cancelOffer']);
         });
+        Route::group(['prefix' => '/shipping'], function () {
+            Route::post('/', [Api\ShippingDetailController::class, 'index']);
+            Route::post('/add', [Api\ShippingDetailController::class, 'store']);
+            Route::get('/self', [Api\ShippingDetailController::class, 'self']);
+        });
         Route::group(['prefix' => '/notifications'], function () {
             Route::get('/get', [Api\NotificationController::class, 'index']);
             Route::get('/count', [Api\NotificationController::class, 'count']);
@@ -113,6 +118,20 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/getById/{id}', [Api\SaveCartLaterController::class, 'getById']);
             Route::get('/getByUser', [Api\SaveCartLaterController::class, 'getByUser']);
         });
+        Route::group(['prefix' => '/savelater'], function () {
+            Route::post('/add', [Api\SaveCartLaterController::class, 'store']);
+            Route::get('/', [Api\SaveCartLaterController::class, 'index']);
+            Route::get('/getById/{id}', [Api\SaveCartLaterController::class, 'getById']);
+            Route::get('/getByUser', [Api\SaveCartLaterController::class, 'getByUser']);
+        });
+
+        Route::group(['prefix' => '/checkout'], function () {
+            Route::post('/add', [Api\CheckoutController::class, 'store']);
+            Route::get('/', [Api\CheckoutController::class, 'index']);
+            Route::get('/self', [Api\CheckoutController::class, 'self']);
+            Route::get('/destroy/{id}', [Api\CheckoutController::class, 'destroy']);
+        });
+
         Route::get('/message/conversations/{productId}', [Api\MessageController::class, 'conversations']);
         Route::get('/message/conversations', [Api\MessageController::class, 'getUserConversations']);
         Route::post('/message/saveAssociated', [Api\MessageController::class, 'saveAssociated']);
