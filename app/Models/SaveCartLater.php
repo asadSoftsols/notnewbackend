@@ -31,6 +31,6 @@ class SaveCartLater extends Model
     }
 
     public function cart(){
-        return $this->hasMany(UserCart::class);
+        return $this->belongsTo(UserCart::class, 'cart_id');
     }
 }

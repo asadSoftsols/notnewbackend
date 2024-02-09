@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CheckOut;
 use Illuminate\Http\Request;
-use App\Models\SaveCartLater;
+use Illuminate\Support\Facades\DB;
 
-class SaveCartLaterController extends Controller
+class CheckoutController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +16,18 @@ class SaveCartLaterController extends Controller
      */
     public function index()
     {
-        return SaveCartLater::get();
+        return CheckOut::with(['user'])
+        ->with(['cart'])
+        ->get();
+
+    }
+
+    public function self()
+    {
+        return CheckOut::with(['user'])
+        ->with(['cart'])
+        ->get();
+
     }
 
     /**
@@ -35,30 +48,25 @@ class SaveCartLaterController extends Controller
      */
     public function store(Request $request)
     {
-        //Delete Existing Record
-        SaveCartLater::where('cart_id', $request->get('cart_id'))
-            ->where('user_id', \Auth::user()->id)->delete();
-        //Save New Record
-        $saveforLater = new SaveCartLater();
-        $saveforLater->cart_id = $request->get('cart_id');
-        $saveforLater->user_id = \Auth::user()->id;
-        $saveforLater->save();
-        return response()->json([
-            'message' => 'Cart Item has Been Added to Save Later'
-        ]);
+        return DB::transaction(function () use ($request) {
+            CheckOut::where('user_id', \Auth::user()->id)->delete();
+            $checkout = new CheckOut();
+            $checkout->cart_id = "";//$request->get('cart_id');
+            $checkout->user_id = \Auth::user()->id;
+            $checkout->dicount_code = $request->get('dicount_code');
+            $checkout->items_number = $request->get('items_number');
+            $checkout->sub_total = $request->get('sub_total');
+            $checkout->shipping_total = $request->get('shipping_total');
+            $checkout->admin_prices = json_encode($request->get('admin_prices'));
+            $checkout->order_total = $request->get('order_total');
+            $checkout->save();
+            return response()->json([
+                'success'=> true,
+                'message' => 'Checkout added'
+            ]);
+        });
     }
 
-    public function getById(Request $request, $id){
-        return $id;
-    }
-    public function getByUser(Request $request){
-        return SaveCartLater::where('user_id', \Auth::user()->id)
-        ->with(['user'])
-        ->with(['cart'])
-        // ->where('cart_id', $request->get('product_id'))
-        ->get();
-    }
-    
     /**
      * Display the specified resource.
      *
@@ -101,6 +109,9 @@ class SaveCartLaterController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $checkout = CheckOut::where('id', $id)->first();
+        $checkout->delete();
+        return back()->with('success', 'Checkout deleted');
+
     }
 }
