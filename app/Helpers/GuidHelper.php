@@ -11,4 +11,12 @@ class GuidHelper extends Arr
     {
         return Str::uuid()->toString();
     }
+    public static function getShortGuid(): string
+    {
+        return Str::random(8);
+    }
+    public static function getnotificationId(): string
+    {
+        return Str::random(2);
+    }
 }

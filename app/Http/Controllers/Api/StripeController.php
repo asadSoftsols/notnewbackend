@@ -35,16 +35,13 @@ class StripeController extends Controller
     /**
      * @throws \Stripe\Exception\ApiErrorException
      */
-    public function generate($productGuid, $price)
+    public function generate(Request $request)
     {
-         $productGuid = str_replace(' ', '', $productGuid);
-         $product = Product::where('guid', $productGuid)->first();
-         $user = User::where('id', $product->user_id)->first();
+         $user = User::where('id',  $request->get('userId'))->first();
          $paymentIntent = "";
-         if($user->isTrustedSeller == true){
             $paymentIntent = $this->stripe->paymentIntents->create([
                 // 'amount' => $product->getPrice() * 100,
-                'amount' => $price * 100,
+                'amount' => $request->get('total') * 100,
                 'currency' => 'usd',
                 // 'capture_method' => 'manual',
                 // 'transfer_group' => $price,
@@ -53,40 +50,24 @@ class StripeController extends Controller
                 //     'destination' => $product->user->stripe_account_id,
                 // ],
             ]);
-         }else{
-            $paymentIntent = $this->stripe->paymentIntents->create([
-                // 'amount' => $product->getPrice() * 100,
-                'amount' => $price * 100,
-                'currency' => 'usd',
-                // 'capture_method' => 'manual',
-                'transfer_group' => $price,
-                // 'transfer_data' => [
-                //     // 'amount' => $remaining,
-                //     'destination' => $product->user->stripe_account_id,
-                // ],
-            ]);
-         }
-        $metadata = null;
-        // $paymentIntent = $this->stripe->paymentIntents->create([
-        //     'amount' => $product->getPrice() * 100,
-        //     'currency' => 'usd',
-        //     // 'capture_method' => 'manual',
-        //     // 'payment_method_options' => [
-        //     //     'card' => [
-        //     //       'capture_method' => 'manual',
-        //     //     ],
-        //     //   ],
-        //     // 'transfer_data' => [
-        //     //     'destination' => $product->user->stripe_account_id,
-        //     // ],
-        // ]);
-            // $product=Product::where('guid','=', $productGuid)->first();
-            
-            
+            $metadata = null;
+            // $paymentIntent = $this->stripe->paymentIntents->create([
+            //     'amount' => $product->getPrice() * 100,
+            //     'currency' => 'usd',
+            //     // 'capture_method' => 'manual',
+            //     // 'payment_method_options' => [
+            //     //     'card' => [
+            //     //       'capture_method' => 'manual',
+            //     //     ],
+            //     //   ],
+            //     // 'transfer_data' => [
+            //     //     'destination' => $product->user->stripe_account_id,
+            //     // ],
+            // ]);
+                // $product=Product::where('guid','=', $productGuid)->first();
+                
             $paymentslog = PaymentsLog::request($paymentIntent,self::INCOMPLETE_STATUS,self::BUYING,$metadata);
-            
             return ['client_secret' => $paymentIntent->client_secret];
-        
     }
 
     public function checkAccount($account)

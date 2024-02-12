@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\GuidHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Offer;
+use App\Models\UserNotification;
 use App\Models\Fedex;
 use App\Models\EasyPost;
 use App\Models\USPS;
 use App\Models\Order;
+use App\Models\UserCart;
+use App\Models\UserOrder;
 use App\Models\Prices;
 use App\Models\Product;
 use App\Models\flexefee;
@@ -39,6 +43,11 @@ class OrderController extends Controller
     const SERVICETYPE = 'FEDEX_GROUND';//'STANDARD_OVERNIGHT';
     const FEDEXTESTSENTTRACKING = '111111111111';
     const FEDEXTESTDELIVEREDTRACKING = '122816215025810';
+    const INCOMPLETE_STATUS='Incomplete',
+     COMPLETE_STATUS='Succeeded',
+     FEATURED_ADD = 'Featured Add',
+     HIRE_CAPTAIN = 'Hire Captain',
+     BUYING="Buying";
     use AppliedFees; 
     /**
      * Display a listing of the resource.
@@ -286,36 +295,87 @@ class OrderController extends Controller
         return DB::transaction(function () use ($request) {
             $order = new Order();
             $shipping = new ShippingDetail();
-            //         $object = new Fedex();
-            $shipping->fill($request->get("shippingDetail"));
-            $shipping->user_id = Auth::user()->id;
-
-            $shipping->save();
-
-            $product = Product::getByGuid($request->get('product_id'));
-            $offer = $product->offers()->where('requester_id', Auth::user()->id)
-                ->where('status_name', Offer::$STATUS_ACCEPT)
-                ->first();
-            $order->seller_id = $product->user_id;
-            $order->buyer_id = Auth::user()->id;
-            $order->product_id = $product->id;
-            $order->offer_id = $offer ? $offer->id : null;
-            $order->price = $offer ? $offer->price : $request->get('product_price');
-            $order->actual_price = $product->price;
-            $order->shipping_detail_id = $shipping->id;
-            $order->shipping_rates = $request->get("shipping_rates");
-            $order->status = Order::STATUS_UNPAID;
-            $order->prices = json_encode($this->prices());
-            $order->deliver_status = 'pending';
+            $user = User::where('id', Auth::user()->id)->first();
+            if($request->get("other_address") == true){
+                // $shipping->fill($request->get("shippingDetail"));
+                $shipping->user_id = Auth::user()->id;
+                $shipping->name = $user->name;
+                $shipping->street_address = $request->get("secondaddress");
+                $shipping->state = $user->state_id;
+                $shipping->city = $user->city_id;
+                $shipping->zip = $request->get("zip");
+                $shipping->save();
+    
+            }
+            $shippingDetails = ShippingDetail::where('user_id',Auth::user()->id)->first();
+            $order = new UserOrder();
+            $order->orderid = GuidHelper::getShortGuid();
+            $order->buyer_id = $request->get("buyer_id");
+            $order->seller_id = 1;
+            $order->payment_type = $request->get("payment_type");
+            $order->billing_address = $shippingDetails->street_address;
+            $order->fullname = $user->name;
+            $order->phone = $user->phone;
+            $order->address = $shippingDetails->street_address ? $shippingDetails->street_address: $request->get("secondaddress");
+            $order->discountcode = $request->get("discountcode");
+            $order->orderItems = json_encode($request->get("orderItems"));
+            $order->subtotal_cost = $request->get("subtotal_cost") ? $request->get("subtotal_cost") : 0;
+            $order->actual_cost = $request->get("actual_cost") ? $request->get("actual_cost") : 0;
+            $order->shipping_cost = $request->get("shipping_cost") ? $request->get("shipping_cost") : 0;
+            $order->prices = json_encode($request->get("prices"));
+            $order->order_total = $request->get("order_total");
+            $order->status= UserOrder::STATUS_ORDERED;
+            $order->payment_intents = $request->get("payment_intents");
+            $order->Curency = $request->get("Curency");
+            $order->shipping_detail_id = $shippingDetails->id;
+            // $order->client_secret = $request->get("payment_intents");
             $order->created_at = Carbon::now()->toDateTimeString();//'2023-01-30 17:40:31';
             $order->updated_at = Carbon::now()->toDateTimeString();//'2023-01-30 17:40:31';
             $order->save();
-            
-            $product->is_sold = true;
-            $product->update();
-            // if($offer){
-            //     Offer::where('id', $offer->id)->where('product_ id', $product->id)->delete();
-            // }
+            if($request->get('payment_type') == 'Stripe'){
+                $this->stripe = new StripeClient('sk_test_51McZZOBL2ne1CK3D89BPN3QmKiF2hMTZI1IvcdkgZ5asDQrOghL2IC3RnqAAsQK2ctgezVbCUdiwEfu9rv93Visf00eHdE1vlk');       
+                $paymentIntent = $this->stripe->paymentIntents->create([
+                    // 'amount' => $product->getPrice() * 100,
+                    'amount' => $order->actual_cost * 100,
+                    'currency' => 'usd',
+                    // 'capture_method' => 'manual',
+                    // 'transfer_group' => $order->Amount,
+                    // 'transfer_data' => [
+                    //     // 'amount' => $remaining,
+                    //     'destination' => $product->user->stripe_account_id,
+                    // ],
+                ]);
+    
+                $payment_intents = $this->stripe->paymentIntents->retrieve(
+                    $paymentIntent->id,
+                    []
+                  );
+                  $order->update(
+                    [
+                        'payment_intents' => $payment_intents->id
+                    ]
+                );
+                if($paymentIntent->status === 'requires_capture')
+                {
+                  $paymentIntent->capture($order->payment_intents);
+                }
+                $metadata = null;
+                $paymentslog = PaymentsLog::request($paymentIntent,self::INCOMPLETE_STATUS,self::BUYING,$metadata);
+                //for notifications
+                $notificatioId = rand(15,35);
+                $notification = new  UserNotification();
+                // $notification->id = GuidHelper::getnotificationId();//(int)$notificatioId;
+                $notification->type = 'Order Generated';
+                $notification->notifiable_type = 'Order Generated';
+                $notification->notifiable_id = Auth::user()->id;
+                // $notification->uuid = GuidHelper::getGuid();//Auth::user()->id;
+                $notification->data = "You Order Has Been Generated click the link -> <a href='http://localhost:3000/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
+                $notification->save();  
+                $userCart = UserCart::where('user_id', '=' , Auth::user()->id)->delete();
+                /** @var User $user */
+                $user = Auth::user();
+                $user->notify(new OrderPlaced($order));
+            }
             /** @var User $user */
             // $user = Auth::user();
             // $user->notify(new OrderPlaced($order));

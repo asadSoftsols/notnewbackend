@@ -55,8 +55,8 @@ class PaymentsLog extends Model
          * $metadata is data of object created for saving other data in table 
          * like fees etc
          */
-        $flexeFee = flexefee::select('fee')->first();
-        $flexePoint= $flexeFee->fee;
+        // $flexeFee = flexefee::select('fee')->first();
+        // $flexePoint= $flexeFee->fee;
         PaymentsLog::updateOrCreate(
             [
                 'payment_status' => $status,
@@ -67,7 +67,7 @@ class PaymentsLog extends Model
                 'Amount' => $paymentIntent->amount/100,
                 'payment_mode'=>$paymentmode,
                 'stipe_fee'=>(self::STRIPE_FEE/100 * $paymentIntent->amount/100) + 0.30,
-                'flexe_fee'=>($flexePoint/100 * $paymentIntent->amount/100),
+                //'flexe_fee'=>($flexePoint/100 * $paymentIntent->amount/100),
                 'meta_data'=>$metadata
             ]
         );
