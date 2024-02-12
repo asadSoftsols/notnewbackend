@@ -13,9 +13,9 @@
         <img src="{{ $media->url }}" alt="Product Image" height="70px" width="70px" /></td>
       @endif
       <!-- <td><img src="{{Storage::url('users/product/$product->id')}}" height="70px" width="70px" /></td> -->
-      <td style="float:left;">{{$product->name}}
+      {{--<td style="float:left;">{{$product->name}}
         <br />{{$product->description}}
-      </td>
+      </td>--}}
     </tr>
   </table>
   <table style="width:100%" >
@@ -27,10 +27,10 @@
       <td>Invoice date</td>
       <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y')}}</td>
     </tr>
-    <tr>
+    {{--<tr>
       <td>Shipping from</td>
       <td>{{$product->street_address }} - {{ $product->city}}</td>
-    </tr>
+    </tr>--}}
     <tr>      
       <td>Shipping to</td>
       <td>{{ $shipping[0]->street_address }} - {{ $shipping[0]->city}}</td>
@@ -39,28 +39,28 @@
   <hr />
   <img src="{{asset('image/image.png')}}" style="z-index:7;position: absolute;left:40%" width="120px" height="120px" />
    <table style="width:100%">
-    <tr>
+    {{--<tr>
       <td>Seller Name</td>
       <td>{{$product->user->name}}</td>
-    </tr>
+    </tr>--}}
     <tr>
       <td>Invoice date</td>
       <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y')}}</td>
     </tr>
-    <tr>
+    {{--<tr>
       <td>Shipping from</td>
       <td>{{$product->street_address }} - {{ $product->city}}</td>
-    </tr>
+    </tr>--}}
     <tr>      
       <td>Shipping to</td>
       <td>{{ $shipping[0]->street_address }} - {{ $shipping[0]->city}}</td>
     </tr>
   </table>
   <table style="width:100%">
-    <tr>
+    {{--<tr>
       <td><b> Seller Name </b></td>
       <td><b>{{$product->user->name}}</b></td>
-    </tr>
+    </tr>--}}
     <tr>
       <td><b>Payment method</b></td>
       <td><b>ONLINE</b></td>
@@ -68,7 +68,7 @@
   </table>
   <hr />
   <table style="width:100%">
-    <tr>
+    {{--<tr>
       <td>Item price</td>
       <td>
         @if($order->offer_id)
@@ -77,13 +77,13 @@
           {{$product->price}}
         @endif
       </td>
-    </tr>
+    </tr>--}}
     <tr>
       <td>Shipping</td>
       <td>{{$order->shipping_rates}}</td>
     </tr>
   </table>
-  <table style="width:100%">
+  {{--<table style="width:100%">
   @foreach($totalprices as $price)
     @foreach(json_decode($price->prices) as $rate)
         <tr>
@@ -97,14 +97,14 @@
       <td>Sales tax (estimated)</td>
       <td>$0.00</td>
     </tr> -->
-  </table>
+  </table>--}}
   <table style="width:100%">
     <tr>
       <td>
         You Pay
       </td>
       <td>
-        {{$order->price}}
+        {{$order->prices}}
       </td>
     </tr>
   </table>

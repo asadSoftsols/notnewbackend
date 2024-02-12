@@ -177,7 +177,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 });
 
 Route::group(['prefix' => '/stripe', ['middleware' => 'auth:api']], function () {
-    Route::get('/generate/{product:guid}/{price}', [Api\StripeController::class, 'generate']);
+    Route::post('/generate', [Api\StripeController::class, 'generate']);
     Route::get('/feature', [Api\StripeController::class, 'feature']);
     Route::get('/hire', [Api\StripeController::class, 'hire']);
 });
