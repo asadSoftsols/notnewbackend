@@ -61,7 +61,9 @@ class UserOrder extends Model
         'parcel_height',
         'parcel_length',
         'delivery_days',
-        'read_by_admin'
+        'read_by_admin',
+        'product_id',
+        'order_type'
     ];
     protected $casts = [
         'created_at'  => 'date:Y-m-d',

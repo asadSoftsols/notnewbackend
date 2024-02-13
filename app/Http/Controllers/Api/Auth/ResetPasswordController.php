@@ -30,7 +30,8 @@ class ResetPasswordController extends Controller
     {
         return Validator::make($data, [
             'email' => ['required'],
-            'password' => ['required', 'string', 'min:8'],
+            // 'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string'],
         ]);
     }
 }

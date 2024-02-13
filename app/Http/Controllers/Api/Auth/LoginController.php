@@ -68,7 +68,6 @@ class LoginController extends Controller
             'password' => 'required|string',
             'remember_me' => 'boolean'
         ]);
-
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
@@ -83,12 +82,12 @@ class LoginController extends Controller
         }
       
         $checkuser = User::where('email', strtolower(request('email')))->first();
-        // if(!$checkuser){
-        //     return $this->genericResponse(false, 'Invalid Email', 403, [
-        //         'status' => 'fail',
-        //         'message' => 'Email is not Valid'
-        //     ]);
-        // }else{
+        if(!$checkuser){
+            return $this->genericResponse(false, 'Invalid Email', 403, [
+                'status' => 'fail',
+                'message' => 'Email not Exits!'
+            ]);
+        }else{
             if (!Auth::attempt(['email' => strtolower(request('email')), 'password' => request('password')])) {
                 return $this->genericResponse(false, 'Login Failed', 403, [
                     'status' => 'fail',
@@ -134,7 +133,7 @@ class LoginController extends Controller
                 ]);
             }
 
-        // }
+        }
     }
 
     private function unProcessEntityResponse($message = '')

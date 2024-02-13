@@ -460,131 +460,49 @@ class ProductController extends Controller
     {
         DB::beginTransaction();
         try {
-//            if (!empty($request->size)) {
-//                $shipping = new ShippingSize();
-//                $shipping->size = $request->size;
-//                $shipping->weight = $request->weight;
-//                $shipping->save();
-//                $product->shipping_size_id = $shipping->id;
-//            }
-//            if (empty($product->product_shipping_details_id)) {
-//                $shipping_details = new ProductShippingDetail();
-//                $shipping_details->city = $request->city;
-//                $shipping_details->state = $request->state;
-//                $shipping_details->zip = $request->zip;
-//                $shipping_details->user_id = \Auth::user()->id;;
-//                $shipping_details->street_address = $request->street_address;
-//                $shipping_details->save();
-//                $product->product_shipping_details_id = $shipping_details->id;
-//            } else {
-//                $shipping_details = ProductShippingDetail::where('id', $product->product_shipping_details_id)->first();
-//                $shipping_details->city = $request->city;
-//                $shipping_details->state = $request->state;
-//                $shipping_details->zip = $request->zip;
-//                $shipping_details->user_id = \Auth::user()->id;;
-//                $shipping_details->street_address = $request->street_address;
-//                $shipping_details->update();
-// //            }
-// return $request->all();
-// die();
             $user = User::where('id',Auth::user()->id)->first();
-            if($request->get('ounces')){
-                $product->height =$request->get('ounces');
-                $product->width =$request->get('ounces');
-                $product->length =$request->get('ounces');
-                $product->weight =$request->get('ounces');
-            }
-            // $product->status = 'Pendings';
-            $product->fill($request->all())->update();
-
-            $attributes = ($postedAttributes = $request->get('attributes')) ? array_combine(array_column($postedAttributes, 'id'), array_column($postedAttributes, 'value')) : [];
-           
-            if (!empty($attributes)) {
-                
-                // @TODO: create relations to avoid where query
-                ProductsAttribute::where('product_id', $product->id)
-                    ->get()
-                    ->each(function (ProductsAttribute $attribute) use ($attributes) {
-                        $attribute->value = $attributes[$attribute->attribute_id];
-                        $attribute->save();
-                    });
-            }
+            $product->category_id = $request->get('category');
+            $product->user_id = Auth::user()->id;
+            $product->name = $request->get('title');
+            $product->description = $request->get('description');
+            $product->price = $request->get('price');
+            $product->sale_price = 0;
+            $product->scheduled = $request->get('scheduled');
+            $product->location = $request->get('location');
+            $product->condition = $request->get('condition');
+            $product->auctioned = $request->get('auctions');
+            $product->shipping_type = $request->get('shipping_type');
+            $product->is_sold = false;
+            $product->street_address = "";//$request->get('street_address');
+            $product->country = $request->get('country');
+            $product->city = $request->get('city');
+            $product->zip = $request->get('zip');
+            $product->state = $request->get('states');
+            $product->IsSaved = true;
+            $product->model = $request->get('model');
+            $product->brand = $request->get('brand');
+            $product->stockcapacity = $request->get('stockCapacity');
+            $product->selling_now = $request->get('sellingNow');
+            $product->listing = $request->get('listing');
+            $product->buyitnow = $request->get('buyitnow');
+            $product->deliverd_domestic = $request->get('deliverddomestic');
+            $product->deliverd_international = $request->get('deliverd_international');
+            $product->company = $request->get('deliverycompany');
+            $product->country = $request->get('country');
+            $product->shipping_price = $request->get('shippingprice');
+            $product->shipping_start = $request->get('shippingstart');
+            $product->shipping_end = $request->get('shippingend');
+            $product->return_shipping_price = $request->get('return_shipping_price');
+            $product->return_ship_duration_limt = $request->get('return_ship_duration_limt');
+            $product->return_ship_paid_by = $request->get('return_ship_paid_by');
+            $product->return_ship_location = $request->get('return_ship_location');
+            $product->attributes = json_encode($request->get('sizes'));
+            $product->available_colors = json_encode($request->get('availableColors'));
+            $product->shop_id = $request->get('shopid');
+            $product->update();
             $product = Product::where('id', $product->id)->first(); 
 
-            //Saving Address of user for Ad
-            if($request->get('street_address')){
-                // $user = User::where('id',Auth::user()->id)->first();
-                $savedAddress = SaveAddress::where('user_id', Auth::user()->id)
-                    ->where('product_id', $product->id)
-                    ->first();
-                
-                if($savedAddress){
-                    SaveAddress::where('user_id', Auth::user()->id)
-                        ->where('product_id', $product->id)
-                        ->update([
-                            'user_id' => Auth::user()->id,
-                            'product_id' => $product->id,
-                            'address' =>$request->get('street_address'),
-                            'city' => $request->get('city'),
-                            'state' => $request->get('state'),
-                            'zip' => $request->get('zip')
-                        ]);
-                }else{
-                    $SaveAddress = new SaveAddress();
-                    $SaveAddress->user_id= Auth::user()->id;
-                    $SaveAddress->product_id= $product->id;
-                    $SaveAddress->address= $request->get('street_address');
-                    $SaveAddress->city= $request->get('city');
-                    $SaveAddress->state= $request->get('state');
-                    $SaveAddress->zip= $request->get('zip');
-                    $SaveAddress->save();
-                }
-            }
-            //For Step 2 without shipment
-            if($product->in_review && $product->steps == '2'  && !$request->get('has_shipping'))
-            {  
-                // dump('not has shipping');
-                $product->in_review = false; 
-                $product->update();
-                // $user = User::where('id',Auth::user()->id)->first();
-                $account = StripeHelper::checkAccount($user);
-                if($user->is_autoAdd == true){
-                    $user->notify(new AdApproved($user, $product));
-                }else{
-                    $user->notify(new AddReview($user));
-                }
-            if(!$account->external_accounts->data){
-                    if($product->shipment_type == '2' || $product->shipment_type == '3')
-                    {
-                        $user->notify(new DepositReminder($user));
-                    }
-                }
-            //For Step 3 with shipment
-            }else if($product->in_review && $product->steps == '3'  &&  $request->get('has_shipping') && $request->get('ounces')){
-                
-                // dump('has shipping');
-                $product->in_review = false; 
-                $product->update();
-                // $user = User::where('id',Auth::user()->id)->first();
-                $account = StripeHelper::checkAccount($user);
-              
-                if($user->is_autoAdd == true){
-                    $user->notify(new AdApproved($user, $product));
-                }else{
-                    $user->notify(new AddReview($user));
-                }
-
-                if(!$account->external_accounts->data){
-                    if($product->shipment_type == '2' || $product->shipment_type == '3')
-                    {
-                        $user->notify(new DepositReminder($user));
-                    }
-                }
-                // if(!$user->isTrustedSeller)
-                // {
-                //     $user->notify(new TrustedSeller($user));
-                // }
-            }
+            return "Product Update SuccessFully";
 
             DB::commit();
         } catch (\Exception $e) {
