@@ -27,9 +27,10 @@ class ForgotPasswordController extends Controller
             Otp::where('email','=',strtolower($user->email))->delete();
             Notification::send($user, new ForgetPasswordVerification());
          }else{
-            throw ValidationException::withMessages(['email' => trans($user)]);
+            return $this->genericResponse(false, 'Email not found',500);
+            // throw ValidationException::withMessages(['email' => trans($user)]);
          }
-         return $this->genericResponse(true, 'User Found',200);
+         return $this->genericResponse(true, 'Otp Send SuccessFully',200);
     }
     public function verifyOtp(Request $request){
 

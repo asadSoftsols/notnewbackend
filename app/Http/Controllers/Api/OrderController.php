@@ -327,6 +327,7 @@ class OrderController extends Controller
             $order->status= UserOrder::STATUS_ORDERED;
             $order->payment_intents = $request->get("payment_intents");
             $order->Curency = $request->get("Curency");
+            $order->order_type = $request->get("order_type");
             $order->shipping_detail_id = $shippingDetails->id;
             // $order->client_secret = $request->get("payment_intents");
             $order->created_at = Carbon::now()->toDateTimeString();//'2023-01-30 17:40:31';
