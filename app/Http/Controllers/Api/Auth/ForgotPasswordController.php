@@ -72,7 +72,7 @@ class ForgotPasswordController extends Controller
                 $notification->save();
 
                 Otp::where('otp', $request->otp)->delete();
-                return $this->genericResponse(200, 'You are registered SuccessFull!.');
+                return $this->genericResponse(200, 'Otp Verified Successfully!.');
             } 
         });
     }

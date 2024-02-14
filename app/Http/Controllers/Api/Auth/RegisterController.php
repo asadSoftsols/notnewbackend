@@ -125,13 +125,13 @@ class RegisterController extends Controller
                     'message' => "Email Already Exists"
                 ]);
             }else{
-                $CheckUser = User::where('name', $request->get('name'))->first();
-                if($CheckUser){
-                    return response()->json([
-                        'status' => 'username',
-                        'message' => "User Name Already Exists Please Try Different!"
-                    ]); 
-                }else{
+                // $CheckUser = User::where('email', $request->get('email'))->first();
+                // if($CheckUser){
+                //     return response()->json([
+                //         'status' => 'username',
+                //         'message' => "User Name Already Exists Please Try Different!"
+                //     ]); 
+                // }else{
                     $validator = $this->validator($request->all());
                     if (!$validator->fails()) {
                         // dd(ArrayHelper::merge($request->all(),['guid'=>GuidHelper::getGuid()]));
@@ -152,7 +152,7 @@ class RegisterController extends Controller
                         'errors' => $this,
                         'message' => $validator->getMessageBag()
                     ], 401);
-                }
+                // }
             }
         });
     }

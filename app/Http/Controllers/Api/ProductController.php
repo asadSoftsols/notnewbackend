@@ -333,49 +333,46 @@ class ProductController extends Controller
             $country = Countries::where('id', $request->get('country'))->first();
             $states = State::where('id', $request->get('states'))->first();
             $city = City::where('id', $request->get('city'))->first();
+
+            $user = User::where('id',Auth::user()->id)->first();
             $product->category_id = $request->get('category');
-            $product->user_id = Auth::user()->id;//$request->get('user_id');
+            $product->user_id = Auth::user()->id;
             $product->name = $request->get('title');
+            $product->description = $request->get('description');
+            $product->price = $request->get('price');
+            $product->sale_price = 0;
+            $product->scheduled = $request->get('scheduled');
+            $product->location = $request->get('location');
+            $product->condition = $request->get('condition');
+            $product->auctioned = $request->get('auctions');
+            $product->shipping_type = $request->get('shipping_type');
+            $product->is_sold = false;
+            $product->street_address = "";//$request->get('street_address');//for later when google address will be implement
+            $product->country = $country->name;
+            $product->city = $city->name;
+            $product->state = $states->name;
+            $product->IsSaved = true;
             $product->model = $request->get('model');
             $product->brand = $request->get('brand');
             $product->stockcapacity = $request->get('stockCapacity');
-            $product->description = $request->get('description');
-            $product->price = $request->get('price');
-            $product->sale_price = $request->get('sale_price');
             $product->selling_now = $request->get('sellingNow');
-            $product->auctioned = $request->get('auctions');
             $product->listing = $request->get('listing');
             $product->buyitnow = $request->get('buyitnow');
             $product->deliverd_domestic = $request->get('deliverddomestic');
             $product->deliverd_international = $request->get('deliverdinternational');
             $product->company = $request->get('deliverycompany');
-            $product->country = $country->name;
-            $product->city = $city->name;
-            $product->state = $states->name;
+            $product->country = $request->get('country');
             $product->shipping_price = $request->get('shippingprice');
             $product->shipping_start = $request->get('shippingstart');
             $product->shipping_end = $request->get('shippingend');
-            $product->condition = $request->get('condition');
-            $product->attributes= json_encode($request->get('sizes'));
-            $product->scheduled = $request->get('scheduled');
-            $product->available_colors = json_encode($request->get('availableColors')); 
-            $product->location = $states->name.', '.$country->name; 
-            // $product->shop_id = = $states->name.', '.$country->name; 
-            // $product->shipping_duration_limit = $request->get('shippingend');
-            // $product->postal_address= $request->get('postal_address');
+            $product->return_shipping_price = $request->get('returnshippingprice');
+            $product->return_ship_duration_limt = $request->get('returndurationlimit');
+            $product->return_ship_paid_by = $request->get('returnshippingpaidby');
+            $product->return_ship_location = $request->get('returnshippinglocation');
+            $product->attributes = json_encode($request->get('sizes'));
+            $product->available_colors = json_encode($request->get('availableColors'));
+            $product->shop_id = $request->get('store');
             $product->save();
-            //@todo inherit attribute functionality
-            // foreach ($request->get('attributes', []) as $attribute) {
-                
-            //     $data = [
-            //         'attribute_id' => $attribute['id'],
-            //         'product_id' => $product->id,
-            //         'value' =>  $attribute['value']
-            //     ];
-
-            //     $productAttribute = new ProductsAttribute($data);
-            //     $productAttribute->save();
-            // }
            
             DB::commit();
         } catch (\Exception $e) {
@@ -458,60 +455,130 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        DB::beginTransaction();
-        try {
-            $user = User::where('id',Auth::user()->id)->first();
-            $product->category_id = $request->get('category');
-            $product->user_id = Auth::user()->id;
-            $product->name = $request->get('title');
-            $product->description = $request->get('description');
-            $product->price = $request->get('price');
-            $product->sale_price = 0;
-            $product->scheduled = $request->get('scheduled');
-            $product->location = $request->get('location');
-            $product->condition = $request->get('condition');
-            $product->auctioned = $request->get('auctions');
-            $product->shipping_type = $request->get('shipping_type');
-            $product->is_sold = false;
-            $product->street_address = "";//$request->get('street_address');
-            $product->country = $request->get('country');
-            $product->city = $request->get('city');
-            $product->zip = $request->get('zip');
-            $product->state = $request->get('states');
-            $product->IsSaved = true;
-            $product->model = $request->get('model');
-            $product->brand = $request->get('brand');
-            $product->stockcapacity = $request->get('stockCapacity');
-            $product->selling_now = $request->get('sellingNow');
-            $product->listing = $request->get('listing');
-            $product->buyitnow = $request->get('buyitnow');
-            $product->deliverd_domestic = $request->get('deliverddomestic');
-            $product->deliverd_international = $request->get('deliverd_international');
-            $product->company = $request->get('deliverycompany');
-            $product->country = $request->get('country');
-            $product->shipping_price = $request->get('shippingprice');
-            $product->shipping_start = $request->get('shippingstart');
-            $product->shipping_end = $request->get('shippingend');
-            $product->return_shipping_price = $request->get('return_shipping_price');
-            $product->return_ship_duration_limt = $request->get('return_ship_duration_limt');
-            $product->return_ship_paid_by = $request->get('return_ship_paid_by');
-            $product->return_ship_location = $request->get('return_ship_location');
-            $product->attributes = json_encode($request->get('sizes'));
-            $product->available_colors = json_encode($request->get('availableColors'));
-            $product->shop_id = $request->get('shopid');
-            $product->update();
-            $product = Product::where('id', $product->id)->first(); 
+        return DB::transaction(function () use ($request, $product) { 
+            $country = Countries::where('id', $request->get('country'))->first();
+            $states = State::where('id', $request->get('states'))->first();
+            $city = City::where('id', $request->get('city'))->first();
 
-            return "Product Update SuccessFully";
+            $user = User::where('id',Auth::user()->id)->first(); 
+           $products = Product::where('id', $product->id)->update([
+                "name" => $request->get('title'),
+                "description" => $request->get('description'),
+                "price" => $request->get('price'),
+                "sale_price" => 0,
+                "scheduled" => $request->get('scheduled'),
+                "location" => $request->get('location'),
+                "condition" => $request->get('condition'),
+                "auctioned" => $request->get('auctions'),
+                "shipping_type" => $request->get('deliverycompany'),
+                "street_address" => "",
+                "country" =>$country->name,
+                "state" => $states->name,
+                "city" => $city->name,
+                "model" => $request->get('model'),
+                "brand" => $request->get('brand'),
+                "stockcapacity" => $request->get('stockCapacity'),
+                "selling_now" => $request->get('sellingNow'),
+                "listing" => $request->get('listing'),
+                "buyitnow" => $request->get('buyitnow'),
+                "deliverd_domestic" => $request->get('deliverddomestic'),
+                "deliverd_international" => $request->get('deliverdinternational'),
+                "company" => $request->get('deliverycompany'),
+                "shipping_price" => $request->get('shippingprice'),
+                "shipping_start" => $request->get('shippingstart'),
+                "shipping_end" => $request->get('shippingend'),
+                "return_shipping_price" => $request->get('returnshippingprice'),
+                "return_ship_duration_limt" => $request->get('returndurationlimit'),
+                "return_ship_paid_by" => $request->get('returnshippingpaidby'),
+                "return_ship_location" => $request->get('returnshippinglocation'),
+                "attributes" =>  json_encode($request->get('sizes')),
+                "available_colors" => json_encode($request->get('availableColors')),
+                "shop_id" => json_encode($request->get('store')),
+            ]);
+            
+          
+            // // $product->category_id = $request->get('category');
+            // // $product->user_id = Auth::user()->id;
+            // $product->name = $request->get('title');
+            // // $product->description = $request->get('description');
+            // // $product->price = $request->get('price');
+            // // $product->sale_price = 0;
+            // // $product->scheduled = $request->get('scheduled');
+            // // $product->location = $request->get('location');
+            // // $product->condition = $request->get('condition');
+            // // $product->auctioned = $request->get('auctions');
+            // // $product->shipping_type = $request->get('shipping_type');
+            // // $product->is_sold = false;
+            // // $product->street_address = "";//$request->get('street_address');//for later when google address will be implement
+            // // $product->country = $country->name;
+            // // $product->city = $city->name;
+            // // $product->state = $states->name;
+            // // $product->IsSaved = true;
+            // // $product->model = $request->get('model');
+            // // $product->brand = $request->get('brand');
+            // // $product->stockcapacity = $request->get('stockCapacity');
+            // // $product->selling_now = $request->get('sellingNow');
+            // // $product->listing = $request->get('listing');
+            // // $product->buyitnow = $request->get('buyitnow');
+            // // $product->deliverd_domestic = $request->get('deliverddomestic');
+            // // $product->deliverd_international = $request->get('deliverdinternational');
+            // // $product->company = $request->get('deliverycompany');
+            // // $product->country = $request->get('country');
+            // // $product->shipping_price = $request->get('shippingprice');
+            // // $product->shipping_start = $request->get('shippingstart');
+            // // $product->shipping_end = $request->get('shippingend');
+            // // $product->return_shipping_price = $request->get('returnshippingprice');
+            // // $product->return_ship_duration_limt = $request->get('returndurationlimit');
+            // // $product->return_ship_paid_by = $request->get('returnshippingpaidby');
+            // // $product->return_ship_location = $request->get('returnshippinglocation');
+            // // $product->attributes = json_encode($request->get('sizes'));
+            // // $product->available_colors = json_encode($request->get('availableColors'));
+            // // $product->shop_id = $request->get('store');
+            // $product->update();
+            // // $user = User::where('id',Auth::user()->id)->first();
+            // // $product->category_id = $request->get('category');
+            // // $product->user_id = Auth::user()->id;
+            // // $product->name = $request->get('title');
+            // // $product->description = $request->get('description');
+            // // $product->price = $request->get('price');
+            // // $product->sale_price = 0;
+            // // $product->scheduled = $request->get('scheduled');
+            // // $product->location = $request->get('location');
+            // // $product->condition = $request->get('condition');
+            // // $product->auctioned = $request->get('auctions');
+            // // $product->shipping_type = $request->get('shipping_type');
+            // // $product->is_sold = false;
+            // // $product->street_address = "";//$request->get('street_address');
+            // // $product->country = $request->get('country');
+            // // $product->city = $request->get('city');
+            // // $product->zip = $request->get('zip');
+            // // $product->state = $request->get('states');
+            // // $product->IsSaved = true;
+            // // $product->model = $request->get('model');
+            // // $product->brand = $request->get('brand');
+            // // $product->stockcapacity = $request->get('stockCapacity');
+            // // $product->selling_now = $request->get('sellingNow');
+            // // $product->listing = $request->get('listing');
+            // // $product->buyitnow = $request->get('buyitnow');
+            // // $product->deliverd_domestic = $request->get('deliverddomestic');
+            // // $product->deliverd_international = $request->get('deliverd_international');
+            // // $product->company = $request->get('deliverycompany');
+            // // $product->country = $request->get('country');
+            // // $product->shipping_price = $request->get('shippingprice');
+            // // $product->shipping_start = $request->get('shippingstart');
+            // // $product->shipping_end = $request->get('shippingend');
+            // // $product->return_shipping_price = $request->get('return_shipping_price');
+            // // $product->return_ship_duration_limt = $request->get('return_ship_duration_limt');
+            // // $product->return_ship_paid_by = $request->get('return_ship_paid_by');
+            // // $product->return_ship_location = $request->get('return_ship_location');
+            // // $product->attributes = json_encode($request->get('sizes'));
+            // // $product->available_colors = json_encode($request->get('availableColors'));
+            // // $product->shop_id = $request->get('shopid');
+            // // $product->update();
+            // // $product = Product::where('id', $product->id)->first(); 
 
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-
-        return $this->genericResponse(true, "$product->name Updated", 200, ['product' => $product->withCategory()->withProductsAttributes()
-            ->appendDetailAttribute()]);
+        return $this->genericResponse(true, "$product->name Updated", 200, ['product' => $product->withCategory()]);
+        });
     }
     /**
      * Remove the specified resource from storage.
