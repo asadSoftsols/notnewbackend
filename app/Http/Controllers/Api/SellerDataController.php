@@ -50,29 +50,57 @@ class SellerDataController extends Controller
      */
     public function store(Request $request)
     {
-            
+               
         return DB::transaction(function () use ($request) {
-            $sellerData = new SellerData();
-            $sellerData->user_id = \Auth::user()->id;
-            $sellerData->country_id = $request->country;
-            $sellerData->state_id = $request->state;
-            $sellerData->city_id = $request->city;
-            $sellerData->fullname = $request->name;
-            $sellerData->email = $request->email;
-            $sellerData->phone = $request->phone;
-            $sellerData->address = $request->address;
-            $sellerData->zip = $request->zip;
-            $sellerData->password = $request->password;
-            $sellerData->password_confirmation = $request->password_confirmation;
-            $sellerData->guid = GuidHelper::getGuid();
-            $sellerData->save();
-            $user = User::where('id', \Auth::user()->id)->first();
-            User::where('id', \Auth::user()->id)->update([
-                "isTrustedSeller" => true
-            ]);
-            // $user->notify(new SellerDataNotify($user));
-            return "You have SuccessFully Registered as Seller in NotNew";
-        });
+            $checkseller = SellerData::where('user_id', \Auth::user()->id)->first();
+            if($checkseller){
+                return $this->genericResponse(false, "Store Already Exists!", 400);
+            }else{
+                    $sellerData = new SellerData();
+                    $sellerData->user_id = \Auth::user()->id;
+                    $sellerData->country_id = $request->country;
+                    $sellerData->state_id = $request->state;
+                    $sellerData->city_id = $request->city;
+                    $sellerData->fullname = $request->name;
+                    $sellerData->email = $request->email;
+                    $sellerData->phone = $request->phone;
+                    $sellerData->address = $request->address;
+                    $sellerData->zip = $request->zip;
+                    // $sellerData->password = $request->password;
+                    // $sellerData->password_confirmation = $request->password_confirmation;
+                    $sellerData->guid = GuidHelper::getGuid();
+                    $sellerData->save();
+                    $user = User::where('id', \Auth::user()->id)->first();
+                    User::where('id', \Auth::user()->id)->update([
+                        "isTrustedSeller" => true
+                    ]);
+                    $user->notify(new SellerDataNotify($user));
+                    return $this->genericResponse(false, "Seller Register Successfully!", 200);
+                
+            }
+        }); 
+        // return DB::transaction(function () use ($request) {
+        //     $sellerData = new SellerData();
+        //     $sellerData->user_id = \Auth::user()->id;
+        //     $sellerData->country_id = $request->country;
+        //     $sellerData->state_id = $request->state;
+        //     $sellerData->city_id = $request->city;
+        //     $sellerData->fullname = $request->name;
+        //     $sellerData->email = $request->email;
+        //     $sellerData->phone = $request->phone;
+        //     $sellerData->address = $request->address;
+        //     $sellerData->zip = $request->zip;
+        //     // $sellerData->password = $request->password;
+        //     // $sellerData->password_confirmation = $request->password_confirmation;
+        //     $sellerData->guid = GuidHelper::getGuid();
+        //     $sellerData->save();
+        //     $user = User::where('id', \Auth::user()->id)->first();
+        //     User::where('id', \Auth::user()->id)->update([
+        //         "isTrustedSeller" => true
+        //     ]);
+        //     // $user->notify(new SellerDataNotify($user));
+        //     return "You have SuccessFully Registered as Seller in NotNew";
+        // });
     }
 
     /**

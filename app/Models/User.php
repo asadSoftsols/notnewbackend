@@ -71,7 +71,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     /**
      * @var array
      */
-    protected $fillable = ['name', 'email', 'email_verified_at', 'password', 'device_token', 'isTrustedSeller', 'phone', 'guid', 'profile_url', 'remember_token', 'created_at', 'updated_at', 'customer_stripe_id', 'softdelete', 'is_autoAdd'];
+    protected $fillable = ['name', 'email', 'email_verified_at', 'password', 'device_token', 'state_id', 'city_id', 'country_id', 'isTrustedSeller', 'location', 'status', 'phone', 'guid', 'profile_url', 'remember_token', 'created_at', 'updated_at', 'customer_stripe_id', 'softdelete', 'is_autoAdd'];
 
     protected $hidden = ['password'];
 

@@ -27,9 +27,9 @@ return new class extends Migration
             $table->double('shipping_price')->default(0);
             $table->timestamp('shipping_start')->nullable();
             $table->timestamp('shipping_end')->nullable();
-            $table->integer('return_shipping_price')->default(0);
+            $table->float('return_shipping_price')->default(0);
             $table->integer('return_ship_duration_limt')->nullable();
-            $table->integer('return_ship_paid_by')->nullable();
+            $table->string('return_ship_paid_by')->nullable();
             $table->integer('return_ship_location')->nullable();
         });
     }

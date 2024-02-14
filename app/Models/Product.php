@@ -110,9 +110,9 @@ class Product extends Base implements IMediaInteraction
     'deliverd_international', 'company','country', 'shipping_price', 'shipping_start', 'shipping_end',
     'return_shipping_price', 'return_ship_duration_limt', 'return_ship_paid_by', 'return_ship_location',
     'featured', 'featured_until','shipping_type', 'city', 'ratings_count','attributes','scheduled',
-    'available_colors', 'shop_id'];
-    //returndurationlimit, returnshippinglocation, returnshippingpaidby, returnshippingprice
-
+    'available_colors', 'shop_id','return_ship_duration_limt','return_ship_location','return_ship_paid_by',
+    'return_shipping_price'];
+    
     protected $appends = ['cover_image', 'is_owner'];
 
 
