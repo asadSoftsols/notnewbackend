@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\GuidHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Offer;
+use App\Models\UserOrderSummary;
 use AP\Models\Transaction;
 use App\Models\UserNotification;
 use App\Models\Fedex;
@@ -295,9 +296,24 @@ class OrderController extends Controller
         return UserOrder::where('status',UserOrder::COMPLETED)->get();
     }
     public function getUserCompletedCount(Request $request){
-        return UserOrder::where('status',UserOrder::COMPLETED)->count();
+        return UserOrderSummary::where('seller_id', \Auth::user()->id)->count();
+        // ->where('status',UserOrder::COMPLETED)->count();
     }
-
+    public function getOrderSummary(Request $request){
+        return UserOrderSummary::with(['buyer'])
+        ->with(['product'])
+        ->with(['order'])
+        ->where('seller_id', \Auth::user()->id)
+        ->get();
+    }
+    public function getSingleOrderSummary(Request $request, $id){
+        return UserOrderSummary::with(['buyer'])
+        ->with(['product'])
+        ->with(['order'])
+        ->where('seller_id', \Auth::user()->id)
+        ->where('order_id', $id)
+        ->first();
+    }
     public function store(Request $request)
     {    
         return DB::transaction(function () use ($request) {
@@ -313,7 +329,6 @@ class OrderController extends Controller
                 $shipping->city = $user->city_id;
                 $shipping->zip = $request->get("zip");
                 $shipping->save();
-    
             }
             $shippingDetails = ShippingDetail::where('user_id',Auth::user()->id)->first();
             $order = new UserOrder();
@@ -327,11 +342,11 @@ class OrderController extends Controller
             $order->address = $shippingDetails->street_address ? $shippingDetails->street_address: $request->get("secondaddress");
             $order->discountcode = $request->get("discountcode");
             $order->orderItems = json_encode($request->get("orderItems"));
-            $order->subtotal_cost = $request->get("subtotal_cost") ? $request->get("subtotal_cost") : 0;
-            $order->actual_cost = $request->get("actual_cost") ? $request->get("actual_cost") : 0;
+            $order->subtotal_cost = '20';//$request->get("subtotal_cost") ? $request->get("subtotal_cost") : 0;
+            $order->actual_cost = '20';//$request->get("actual_cost") ? $request->get("actual_cost") : 0;
             $order->shipping_cost = $request->get("shipping_cost") ? $request->get("shipping_cost") : 0;
             $order->prices = json_encode($request->get("prices"));
-            $order->order_total = $request->get("order_total");
+            $order->order_total = '20';//$request->get("order_total");
             $order->status= UserOrder::STATUS_ORDERED;
             $order->payment_intents = $request->get("payment_intents");
             $order->Curency = $request->get("Curency");
@@ -341,6 +356,17 @@ class OrderController extends Controller
             $order->created_at = Carbon::now()->toDateTimeString();//'2023-01-30 17:40:31';
             $order->updated_at = Carbon::now()->toDateTimeString();//'2023-01-30 17:40:31';
             $order->save();
+
+            $orderItems = json_decode($request->get("orderItems"));
+            foreach($orderItems as $items)
+            {
+                $usersummary = new UserOrderSummary();
+                $usersummary->order_id = $order->id;
+                $usersummary->product_id = $items->id;
+                $usersummary->seller_id = $items->user_id;
+                $usersummary->save();
+            }
+
             if($request->get('payment_type') == 'Stripe'){
                 $this->stripe = new StripeClient('sk_test_51McZZOBL2ne1CK3D89BPN3QmKiF2hMTZI1IvcdkgZ5asDQrOghL2IC3RnqAAsQK2ctgezVbCUdiwEfu9rv93Visf00eHdE1vlk');       
                 $paymentIntent = $this->stripe->paymentIntents->create([
@@ -418,9 +444,10 @@ class OrderController extends Controller
      */
     public function show($id)
     { 
-        return Order::where('id', $id)->with(["product" => function (BelongsTo $hasMany) {
+        return UserOrder::where('id', $id)->
+        with(["product" => function (BelongsTo $hasMany) {
             $hasMany->select(Product::defaultSelect());
-        }, "buyer" => function (BelongsTo $hasMany) {
+        },"buyer" => function (BelongsTo $hasMany) {
             $hasMany->select(User::defaultSelect());
         }, "seller" => function (BelongsTo $hasMany) {
             $hasMany->select(User::defaultSelect());
@@ -428,7 +455,14 @@ class OrderController extends Controller
             $hasMany->select(ShippingDetail::defaultSelect());
         }, 'refund' => function ($query) {
             $query->select(Refund::defaultSelect());
-        }])->get();
+        }
+        ])->get();
+    }
+
+
+    public function getById($id){
+        return UserOrder::where('id', $id)->
+            with("buyer")->first();
     }
 
     /**

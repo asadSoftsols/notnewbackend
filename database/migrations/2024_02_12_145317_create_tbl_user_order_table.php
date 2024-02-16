@@ -30,7 +30,7 @@ return new class extends Migration
             $table->float('shipping_cost');
             $table->jsonb('prices');
             $table->float('order_total');
-            $table->enum('status', [UserOrder::statuses()]);
+            $table->enum('status', [UserOrder::statuses()])->default(UserOrder::STATUS_PENDING);
             $table->string('deliver_status')->default(false);
             $table->timestamp('deliver_at');
             $table->string('payment_intents')->comment('Stripe returns this after successful payment hold')->nullable();

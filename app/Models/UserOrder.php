@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserOrder extends Model
 {
-    const STATUS_ORDERED='ordered',
+    const 
+        STATUS_PENDING='pending',
+        STATUS_ORDERED='ordered',
         STATUS_UNPAID = 'UNPAID',
         STATUS_PAID = 'PAID',
         STATUS_REFUNDED = 'REFUNDED',
@@ -93,7 +95,8 @@ class UserOrder extends Model
             self::STATUS_UNPAID,
             self::STATUS_PAID,
             self::STATUS_REFUNDED,
-            self::COMPLETED
+            self::COMPLETED,
+            self::STATUS_PENDING,
         ];
     }
 }
