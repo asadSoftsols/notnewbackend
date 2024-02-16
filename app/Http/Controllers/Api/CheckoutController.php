@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\GuidHelper;
 use App\Models\CheckOut;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,7 @@ class CheckoutController extends Controller
         return DB::transaction(function () use ($request) {
             CheckOut::where('user_id', \Auth::user()->id)->delete();
             $checkout = new CheckOut();
+            $checkout->guid = GuidHelper::getGuid();
             $checkout->cart_id = "";//$request->get('cart_id');
             $checkout->user_id = \Auth::user()->id;
             $checkout->dicount_code = $request->get('dicount_code');

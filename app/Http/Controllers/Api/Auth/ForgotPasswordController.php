@@ -46,15 +46,22 @@ class ForgotPasswordController extends Controller
      
     }
     public function verifyAuthOtp(Request $request){
-        
         return DB::transaction(function () use ($request) {  
             $validator = $this->validator($request->all());
 
             if ($validator->fails()) {
-                throw ValidationException::withMessages(['message' => "add All Feilds"]);
+                return [
+                    'status'  =>  'Fail',
+                    'message' => "Required All Feilds"
+                ];
+                // throw ValidationException::withMessages(['message' => "add All Feilds"]);
             }
             if (Otp::where('otp', $request->otp)->count() != 1) {
-                throw ValidationException::withMessages(['message' => "Otp Is Incorrect or You may already Registered!"]);
+                return [
+                    'status'  =>  'Fail',
+                    'message' => "Otp Not Verified!"
+                ];
+                // thow ValidationException::withMessages(['message' => "Otp Is Incorrect or You may already Registered!"]);
             }else{
                 $opt = Otp::where('otp', $request->otp)->first();
                 $user = User::where('email', $opt->email)->first();

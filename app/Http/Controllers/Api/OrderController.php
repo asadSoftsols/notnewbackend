@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\GuidHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Offer;
+use AP\Models\Transaction;
 use App\Models\UserNotification;
 use App\Models\Fedex;
 use App\Models\EasyPost;
@@ -290,6 +291,13 @@ class OrderController extends Controller
             });
         });
     }
+    public function getUserCompleted(Request $request){
+        return UserOrder::where('status',UserOrder::COMPLETED)->get();
+    }
+    public function getUserCompletedCount(Request $request){
+        return UserOrder::where('status',UserOrder::COMPLETED)->count();
+    }
+
     public function store(Request $request)
     {    
         return DB::transaction(function () use ($request) {
