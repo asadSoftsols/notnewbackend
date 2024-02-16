@@ -92,7 +92,8 @@ class UserOrder extends Model
         return [
             self::STATUS_UNPAID,
             self::STATUS_PAID,
-            self::STATUS_REFUNDED
+            self::STATUS_REFUNDED,
+            self::COMPLETED
         ];
     }
 }

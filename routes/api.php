@@ -140,6 +140,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::Resources([
             'order' => \Api\OrderController::class,
             'prices' => \Api\PricesController::class,
+            // 'transaction' => \Api\TransactionController::class,
         ]);
         Route::get('/order/tracking/{id}', [Api\OrderController::class, 'tracking']);
         Route::patch('/order/packed/{id}', [Api\OrderController::class, 'packed']);
@@ -174,6 +175,10 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/updateBank', [Api\SellerDataController::class, 'updateBank']);
             Route::get('/getBankDetails', [Api\SellerDataController::class, 'getBankDetails']);
         });
+        Route::group(['prefix' => '/transaction'], function () {
+            Route::get('/usertransaction', [Api\TransactionController::class, 'getUserTransactions']);
+        });
+        
 });
 
 Route::group(['prefix' => '/stripe', ['middleware' => 'auth:api']], function () {
