@@ -124,24 +124,24 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/getById/{id}', [Api\SaveCartLaterController::class, 'getById']);
             Route::get('/getByUser', [Api\SaveCartLaterController::class, 'getByUser']);
         });
-
         Route::group(['prefix' => '/checkout'], function () {
             Route::post('/add', [Api\CheckoutController::class, 'store']);
             Route::get('/', [Api\CheckoutController::class, 'index']);
             Route::get('/self', [Api\CheckoutController::class, 'self']);
             Route::get('/destroy/{id}', [Api\CheckoutController::class, 'destroy']);
         });
-
         Route::get('/message/conversations/{productId}', [Api\MessageController::class, 'conversations']);
         Route::get('/message/conversations', [Api\MessageController::class, 'getUserConversations']);
         Route::post('/message/saveAssociated', [Api\MessageController::class, 'saveAssociated']);
         Route::get('/message/{recipientId}/{productId}', [Api\MessageController::class, 'show']);
         Route::get('/message/checkMessage', [Api\MessageController::class, 'checkMessage']);
         Route::Resources([
-            'order' => \Api\OrderController::class,
+            // 'order' => \Api\OrderController::class,
             'prices' => \Api\PricesController::class,
             // 'transaction' => \Api\TransactionController::class,
         ]);
+        Route::get('/order/getById/{id}', [Api\OrderController::class, 'getById']);
+        Route::get('/order/counts', [Api\OrderController::class, 'getUserCompletedCount']);
         Route::get('/order/tracking/{id}', [Api\OrderController::class, 'tracking']);
         Route::patch('/order/packed/{id}', [Api\OrderController::class, 'packed']);
         Route::post('/order/ratecalculator', [Api\OrderController::class, 'ratecalculator']);
@@ -161,6 +161,10 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
         Route::group(['prefix' => '/prices'], function () {
             Route::get('/getbyId/{id}', [Api\PricesController::class, 'getbyId']);
+        });
+        Route::group(['prefix' => '/ordersummary'], function () {
+            Route::get('/', [Api\OrderController::class, 'getOrderSummary']);
+            Route::get('/{id}', [Api\OrderController::class, 'getSingleOrderSummary']);
         });
         Route::post('refund', [Api\RefundController::class, 'store']);
         Route::patch('refund/{id}/{status}', [Api\RefundController::class, 'update']);
