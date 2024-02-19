@@ -13,7 +13,8 @@ class UserOrder extends Model
         STATUS_PAID = 'PAID',
         STATUS_REFUNDED = 'REFUNDED',
         DELIVERED = 'delivered',
-        COMPLETED = 'completed';
+        COMPLETED = 'completed',
+        REFUND = 'refund';
     /**
      * The table associated with the model.
      *
@@ -65,7 +66,8 @@ class UserOrder extends Model
         'delivery_days',
         'read_by_admin',
         'product_id',
-        'order_type'
+        'order_type',
+        'estimateDelivery'
     ];
     protected $casts = [
         'created_at'  => 'date:Y-m-d',
@@ -97,6 +99,7 @@ class UserOrder extends Model
             self::STATUS_REFUNDED,
             self::COMPLETED,
             self::STATUS_PENDING,
+            self::REFUND,
         ];
     }
 }
