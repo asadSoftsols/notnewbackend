@@ -63,6 +63,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/deleteAccount/{id}', [Api\UserController::class, 'deleteAccount']);
             Route::post('/cancelDelete/{id}', [Api\UserController::class, 'cancelDelete']);
             Route::patch('/', [Api\UserController::class, 'update']);
+            Route::patch('/profileupdate', [Api\UserController::class, 'profileUpdate']);
             Route::get('/refresh/{user}', [Api\UserController::class, 'refreshOnboardingUrl']);
             Route::get('/checkAccount/{account}', [Api\StripeController::class, 'checkAccount']);
             Route::post('saveAddress/', [Api\SaveAddressController::class, 'create']);
@@ -141,6 +142,12 @@ Route::group(['middleware' => 'auth:api'], function () {
             // 'transaction' => \Api\TransactionController::class,
         ]);
         Route::get('/order/getById/{id}', [Api\OrderController::class, 'getById']);
+        Route::get('/order/{id}', [Api\OrderController::class, 'update']);
+        Route::patch('/order/updateSeller/{id}', [Api\OrderController::class, 'updateSeller']);
+        Route::get('/order/customer/comp/count', [Api\OrderController::class, 'customerOrderCompCount']);
+        Route::get('/order/customer/pend/count', [Api\OrderController::class, 'customerOrderPendCount']);
+        Route::get('/order/customer/refund/count', [Api\OrderController::class, 'customerOrderRefundCount']);
+        Route::get('/order/customer/orders', [Api\OrderController::class, 'customerOrders']);
         Route::get('/order/counts', [Api\OrderController::class, 'getUserCompletedCount']);
         Route::get('/order/tracking/{id}', [Api\OrderController::class, 'tracking']);
         Route::patch('/order/packed/{id}', [Api\OrderController::class, 'packed']);

@@ -129,6 +129,20 @@ class UserController extends Controller
 
     }
 
+    public function profileUpdate(Request $request)
+    {
+        if (Auth::check()) {
+            $user = User::where('id', Auth::user()->id)->update([
+                "email" => $request->get('email'),
+                "phone" => $request->get('phone'),
+                "site" => $request->get('site'),
+            ]);
+
+            return $this->genericResponse(true, "Profile Updated");
+        }
+
+    }
+
     public function refreshOnboardingUrl(User $user)
     {
         $accountLink = StripeHelper::createAccountLink($user);

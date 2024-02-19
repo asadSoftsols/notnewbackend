@@ -802,6 +802,42 @@ class OrderController extends Controller
             return $order;
           }
         }
+        public function customerOrderCompCount(Request $request){
+             return UserOrder::where('buyer_id', Auth::user()->id)
+                 ->where('status', UserOrder::COMPLETED)
+                 ->count();
+         }
+
+         public function customerOrderPendCount(Request $request){
+            return UserOrder::where('buyer_id', Auth::user()->id)
+                ->where('status', UserOrder::STATUS_PENDING)
+                ->count();
+        }
+
+        public function customerOrderRefundCount(Request $request){
+            return UserOrder::where('buyer_id', Auth::user()->id)
+                ->where('status', UserOrder::REFUND)
+                ->count();
+        }
+
+        public function customerOrders(Request $request){
+            return UserOrder::where('buyer_id', Auth::user()->id)
+                ->get();
+        }
+
+        public function updateSeller(Request $request, $id){
+            return DB::transaction(function () use ($request, $id) { 
+                UserOrder::where('id', $id)->update([
+                    "estimateDelivery" => $request->get('estimateDelivery'),
+                    "shipping_cost" => $request->get('shipping_cost'),
+                    "discountcode" => $request->get('discountcode'),
+                    "status"  => $request->get('pending'),
+                    "admin_notes" => $request->get('admin_notes'),
+                ]);
+                return ['success' => true,'message' => 'Data Updated'];
+            });
+
+        }
         public function update(Order $order, Request $request)
         {
         try{
