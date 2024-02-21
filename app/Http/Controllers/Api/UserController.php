@@ -136,13 +136,26 @@ class UserController extends Controller
                 "email" => $request->get('email'),
                 "phone" => $request->get('phone'),
                 "site" => $request->get('site'),
+                "address" => $request->get('address'),
             ]);
 
             return $this->genericResponse(true, "Profile Updated");
         }
-
     }
-
+    public function setSecretQuestion(Request $request){
+        if (Auth::check()) {
+            $user = User::where('id', Auth::user()->id)->update([
+                "secret_question" => $request->get('secret_question')
+            ]);
+            if($user){
+                return response()->json(['status'=>'true','message'=>'Secret Question is Set.'],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Secret Questions is Not Set!'],500);
+            }
+            
+            // return $this->genericResponse(true, "Secret Question Updated");
+        }
+    }
     public function refreshOnboardingUrl(User $user)
     {
         $accountLink = StripeHelper::createAccountLink($user);
@@ -177,4 +190,71 @@ class UserController extends Controller
             return 'Your Request has not been Send For delete Account!. Kindly try again';
         }       
     }
+
+    public function twoStepsVerifications(Request $request)
+    {
+        $twosteps = false; 
+        if($request->get('twosteps') == "1"){
+            $twosteps = true;
+        }
+        $user = User::where('id', Auth::user()->id)->update([
+            "twosteps" => $twosteps
+        ]);
+        if($user){
+            return response()->json(['status'=>'true','message'=>'2 Factor status is Changed!'],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Change 2 Factor status!'],500);
+        }
+
+    }
+
+    public function thirdParty(Request $request)
+    {
+        $thirdparty = false; 
+        if($request->get('thirdparty') == "1"){
+            $thirdparty = true;
+        }
+        $user = User::where('id', Auth::user()->id)->update([
+            "thirdparty" => $request->get('thirdparty')
+        ]);
+        if($user){
+            return response()->json(['status'=>'true','message'=>'Third Party App Access Changed!'],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Change Third Party App Access!'],500);
+        }
+    }
+
+    public function fbAccount(Request $request)
+    {
+        $fbaccount = false; 
+        if($request->get('fbaccount') == "1"){
+            $fbaccount = true;
+        }
+        $user = User::where('id', Auth::user()->id)->update([
+            "fbaccount" => $fbaccount
+        ]);
+        if($user){
+            return response()->json(['status'=>'true','message'=>'FaceBook Status Changed!'],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Change FaceBook Status!'],500);
+        }
+    }
+
+    public function updateAddress(Request $request)
+    {
+        $user = User::where('id', Auth::user()->id)->update([
+            "address" => $request->get('address'),
+            "city_id" => $request->get('city_id'),
+            "country_id" => $request->get('country_id'),
+            "latitute" => $request->get('latitute'),
+            "longitude" => $request->get('longitude'),
+            "state_id" => $request->get('state_id')
+        ]);
+        if($user){
+            return response()->json(['status'=>'true','message'=>'Address Created Successuly!'],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Save Address Created Successuly!'],500);
+        }
+    }
+
 }

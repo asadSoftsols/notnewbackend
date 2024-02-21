@@ -70,6 +70,14 @@ class TransactionController extends Controller
         return array_sum($amounts);
     }
 
+    public function getTransactions(Request $request){
+        $transactions =  Transaction::where('user_id',\Auth::user()->id)
+        ->with(['bank'])
+        ->with(['user'])
+        ->get();
+        return $transactions;
+    }
+
     public function store(Request $request)
     {    
         //

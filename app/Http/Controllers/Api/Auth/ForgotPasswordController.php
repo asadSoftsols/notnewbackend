@@ -14,8 +14,10 @@ use App\Notifications\ForgetPasswordVerification;
 use App\Notifications\SuccessfullRegister;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use App\Helpers\StringHelper;
+use Illuminate\Http\Response;
 
 class ForgotPasswordController extends Controller
 {
@@ -27,7 +29,9 @@ class ForgotPasswordController extends Controller
             Otp::where('email','=',strtolower($user->email))->delete();
             Notification::send($user, new ForgetPasswordVerification());
          }else{
-            return $this->genericResponse(false, 'Email not found',500);
+            // return $this->genericResponse(false, 'Email not found',500);
+            // return Response::json(['message' => 'Email not found'],400);
+            return response()->json(['status'=>'false','message'=>'Email not found'],400);
             // throw ValidationException::withMessages(['email' => trans($user)]);
          }
          return $this->genericResponse(true, 'Otp Send SuccessFully',200);
@@ -57,10 +61,11 @@ class ForgotPasswordController extends Controller
                 // throw ValidationException::withMessages(['message' => "add All Feilds"]);
             }
             if (Otp::where('otp', $request->otp)->count() != 1) {
-                return [
-                    'status'  =>  'Fail',
-                    'message' => "Otp Not Verified!"
-                ];
+                return response()->json(['status'=>'false','message'=>'Otp Not Verified!'],400);
+                // return [
+                //     'status'  =>  'Fail',
+                //     'message' => "Otp Not Verified!"
+                // ];
                 // thow ValidationException::withMessages(['message' => "Otp Is Incorrect or You may already Registered!"]);
             }else{
                 $opt = Otp::where('otp', $request->otp)->first();
@@ -88,5 +93,16 @@ class ForgotPasswordController extends Controller
         return  Validator::make($data,[
             'otp' => 'required',
         ]);
+    }
+    protected function changePassword(Request $request){ 
+        $user = User::where('id',\Auth::user()->id)->update([
+            "password" => Hash::make($request->get('confirm_password'))
+        ]);
+        if($user){
+            return response()->json(['status'=>'true','message'=>'Password is Changed'],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Password is not Changed!'],400);
+        }
+
     }
 }

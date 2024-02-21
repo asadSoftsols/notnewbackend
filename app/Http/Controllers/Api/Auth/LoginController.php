@@ -74,25 +74,28 @@ class LoginController extends Controller
         if (method_exists($this, 'hasTooManyLoginAttempts') &&
             $this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
+            return response()->json(['errors' => "you've been locked",'status'=>'false','message'=>'You attempt number of time your account has been blocked!'],403);
 
-            return $this->genericResponse(false, 'You attempt number of time your account has been blocked',
-                null, ['errors' => [
-                    "you've been locked"
-                ]]);
+            // return $this->genericResponse(false, 'You attempt number of time your account has been blocked',
+            //     null, ['errors' => [
+            //         "you've been locked"
+            //     ]]);
         }
       
         $checkuser = User::where('email', strtolower(request('email')))->first();
         if(!$checkuser){
-            return $this->genericResponse(false, 'Invalid Email', 403, [
-                'status' => 'fail',
-                'message' => 'Email not Exits!'
-            ]);
+            // return $this->genericResponse(false, 'Invalid Email', 403, [
+            //     'status' => 'fail',
+            //     'message' => 'Email not Exits!'
+            // ]);
+            return response()->json(['status'=>'false','message'=>'Email not Exits!'],403);
         }else{
             if (!Auth::attempt(['email' => strtolower(request('email')), 'password' => request('password')])) {
-                return $this->genericResponse(false, 'Login Failed', 403, [
-                    'status' => 'fail',
-                    'message' => [trans('auth.failed')]
-                ]);
+                return response()->json(['status'=>'false','message'=>trans('auth.failed')],403);
+                // return $this->genericResponse(false, 'Login Failed', 403, [
+                //     'status' => 'fail',
+                //     'message' => [trans('auth.failed')]
+                // ]);
                 // throw ValidationException::withMessages([
                 //     $this->username() => [trans('auth.failed')],
                 // ]);
