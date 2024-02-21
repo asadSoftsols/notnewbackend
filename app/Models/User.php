@@ -72,7 +72,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
      * @var array
      */
     protected $fillable = ['name', 'email', 'email_verified_at', 'password', 'device_token', 'state_id', 'city_id', 'country_id', 'isTrustedSeller', 'location', 'status', 'phone', 'guid', 'profile_url', 'remember_token', 'created_at', 'updated_at', 'customer_stripe_id', 'softdelete', 'is_autoAdd',
-            'address', 'latitute', 'longitude', 'site'];
+            'address', 'latitute', 'longitude', 'site', 'secret_question', 'secret_answer', 'twosteps', 'thirdparty', 'fbaccount'];
 
     protected $hidden = ['password'];
 
@@ -91,6 +91,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function comments()
     {
         return $this->hasMany('App\Models\Comment');
+    }
+
+    public function transaction()
+    {
+        return $this->hasMany('App\Models\Transaction');
     }
 
     /**

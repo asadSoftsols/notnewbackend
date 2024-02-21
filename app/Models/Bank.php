@@ -22,4 +22,5 @@ class Bank extends Model
      * @var array
      */
     protected $fillable = ['fullname', 'shortname', 'phone', 'address', 'zip', 'guid', 'created_at', 'updated_at'];
+
 }

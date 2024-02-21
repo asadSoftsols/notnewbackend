@@ -67,7 +67,13 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/refresh/{user}', [Api\UserController::class, 'refreshOnboardingUrl']);
             Route::get('/checkAccount/{account}', [Api\StripeController::class, 'checkAccount']);
             Route::post('saveAddress/', [Api\SaveAddressController::class, 'create']);
-
+            Route::patch('secretquestion/', [Api\UserController::class, 'setSecretQuestion']);
+            Route::post('change-password', [Api\Auth\ForgotPasswordController::class, 'changePassword']);
+            Route::post('two-steps', [Api\UserController::class, 'twoStepsVerifications']);
+            Route::post('third-party', [Api\UserController::class, 'thirdParty']);
+            Route::post('fb-account', [Api\UserController::class, 'fbAccount']);
+            Route::post('/updateaddress', [Api\UserController::class, 'updateAddress']);
+            
         });
         Route::group(['prefix' => '/products'], function () {
             Route::post('/add', [Api\ProductController::class, 'store']);
@@ -188,6 +194,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
         Route::group(['prefix' => '/transaction'], function () {
             Route::get('/usertransaction', [Api\TransactionController::class, 'getUserTransactions']);
+            Route::get('/gettransactions', [Api\TransactionController::class, 'getTransactions']);
         });
         
 });
