@@ -77,6 +77,15 @@ class TransactionController extends Controller
         ->get();
         return $transactions;
     }
+    public function getStripeTransactions(Request $request){
+        $transactions =  Transaction::where('user_id',\Auth::user()->id)
+        ->where('transaction_type', 'Stripe')
+        ->with(['bank'])
+        ->with(['user'])
+        ->get();
+        return $transactions;
+    }
+    
 
     public function store(Request $request)
     {    

@@ -21,7 +21,7 @@ class SellerData extends Model
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'country_id', 'state_id', 'city_id', 'fullname', 'email', 'phone', 'address',  'zip',  'zip',  'password',  'password_confirmation','created_at', 'updated_at'];
+    protected $fillable = ['user_id', 'country_id', 'state_id', 'city_id', 'fullname', 'email', 'phone', 'address',  'zip',  'zip',  'password',  'password_confirmation','created_at', 'updated_at', 'description'];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
