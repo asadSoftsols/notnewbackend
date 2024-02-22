@@ -52,10 +52,11 @@ class SellerDataController extends Controller
     {
                
         return DB::transaction(function () use ($request) {
-            $checkseller = SellerData::where('user_id', \Auth::user()->id)->first();
-            if($checkseller){
-                return $this->genericResponse(false, "Store Already Exists!", 400);
-            }else{
+            $checkseller = SellerData::where('user_id', \Auth::user()->id)->delete();
+            // $checkseller = SellerData::where('user_id', \Auth::user()->id)->first();
+            // if($checkseller){
+            //     return $this->genericResponse(false, "Store Already Exists!", 400);
+            // }else{
                     $sellerData = new SellerData();
                     $sellerData->user_id = \Auth::user()->id;
                     $sellerData->country_id = $request->country;
@@ -77,7 +78,7 @@ class SellerDataController extends Controller
                     $user->notify(new SellerDataNotify($user));
                     return $this->genericResponse(false, "Seller Register Successfully!", 200);
                 
-            }
+            // }
         }); 
         // return DB::transaction(function () use ($request) {
         //     $sellerData = new SellerData();
@@ -176,9 +177,7 @@ class SellerDataController extends Controller
     public function setBankData(Request $request)
     {
         return DB::transaction(function () use ($request) {
-            
             UserBank::where('user_id',\Auth::user()->id)->delete();
-
             $userbank = new UserBank();
             $userbank->user_id = \Auth::user()->id;
             $userbank->bank_id = $request->bank_id;

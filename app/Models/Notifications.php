@@ -34,10 +34,10 @@ class Notifications extends DatabaseNotification
     /**
      * @var array
      */
-    protected $fillable = ['type', 'notifiable_type', 'notifiable_id', 'data', 'read_at', 'created_at', 'updated_at'];
+    protected $fillable = ['type', 'notifiable_type', 'notifiable_id', 'data', 'read_at', 'heading', 'sub_heading','created_at', 'updated_at'];
 
     public static function defaultSelect()
     {
-        return ['type', 'notifiable_type', 'notifiable_id', 'data', 'read_at', 'created_at', 'updated_at'];
+        return ['type', 'notifiable_type', 'notifiable_id', 'data', 'read_at','heading', 'sub_heading', 'created_at', 'updated_at'];
     }   
 }

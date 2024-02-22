@@ -73,7 +73,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('third-party', [Api\UserController::class, 'thirdParty']);
             Route::post('fb-account', [Api\UserController::class, 'fbAccount']);
             Route::post('/updateaddress', [Api\UserController::class, 'updateAddress']);
-            
+            Route::get('/recentuserview', [Api\ProductController::class, 'recentUserView']);
         });
         Route::group(['prefix' => '/products'], function () {
             Route::post('/add', [Api\ProductController::class, 'store']);
@@ -95,6 +95,11 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('offers/buying', [Api\ProductController::class, 'getBuyingOffers']);
             Route::get('offers/selling', [Api\ProductController::class, 'getSellingOffers']);
         });
+        Route::group(['prefix' => '/stock'], function(){
+            Route::get('/instock', [Api\ProductController::class, 'inStock']);
+            Route::get('/outstock', [Api\ProductController::class, 'outStock']);
+        });
+        
         Route::group(['prefix' => '/cart'], function () {
             Route::post('/add', [Api\UserCartController::class, 'store']);
             Route::get('/', [Api\UserCartController::class, 'index']);
@@ -103,6 +108,15 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::delete('/destroy/{id}', [Api\UserCartController::class, 'destroy']);    
             Route::put('/update/{id}', [Api\UserCartController::class, 'update']); 
             Route::get('/count', [Api\UserCartController::class, 'count']); 
+        });
+        Route::group(['prefix' => '/notificationsettings'], function () {
+            Route::post('/add', [Api\NotificationSettingController::class, 'store']);
+            Route::get('/', [Api\NotificationSettingController::class, 'index']);
+            Route::get('/show', [Api\NotificationSettingController::class, 'show']);    
+            Route::post('/clear/{id}', [Api\NotificationSettingController::class, 'clear']);    
+            Route::delete('/destroy/{id}', [Api\NotificationSettingController::class, 'destroy']);    
+            Route::put('/update', [Api\NotificationSettingController::class, 'update']); 
+            Route::get('/count', [Api\NotificationSettingController::class, 'count']); 
         });
         Route::group(['prefix' => '/offer'], function () {
             Route::post('status/{offer:guid}', [Api\OfferController::class, 'statusHandler']);
@@ -195,6 +209,8 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::group(['prefix' => '/transaction'], function () {
             Route::get('/usertransaction', [Api\TransactionController::class, 'getUserTransactions']);
             Route::get('/gettransactions', [Api\TransactionController::class, 'getTransactions']);
+            Route::get('/getstripetransactions', [Api\TransactionController::class, 'getStripeTransactions']);
+            
         });
         
 });

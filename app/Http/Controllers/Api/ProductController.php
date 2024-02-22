@@ -130,6 +130,46 @@ class ProductController extends Controller
     public function recentView(Request $request){
         return RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
     }
+    public function recentUserView(Request $request){
+        $recent =  RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+        $products = [];
+        foreach($recent as $rcent){
+            array_push($products, $rcent->products);
+        }
+        $userProduct = [];
+        foreach($products as $pro){
+            if($pro->user_id == \Auth::user()->id){
+                array_push($userProduct, $pro);  
+            }
+            //   
+        }
+        if($userProduct){
+            return response()->json(['status'=>'true','data'=>$userProduct],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Get Recent Viewed!'],500);
+        }
+    }
+    public function inStock(Request $request){
+        $stockIn = Product::where('stockcapacity' , '>', 0)
+        ->where('user_id', \Auth::user()->id)->get();
+
+        if($stockIn){
+            return response()->json(['status'=>'true','data'=>$stockIn],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Get Inventory!'],500);
+        }
+    }
+    public function outStock(Request $request){
+        $stockOut = Product::where('stockcapacity' , '==', 0)
+        ->where('user_id', \Auth::user()->id)->get();
+        if($stockOut){
+            return response()->json(['status'=>'true','data'=>$stockOut],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Get Inventory!'],500);
+        }
+
+    }
+
     public function createRecentView(Request $request){
         DB::beginTransaction();
         try{
