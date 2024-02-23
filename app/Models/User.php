@@ -280,4 +280,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function orders(){
         return $this->hasMany(UserOrder::index);
     }
+    public function shop(){
+        return $this->hasOne(SellerData::class);
+    }
 }

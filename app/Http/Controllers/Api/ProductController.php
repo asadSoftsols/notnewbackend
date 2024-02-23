@@ -15,6 +15,7 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Models\ProductsAttribute;
 use App\Models\User;
+use App\Models\RecentUserView;
 use App\Models\Countries;
 use App\Models\City;
 use App\Models\State;
@@ -128,25 +129,36 @@ class ProductController extends Controller
     }
 
     public function recentView(Request $request){
-        return RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+        $recentProducts = RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+        $userProducts = [];
+        foreach($recentProducts as $recentProduct){
+            //    $getRecent =  
+            array_push($userProducts, $recentProduct);
+        }
+        return $userProducts;
     }
     public function recentUserView(Request $request){
-        $recent =  RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
-        $products = [];
-        foreach($recent as $rcent){
-            array_push($products, $rcent->products);
-        }
-        $userProduct = [];
-        foreach($products as $pro){
-            if($pro->user_id == \Auth::user()->id){
-                array_push($userProduct, $pro);  
-            }
+        $userProduct = RecentUserView::where('user_id', \Auth::user()->id)
+            ->with(['user'])
+            ->with(['recent'])
+            ->with(['product'])
+            ->get();
+        // $recent =  RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+        // $products = [];
+        // foreach($recent as $rcent){
+        //     array_push($products, $rcent->products);
+        // }
+        $product = [];
+        foreach($userProduct as $pro){
+            // if($pro->user_id == \Auth::user()->id){
+                array_push($product, $pro->product);  
+            // }
             //   
         }
-        if($userProduct){
-            return response()->json(['status'=>'true','data'=>$userProduct],200);
+        if($product){
+            return response()->json(['status'=>'true','data'=>$product],200);
         }else{
-            return response()->json(['status'=>'false','message'=>'Unable to Get Recent Viewed!'],500);
+            return response()->json(['status'=>'false','message'=>$product],500);
         }
     }
     public function inStock(Request $request){
@@ -170,6 +182,15 @@ class ProductController extends Controller
 
     }
 
+    public function deleteRecent(Request $request){
+        $delete = RecentUserView::where('user_id', \Auth::user()->id)->delete();
+        if($delete){
+            return response()->json(['status'=>'true','data'=>"Recent view has been CLeared!"],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to CLeared Recent view!'],500);
+        }
+    }
+
     public function createRecentView(Request $request){
         DB::beginTransaction();
         try{
@@ -180,6 +201,11 @@ class ProductController extends Controller
             $recentview = new RecentView();
             $recentview->product_id = $product->id;
             $recentview->save();
+            $recentuserview =new  RecentUserView();
+            $recentuserview->recent_view_id = $recentview->id;
+            $recentuserview->product_id = $product->id;
+            $recentuserview->user_id = 25;//\Auth::user()->id;
+            $recentuserview->save();
            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -993,16 +1019,21 @@ class ProductController extends Controller
     {
         if (Auth::check()) {
 
-            $user = User::where('id', Auth::user()->id)->with('savedProducts')
+            $user = User::where('id', Auth::user()->id)->with('savedProducts')->with('shop')
             // ->with('savedServices')
             ->first();
-           
+            
+            if($user){
+                return response()->json(['status'=> true,'data' => $user], 200);       
+            }else{
+                return response()->json(['status'=> false,'message' => 'Unable to get WishList'], 500);        
+            }
             // $data = array_merge(json_decode($user->savedProducts));//, json_decode($user->savedServices));
             // return $user->savedServices;
-            return response()->json([
-                'user' => Auth::user()->id,
-                'data' => $user->savedProducts,
-            ], 200);
+            // return response()->json([
+            //     'user' => Auth::user()->id,
+            //     'data' => $user->savedProducts->shop,
+            // ], 200);
         }
     }
     public function getSaveByUser()

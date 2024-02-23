@@ -265,13 +265,16 @@ class Product extends Base implements IMediaInteraction
 
             if (!empty($savedItem)) {
                $savedItem->delete();
-               return 'Product is Delete from WishList';
+               //return 'Product is Delete from WishList';
             }
-            $this->savedUsers()->save(new SavedUsersProduct(["user_id" => $authenticatedUserId]));
-            return 'Product is Saved in WishList';
+            $savedUser = $this->savedUsers()->save(new SavedUsersProduct(["user_id" => $authenticatedUserId]));
+            if($savedUser){
+                return response()->json(['status'=> true,'message' => 'Product is Saved in WishList'], 200);       
+            }else{
+                return response()->json(['status'=> false,'message' => 'Unable to Saved in WishList'], 500);        
+            }
         }
     }
-
     public function getIsSavedAttribute(): bool
     {
         if (auth('api')->check()) {

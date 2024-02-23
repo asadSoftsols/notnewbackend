@@ -820,11 +820,51 @@ class OrderController extends Controller
                 ->count();
         }
 
-        public function customerOrders(Request $request){
+        public function customerOngoingOrders(Request $request){
             return UserOrder::where('buyer_id', Auth::user()->id)
+                ->where('status', UserOrder::STATUS_PENDING)
                 ->get();
         }
-
+        public function customerCompletedOrders(Request $request){
+            return UserOrder::where('buyer_id', Auth::user()->id)
+                ->where('status', UserOrder::COMPLETED)
+                ->get();
+        }
+        public function customerRefundOrders(Request $request){
+            return UserOrder::where('buyer_id', Auth::user()->id)
+                ->where('status', UserOrder::REFUND)
+                ->get();
+        }
+        public function buyAgainOrders(Request $request){
+            $order = UserOrderSummary::where('seller_id', Auth::user()->id)
+            ->with(['buyer', 'product', 'order'])
+            ->get();
+            // $order = UserOrder::where('buyer_id', Auth::user()->id)
+            // ->get();
+            // $detailsDate = array();
+            // foreach($order as $ord){
+            //     array_push($detailsDate, $ord->created_at);
+            // }
+            // $detailOrders = array();
+            // $dtailOrders = array();
+            // $finalArray = array();
+            // foreach($detailsDate as $date){
+            //     $order = UserOrder::where('created_at', $date)
+            //     ->first();
+            //     array_push($dtailOrders, $order);
+            //     $detailOrders =[
+            //         'date' => $date,
+            //         'orders' => $dtailOrders
+            //     ];
+            //     // array_push($finalArray, $detailOrders);
+            // }
+            // return $detailOrders;
+            if($order){
+                return response()->json(['status'=> true,'data' => $order], 200);       
+            }else{
+                return response()->json(['status'=> false,'message' => 'Unable to get Order'], 500);        
+            }
+        }
         public function updateSeller(Request $request, $id){
             return DB::transaction(function () use ($request, $id) { 
                 UserOrder::where('id', $id)->update([
