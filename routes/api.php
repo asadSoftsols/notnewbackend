@@ -74,6 +74,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('fb-account', [Api\UserController::class, 'fbAccount']);
             Route::post('/updateaddress', [Api\UserController::class, 'updateAddress']);
             Route::get('/recentuserview', [Api\ProductController::class, 'recentUserView']);
+            Route::delete('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
+            
         });
         Route::group(['prefix' => '/products'], function () {
             Route::post('/add', [Api\ProductController::class, 'store']);
@@ -167,7 +169,6 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/order/customer/comp/count', [Api\OrderController::class, 'customerOrderCompCount']);
         Route::get('/order/customer/pend/count', [Api\OrderController::class, 'customerOrderPendCount']);
         Route::get('/order/customer/refund/count', [Api\OrderController::class, 'customerOrderRefundCount']);
-        Route::get('/order/customer/orders', [Api\OrderController::class, 'customerOrders']);
         Route::get('/order/counts', [Api\OrderController::class, 'getUserCompletedCount']);
         Route::get('/order/tracking/{id}', [Api\OrderController::class, 'tracking']);
         Route::patch('/order/packed/{id}', [Api\OrderController::class, 'packed']);
@@ -186,6 +187,13 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/addUserAccforPostAdd/{uuid}', [Api\StripeController::class, 'addUserAccforPostAdd']);
             Route::get('/getBankAccounts', [Api\StripeController::class, 'getBankAccounts']);
         });
+        Route::group(['prefix' => '/order/customer'], function () {
+            Route::get('/ongoing', [Api\OrderController::class, 'customerOngoingOrders']);
+            Route::get('/completed', [Api\OrderController::class, 'customerCompletedOrders']);
+            Route::get('/refund', [Api\OrderController::class, 'customerRefundOrders']);
+            Route::get('/buyagainorders', [Api\OrderController::class, 'buyAgainOrders']);
+        });
+ 
         Route::group(['prefix' => '/prices'], function () {
             Route::get('/getbyId/{id}', [Api\PricesController::class, 'getbyId']);
         });
@@ -246,6 +254,7 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/getProductAttributes/{id}', [Api\ProductController::class, 'getProductAttributes']);
     Route::get('/recent', [Api\ProductController::class, 'recentView']);
     Route::post('/createRecent', [Api\ProductController::class, 'createRecentView']);
+    Route::post('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
     Route::delete('/destory/{guid}', [Api\ProductController::class, 'destory']);
     Route::get('/storeproduct/{storeid}', [Api\ProductController::class, 'getProductbyStore']);
 });
