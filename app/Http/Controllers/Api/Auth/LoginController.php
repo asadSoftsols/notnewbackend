@@ -126,16 +126,17 @@ class LoginController extends Controller
                 200, [
                     'data' => encrypt($request->user()),
                     'token' => $tokenResult,
+                    'user'=>$user,
                     'rememberme' => true
                 ]);
             }
             else{
                 return $this->genericResponse(true, 'Login Successful',
                 200, [
-                    'token' => $tokenResult
+                    'token' => $tokenResult,
+                    'user'=>$user
                 ]);
             }
-
         }
     }
 

@@ -59,10 +59,10 @@ class SellerDataController extends Controller
             // }else{
                     $sellerData = new SellerData();
                     $sellerData->user_id = \Auth::user()->id;
-                    $sellerData->country_id = $request->country;
-                    $sellerData->state_id = $request->state;
-                    $sellerData->city_id = $request->city;
-                    $sellerData->fullname = $request->name;
+                    $sellerData->country_id = $request->country_id;
+                    $sellerData->state_id = $request->state_id;
+                    $sellerData->city_id = $request->city_id;
+                    $sellerData->fullname = $request->fullname;
                     $sellerData->email = $request->email;
                     $sellerData->phone = $request->phone;
                     $sellerData->address = $request->address;
@@ -72,9 +72,6 @@ class SellerDataController extends Controller
                     $sellerData->guid = GuidHelper::getGuid();
                     $sellerData->save();
                     $user = User::where('id', \Auth::user()->id)->first();
-                    User::where('id', \Auth::user()->id)->update([
-                        "isTrustedSeller" => true
-                    ]);
                     $user->notify(new SellerDataNotify($user));
                     return $this->genericResponse(false, "Seller Register Successfully!", 200);
                 
@@ -117,7 +114,7 @@ class SellerDataController extends Controller
 
     public function getShopDetails($id)
     {
-        return SellerData::where('id', $id)->first();
+        return SellerData::where('user_id', \Auth::user()->id)->first();
     }
 
     public function getAllShopDetails($id)
@@ -149,7 +146,7 @@ class SellerDataController extends Controller
 
     public function updateSellerData(Request $request)
     {
-        $sellerData = SellerData::where('id', $request->get('id'))
+       $sellerData = SellerData::where('guid', $request->get('guid'))
             ->update([
             'user_id' => $request->user_id,
             'country_id' => $request->country_id,
