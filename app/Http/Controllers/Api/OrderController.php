@@ -296,8 +296,16 @@ class OrderController extends Controller
         return UserOrder::where('status',UserOrder::COMPLETED)->get();
     }
     public function getUserCompletedCount(Request $request){
-        return UserOrderSummary::where('seller_id', \Auth::user()->id)->count();
-        // ->where('status',UserOrder::COMPLETED)->count();
+        return 2;
+        // $count = UserOrderSummary::where('seller_id', \Auth::user()->id)
+        //     ->where('status',UserOrder::COMPLETED)
+        //     ->count();
+        // if($count){
+        //     return response()->json(['status'=> true,'data' => $count], 200);       
+        // }else{
+        //     return response()->json(['status'=> false,'message' => 0], 400);        
+        // }
+        // ->count();
     }
     public function getOrderSummary(Request $request){
         return UserOrderSummary::with(['buyer'])
@@ -880,140 +888,140 @@ class OrderController extends Controller
         }
         public function update(Order $order, Request $request)
         {
-        try{
-            return DB::transaction(function () use ($request, $order) { 
+        // try{
+        //     return DB::transaction(function () use ($request, $order) { 
                
-                $shouldUpdate = true;
-                if ($request->has('status')) {
+        //         $shouldUpdate = true;
+        //         if ($request->has('status')) {
                     
-                    $stripe = new StripeClient(env('STRIPE_SK'));
-                    $paymentIntent = $stripe->paymentIntents->retrieve($request->get('payment_intent'));
+        //             $stripe = new StripeClient(env('STRIPE_SK'));
+        //             $paymentIntent = $stripe->paymentIntents->retrieve($request->get('payment_intent'));
                   
-                    if ($paymentIntent->id !== $request->get('payment_intent') || $paymentIntent->status !== 'requires_capture'){
+        //             if ($paymentIntent->id !== $request->get('payment_intent') || $paymentIntent->status !== 'requires_capture'){
                          
-                        $shouldUpdate = false;
-                    }   
-                }
-                // if ($shouldUpdate) {
-                    $buyer = User::where('id', $order->buyer_id)->first();
-                    $seller = User::where('id', $order->seller_id)->first();
-                    $product = Product::where('id', $order->product_id)->first();
-                    $buyer_shipping = ShippingDetail::where('id', $order->shipping_detail_id)->first();
+        //                 $shouldUpdate = false;
+        //             }   
+        //         }
+        //         // if ($shouldUpdate) {
+        //             $buyer = User::where('id', $order->buyer_id)->first();
+        //             $seller = User::where('id', $order->seller_id)->first();
+        //             $product = Product::where('id', $order->product_id)->first();
+        //             $buyer_shipping = ShippingDetail::where('id', $order->shipping_detail_id)->first();
                 
-                    $resp = array(
-                        'shipment' => array(
-                            'from_address' => array(
-                                    'name' =>  $seller->name,
-                                    'street1' => $product->street_address,
-                                    "city" =>$product->city,//"HARRISON",
-                                    "state" =>$product->state,//"AR",
-                                    "zip" => $product->zip,//72601,
-                                    "country" => "US",
-                                    "phone" => "3331114444",
-                                    "email" => $seller->email
-                                ),
-                            'to_address' => array(
-                                    'name' =>  $buyer->name,
-                                    'street1' => $buyer_shipping->street_address,
-                                    "city" => $buyer_shipping->city,//"HARRISON",
-                                    "state" => $buyer_shipping->state,//"AR",
-                                    "zip" => $buyer_shipping->zip,//72601,
-                                    "country" => "US",
-                                    "phone" => "3331114444",
-                                    "email" => $buyer->email
-                                ),
-                                // "shipDatestamp" => Carbon::today()->format('Y-m-d'),
-                            'parcel' => array(
-                                'length' => $product->length,
-                                'width' => $product->width,
-                                "height" => $product->height,
-                                "weight" => $product->weight,
-                            ),
-                        )
-                    );
-                    $req = $request->all();
+        //             $resp = array(
+        //                 'shipment' => array(
+        //                     'from_address' => array(
+        //                             'name' =>  $seller->name,
+        //                             'street1' => $product->street_address,
+        //                             "city" =>$product->city,//"HARRISON",
+        //                             "state" =>$product->state,//"AR",
+        //                             "zip" => $product->zip,//72601,
+        //                             "country" => "US",
+        //                             "phone" => "3331114444",
+        //                             "email" => $seller->email
+        //                         ),
+        //                     'to_address' => array(
+        //                             'name' =>  $buyer->name,
+        //                             'street1' => $buyer_shipping->street_address,
+        //                             "city" => $buyer_shipping->city,//"HARRISON",
+        //                             "state" => $buyer_shipping->state,//"AR",
+        //                             "zip" => $buyer_shipping->zip,//72601,
+        //                             "country" => "US",
+        //                             "phone" => "3331114444",
+        //                             "email" => $buyer->email
+        //                         ),
+        //                         // "shipDatestamp" => Carbon::today()->format('Y-m-d'),
+        //                     'parcel' => array(
+        //                         'length' => $product->length,
+        //                         'width' => $product->width,
+        //                         "height" => $product->height,
+        //                         "weight" => $product->weight,
+        //                     ),
+        //                 )
+        //             );
+        //             $req = $request->all();
                     
-                    if($seller->isTrustedSeller == true){
+        //             if($seller->isTrustedSeller == true){
                         
-                        $metadata = null;
-                        $trustedSeller = TrustedSeller::where('user_id', $order->seller_id)->first();
-                        $order->vendorshipmenttype = $trustedSeller->shipmenttype;
-                        $order->vendorstatus = 'pending';
-                        $order->fill($req);
-                        $order->update();
-                        $product->is_sold = true;
-                        $product->update();
-                        $paymentmode = "Incomplete";
-                        $paymentslog = PaymentsVendorLog::request($paymentIntent,$req['status'],$paymentmode, $metadata);
-                        if ($request->has('status')) {
-                            /** @var User $user */
-                            $user = Auth::user();
-                            $user->notify(new OrderPlaced($order));
-                            /**
-                             * For Seller
-                             */
-                             $seller->notify(new OrderPlacedSeller($order));
-                        }
-                    }else{
+        //                 $metadata = null;
+        //                 $trustedSeller = TrustedSeller::where('user_id', $order->seller_id)->first();
+        //                 $order->vendorshipmenttype = $trustedSeller->shipmenttype;
+        //                 $order->vendorstatus = 'pending';
+        //                 $order->fill($req);
+        //                 $order->update();
+        //                 $product->is_sold = true;
+        //                 $product->update();
+        //                 $paymentmode = "Incomplete";
+        //                 $paymentslog = PaymentsVendorLog::request($paymentIntent,$req['status'],$paymentmode, $metadata);
+        //                 if ($request->has('status')) {
+        //                     /** @var User $user */
+        //                     $user = Auth::user();
+        //                     $user->notify(new OrderPlaced($order));
+        //                     /**
+        //                      * For Seller
+        //                      */
+        //                      $seller->notify(new OrderPlacedSeller($order));
+        //                 }
+        //             }else{
                         
-                        $shipment = EasyPost::createShipment($resp);
+        //                 $shipment = EasyPost::createShipment($resp);
                       
-                        $shipment= json_decode($shipment);
-                         if(isset($shipment->tracking_code)) {
-                            $metadata = null;
-                            $req["tracking_id"] = $shipment->tracking_code;
-                            $req["fedex_shipping"] = json_encode($shipment);//json_encode();
-                            $order->shipping_rates = $shipment->selected_rate->rate;
-                            $order->fill($req);
-                            $order->update();
-                            $paymentmode = "Incomplete";
-                            $paymentslog = PaymentsLog::request($paymentIntent,$req['status'],$paymentmode, $metadata);
-                            $product->is_sold = true;
-                            $product->update();
-                            // Artisan::call('queue:work  --daemon');
-                            // @Todo: create a different controller action for order confirmation
-                            if ($request->has('status')) {
-                                /** @var User $user */
-                                $user = Auth::user();
-                                $notify =  $user->notify(new OrderPlaced($order));
+        //                 $shipment= json_decode($shipment);
+        //                  if(isset($shipment->tracking_code)) {
+        //                     $metadata = null;
+        //                     $req["tracking_id"] = $shipment->tracking_code;
+        //                     $req["fedex_shipping"] = json_encode($shipment);//json_encode();
+        //                     $order->shipping_rates = $shipment->selected_rate->rate;
+        //                     $order->fill($req);
+        //                     $order->update();
+        //                     $paymentmode = "Incomplete";
+        //                     $paymentslog = PaymentsLog::request($paymentIntent,$req['status'],$paymentmode, $metadata);
+        //                     $product->is_sold = true;
+        //                     $product->update();
+        //                     // Artisan::call('queue:work  --daemon');
+        //                     // @Todo: create a different controller action for order confirmation
+        //                     if ($request->has('status')) {
+        //                         /** @var User $user */
+        //                         $user = Auth::user();
+        //                         $notify =  $user->notify(new OrderPlaced($order));
                                
-                                /**
-                                 * For Seller
-                                 */
-                                 $seller->notify(new OrderPlacedSeller($order));
-                            }
-                        }else{
-                            throw new \Exception($shipment, 1);
-                        }
-                    }
-                    $stripe = new StripeClient(env('STRIPE_SK'));
-                    $seller = User::where('id', $order->seller_id)->first();
-                    $account = $stripe->accounts->retrieve(
-                        $seller->stripe_account_id,
-                        []
-                    );
+        //                         /**
+        //                          * For Seller
+        //                          */
+        //                          $seller->notify(new OrderPlacedSeller($order));
+        //                     }
+        //                 }else{
+        //                     throw new \Exception($shipment, 1);
+        //                 }
+        //             }
+        //             $stripe = new StripeClient(env('STRIPE_SK'));
+        //             $seller = User::where('id', $order->seller_id)->first();
+        //             $account = $stripe->accounts->retrieve(
+        //                 $seller->stripe_account_id,
+        //                 []
+        //             );
                     
-                    if($account->capabilities->card_payments== "inactive" || $account->capabilities->transfers== "inactive")
-                    {
+        //             if($account->capabilities->card_payments== "inactive" || $account->capabilities->transfers== "inactive")
+        //             {
                         
-                        $user = Auth::user();
-                        $user->notify(new DepositAccount($order));
-                        // $seller->notify(new OrderPlacedSeller($order));
-                    }else{
-                        // if($seller->isTrustedSeller == true){
-                            // Artisan::call('capture:vendorfunds');
-                        // // }else{
-                            // Artisan::call('capture:funds');
-                            // Artisan::call('capture:vendorfunds');
-                        // }
-                        return $order;
-                    }
-            });
+        //                 $user = Auth::user();
+        //                 $user->notify(new DepositAccount($order));
+        //                 // $seller->notify(new OrderPlacedSeller($order));
+        //             }else{
+        //                 // if($seller->isTrustedSeller == true){
+        //                     // Artisan::call('capture:vendorfunds');
+        //                 // // }else{
+        //                     // Artisan::call('capture:funds');
+        //                     // Artisan::call('capture:vendorfunds');
+        //                 // }
+        //                 return $order;
+        //             }
+        //     });
            
-        }
-        catch(Exception $e) {
-            throw $e;
-        }
+        // }
+        // catch(Exception $e) {
+        //     throw $e;
+        // }
     }
         public function update_1(Order $order, Request $request)
         {

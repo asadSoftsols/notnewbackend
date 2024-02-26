@@ -84,7 +84,9 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/checkRatings/{productId}/{userId}/{orderId}', [Api\ProductController::class, 'checkRatings']);
             Route::get('/self/', [Api\ProductController::class, 'self']);
             Route::get('/self/{value}', [Api\ProductController::class, 'selfItems']);
-            
+            Route::get('/min', [Api\ProductController::class, 'getMin']);
+            Route::get('/max', [Api\ProductController::class, 'getMax']);
+            Route::get('/size', [Api\ProductController::class, 'getSizes']);
             // HOTFIX
             // @TODO check why /upload is not working maybe another route with the same name (GIVING 404 on /upload route) is declared.
             Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);

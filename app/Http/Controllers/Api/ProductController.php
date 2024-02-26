@@ -939,6 +939,59 @@ class ProductController extends Controller
             'category' => $category
         ];
     }
+    public function getMin(Request $request)
+    {
+        $minimum = [];
+        $products = Product::where('active',true)
+        ->get();
+        foreach($products as $product){
+            array_push($minimum, $product->price);
+        } 
+        if($minimum){
+            return response()->json(['status'=> true,'data' => min($minimum)], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' => 'Unable to Fetch Price'], 400);        
+        }
+    }
+    public function getMax(Request $request)
+    {
+        $maximum = [];
+        $products = Product::where('active',true)
+        ->get();
+        foreach($products as $product){
+            array_push($maximum, $product->price);
+        } 
+        if($maximum){
+            return response()->json(['status'=> true,'data' => max($maximum)], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' => 'Unable to Fetch Price'], 400);        
+        }
+    }
+    public function getSizes(Request $request)
+    {
+        $sizes = [];
+        $products = Product::where('active',true)
+        ->get();
+        foreach($products as $product){
+            array_push($sizes, json_decode($product->attributes));
+        } 
+        $selectedSizes = [];
+        foreach($sizes as $size){
+            foreach($size as $siz){
+                array_push($selectedSizes,$siz->size);
+            }
+        }
+        $givensizes = array_unique($selectedSizes);
+        $givnsiz = [];
+        foreach($givensizes as $givensiz){
+            array_push($givnsiz, $givensiz);
+        }
+        if($givnsiz){
+            return response()->json(['status'=> true,'data' => $givnsiz], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' => 'Unable to Fetch Sizes'], 400);        
+        }
+    }
 
     /**
      * Saved user products
