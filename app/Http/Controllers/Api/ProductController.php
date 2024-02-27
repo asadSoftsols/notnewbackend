@@ -14,6 +14,7 @@ use App\Models\Offer;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\ProductsAttribute;
+use App\Models\ProductAttributes;
 use App\Models\User;
 use App\Models\RecentUserView;
 use App\Models\Countries;
@@ -359,43 +360,8 @@ class ProductController extends Controller
         try {
             $active = false;
             $product = new Product();
-            //temporary 1, for testing\
             $parentCategory =  Category::where('id',$request->get('category'))->first();
             $user = User::where('id', Auth::user()->id)->first();
-            // $product->fill(ArrayHelper::merge($request->all(),
-            //     [
-            //         'name' => $request->get('title'),
-            //         'category_id ' => '1',//$request->get('category'),
-            //         'description ' => $request->get('description'),
-            //         'price'=> $request->get('price'),
-            //         'city'=> $request->get('city'),
-            //         'state'=> $request->get('states'),
-            //         'user_id' => Auth::user()->id,
-            //         'status' => 'DRAFT',
-            //         'height' => $request->get('ounces'),
-            //         'width' => $request->get('ounces'),
-            //         'length' => $request->get('ounces'),
-            //         'weight' => $request->get('ounces'),
-            //         'active' => $active
-            //     ]
-            // ));
-            // $product->fill(
-            //     [
-            //         'name' => $request->get('title'),
-            //         'category_id ' => '1',//$request->get('category'),
-            //         'description ' => $request->get('description'),
-            //         // 'price'=> $request->get('price'),
-            //         // 'city'=> $request->get('city'),
-            //         // 'state'=> $request->get('states'),
-            //         // 'user_id' => Auth::user()->id,
-            //         // 'status' => 'DRAFT',
-            //         // 'height' => $request->get('ounces'),
-            //         // 'width' => $request->get('ounces'),
-            //         // 'length' => $request->get('ounces'),
-            //         // 'weight' => $request->get('ounces'),
-            //         // 'active' => $active
-            //     ]
-            // );
             $country = Countries::where('id', $request->get('country'))->first();
             $states = State::where('id', $request->get('states'))->first();
             $city = City::where('id', $request->get('city'))->first();
@@ -439,7 +405,17 @@ class ProductController extends Controller
             $product->available_colors = json_encode($request->get('availableColors'));
             $product->shop_id = $request->get('store');
             $product->save();
-           
+
+            $sizes = $request->get('sizes');
+            foreach($sizes as $size){
+                foreach($size as $key => $siz){
+                    $productattributes =new ProductAttributes();
+                    $productattributes->name=$key;
+                    $productattributes->value=$siz;
+                    $productattributes->product_id=$product->id;
+                    $productattributes->save();
+                }
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -772,66 +748,66 @@ class ProductController extends Controller
 
     public function search(Request $request)
     {
-        if ($request->get('lat') && $request->get('lng')) {
+        // if ($request->get('lat') && $request->get('lng')) {
 
-            $latitude = abs($request->get('lat'));
-            $longitude = abs($request->get('lng'));
+        //     $latitude = abs($request->get('lat'));
+        //     $longitude = abs($request->get('lng'));
         
-            $products = Product::where('active', true)->where('is_sold', false)
-            ->where('IsSaved', true)
-            ->with(['savedUsers'])
-            ->with(['user'])
-            ->where('name', 'LIKE', "%{$request->get('query')}%")
-            ->when($request->has('min_price'), function ($query) use ($request) {
-                    $min_price = $request->get('min_price');
-                    $max_price = $request->get('max_price');
-                    if ($max_price) {
-                        $query->whereBetween('price', [$min_price, $max_price]);
-                    } else {
-                        $query->where('price', ">", $min_price);
-                    }
-                })->with('order', function ($query) {
-                    $query->where('buyer_id', '=', Auth::guard('api')->id());
-                })
-                ->when($request->get('category_id'), function (Builder $builder, $category) use ($request) {
-                    // $builder->where('parent_category_id', $category);
-                    $builder->where('category_id', $category);
-                    $builder->where('is_sold', false);
-                    $builder->where('IsSaved', true);
-                    $builder->where('active', true)
-                    // $builder->where('category_id', $category)
-                        ->when(json_decode($request->get('filters'), true), function (Builder $builder, $filters) {
-                            $having = [];
+        //     $products = Product::where('active', true)->where('is_sold', false)
+        //     ->where('IsSaved', true)
+        //     ->with(['savedUsers'])
+        //     ->with(['user'])
+        //     ->where('name', 'LIKE', "%{$request->get('query')}%")
+        //     ->when($request->has('min_price'), function ($query) use ($request) {
+        //             $min_price = $request->get('min_price');
+        //             $max_price = $request->get('max_price');
+        //             if ($max_price) {
+        //                 $query->whereBetween('price', [$min_price, $max_price]);
+        //             } else {
+        //                 $query->where('price', ">", $min_price);
+        //             }
+        //         })->with('order', function ($query) {
+        //             $query->where('buyer_id', '=', Auth::guard('api')->id());
+        //         })
+        //         ->when($request->get('category_id'), function (Builder $builder, $category) use ($request) {
+        //             // $builder->where('parent_category_id', $category);
+        //             $builder->where('category_id', $category);
+        //             $builder->where('is_sold', false);
+        //             $builder->where('IsSaved', true);
+        //             $builder->where('active', true)
+        //             // $builder->where('category_id', $category)
+        //                 ->when(json_decode($request->get('filters'), true), function (Builder $builder, $filters) {
+        //                     $having = [];
     
-                            foreach ($filters as $id => $value) {
-                                if (is_bool($value)) {
-                                    $value = $value ? 'true' : 'false';
-                                }
+        //                     foreach ($filters as $id => $value) {
+        //                         if (is_bool($value)) {
+        //                             $value = $value ? 'true' : 'false';
+        //                         }
     
-                                if (is_array($value)) {
-                                    $value = implode('","', $value);
-                                    $having[] = "sum(case when products_attributes.attribute_id = $id and json_overlaps(products_attributes.value, '[\"$value\"]') then 1 else 0 end) > 0";
-                                } else {
-                                    $having[] = "sum(case when products_attributes.attribute_id = $id and json_contains(products_attributes.value, '\"$value\"') then 1 else 0 end) > 0";
-                                }
-                            }
+        //                         if (is_array($value)) {
+        //                             $value = implode('","', $value);
+        //                             $having[] = "sum(case when products_attributes.attribute_id = $id and json_overlaps(products_attributes.value, '[\"$value\"]') then 1 else 0 end) > 0";
+        //                         } else {
+        //                             $having[] = "sum(case when products_attributes.attribute_id = $id and json_contains(products_attributes.value, '\"$value\"') then 1 else 0 end) > 0";
+        //                         }
+        //                     }
     
-                            $having = implode(' and ', $having);
-                            $builder->whereRaw("
-                                id in
-                                (select products.id
-                                from products
-                                inner join products_attributes on products.id = products_attributes.product_id
-                                group by products.id
-                                having $having)
-                            ");
-                        });
-                })
-                ->orderBy(DB::raw("3959 * acos( cos( radians({$latitude}) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(-{$longitude}) ) + sin( radians({$latitude}) ) * sin(radians(latitude)) )"), 'DESC')
-                ->orderByDesc('featured')
-                ->orderByDesc('created_at')
-                ->get();
-        } else {
+        //                     $having = implode(' and ', $having);
+        //                     $builder->whereRaw("
+        //                         id in
+        //                         (select products.id
+        //                         from products
+        //                         inner join products_attributes on products.id = products_attributes.product_id
+        //                         group by products.id
+        //                         having $having)
+        //                     ");
+        //                 });
+        //         })
+        //         ->orderBy(DB::raw("3959 * acos( cos( radians({$latitude}) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(-{$longitude}) ) + sin( radians({$latitude}) ) * sin(radians(latitude)) )"), 'DESC')
+        //         ->orderByDesc('featured')
+        //         ->orderByDesc('created_at')
+        //         ->get();
+        // } else {
             // $products = Product::where('active', true)->where('is_sold', false)
             //     ->where('name', 'LIKE', "%{$request->get('query')}%")
             //     ->where('parent_category_id', $request->get('category_id'))
@@ -861,83 +837,136 @@ class ProductController extends Controller
                 ->with(['savedUsers'])
                 ->with(['user'])
                 ->where('name', 'LIKE', "%{$request->get('query')}%")
-                ->when($request->has('min_price'), function ($query) use ($request) {
-                    $min_price = $request->get('min_price');
-                    $max_price = $request->get('max_price');
-                    if ($max_price) {
-                        $query->whereBetween('price', [$min_price, $max_price]);
-                    } else {
-                        $query->where('price', ">", $min_price);
-                    }
-                })->with('order', function ($query) {
-                    $query->where('buyer_id', '=', Auth::guard('api')->id());
-                })  
-                ->when($request->get('category_id'), function (Builder $builder, $category) use ($request) {
-                    // $builder->where('parent_category_id', $category);
-                    $builder->where('is_sold', false);
-                    $builder->where('IsSaved', true);
-                    // $builder->where('is_sold', false);
-                    $builder->where('active', true);
-                    $builder->where('category_id', $category)
-                    // $builder->where('category_id', $category)
-                    // $builder->where('category_id', $category)
-                    // $builder->where('category_id', $category)
-                        ->when(json_decode($request->get('filters'), true), function (Builder $builder, $filters) {
-                            $having = [];
+                // ->when($request->has('min_price'), function ($query) use ($request) {
+                //     $min_price = $request->get('min_price');
+                //     $max_price = $request->get('max_price');
+                //     if ($max_price) {
+                //         $query->whereBetween('price', [$min_price, $max_price]);
+                //     } else {
+                //         $query->where('price', ">", $min_price);
+                //     }
+                // })
+                // ->with('order', function ($query) {
+                //     $query->where('buyer_id', '=', Auth::guard('api')->id());
+                // })  
+                // ->when($request->get('category_id'), function (Builder $builder, $category) use ($request) {
+                //     // $builder->where('parent_category_id', $category);
+                //     $builder->where('is_sold', false);
+                //     $builder->where('IsSaved', true);
+                //     // $builder->where('is_sold', false);
+                //     $builder->where('active', true);
+                //     $builder->where('category_id', $category)
+                //     // $builder->where('category_id', $category)
+                //     // $builder->where('category_id', $category)
+                //     // $builder->where('category_id', $category)
+                //         ->when(json_decode($request->get('filters'), true), function (Builder $builder, $filters) {
+                //             $having = [];
     
-                            foreach ($filters as $id => $value) {
-                                if (is_bool($value)) {
-                                    $value = $value ? 'true' : 'false';
-                                }
+                //             foreach ($filters as $id => $value) {
+                //                 if (is_bool($value)) {
+                //                     $value = $value ? 'true' : 'false';
+                //                 }
     
-                                if (is_array($value)) {
-                                    $value = implode('","', $value);
-                                    $having[] = "sum(case when products_attributes.attribute_id = $id and json_overlaps(products_attributes.value, '[\"$value\"]') then 1 else 0 end) > 0";
-                                } else {
-                                    $having[] = "sum(case when products_attributes.attribute_id = $id and json_contains(products_attributes.value, '\"$value\"') then 1 else 0 end) > 0";
-                                }
-                            }
+                //                 if (is_array($value)) {
+                //                     $value = implode('","', $value);
+                //                     $having[] = "sum(case when products_attributes.attribute_id = $id and json_overlaps(products_attributes.value, '[\"$value\"]') then 1 else 0 end) > 0";
+                //                 } else {
+                //                     $having[] = "sum(case when products_attributes.attribute_id = $id and json_contains(products_attributes.value, '\"$value\"') then 1 else 0 end) > 0";
+                //                 }
+                //             }
     
-                            $having = implode(' and ', $having);
-                            // $builder->whereRaw("
-                            //     id in
-                            //     (select products.id
-                            //     from products
-                            //     inner join products_attributes on products.id = products_attributes.product_id
-                            //     right join categories on products.category_id = categories.id
-                            //     group by products.id
-                            //     having $having)
-                            // ");
-                            $builder->whereRaw("
-                                id in
-                                (select products.id
-                                from products
-                                inner join products_attributes on products.id = products_attributes.product_id
-                                right join categories on products.category_id = categories.id
-                                group by products.id
-                                having $having)
-                            ");
-                        });
-                })
+                //             $having = implode(' and ', $having);
+                //             // $builder->whereRaw("
+                //             //     id in
+                //             //     (select products.id
+                //             //     from products
+                //             //     inner join products_attributes on products.id = products_attributes.product_id
+                //             //     right join categories on products.category_id = categories.id
+                //             //     group by products.id
+                //             //     having $having)
+                //             // ");
+                //             $builder->whereRaw("
+                //                 id in
+                //                 (select products.id
+                //                 from products
+                //                 inner join products_attributes on products.id = products_attributes.product_id
+                //                 right join categories on products.category_id = categories.id
+                //                 group by products.id
+                //                 having $having)
+                //             ");
+                //         });
+                // })
                 ->distinct()
-                ->orderByDesc('featured')
+                // ->orderByDesc('featured')
                 ->orderByDesc('created_at')
                 ->get();
+        // }
+
+        // $category = Category::when($request->get('category_id'), function (Builder $builder, $category) {
+        //     $builder->where('id', $category)
+        //         ->with('attributes');
+        // })
+        //     ->where('type', Category::PRODUCT)
+        //     ->get();
+
+        // $categories = Category::with('attributes')->where('type', Category::PRODUCT)->get();
+        if($products){
+            return response()->json(['status'=> true,'data' =>$products], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' => 'Unable to Fetch Product'], 400);        
+        }
+        // return [
+        //     'results' => $products,
+        //     'categories' => $categories,
+        //     'category' => $category
+        // ];
+    }
+    public function getProductByPrice(Request $request, $price)
+    {
+        $product = Product::where('price', $price)->get();
+        if($product){
+            return response()->json(['status'=> true,'data' =>$product], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
+        }
+    }
+    public function getAuctionedProducts(Request $request)
+    {
+        $products = Product::where('auctioned', true)->get();
+        if($products){
+            return response()->json(['status'=> true,'data' =>$products], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
         }
 
-        $category = Category::when($request->get('category_id'), function (Builder $builder, $category) {
-            $builder->where('id', $category)
-                ->with('attributes');
-        })
-            ->where('type', Category::PRODUCT)
-            ->get();
-
-        $categories = Category::with('attributes')->where('type', Category::PRODUCT)->get();
-        return [
-            'results' => $products,
-            'categories' => $categories,
-            'category' => $category
-        ];
+    }
+    public function getProductBySize(Request $request, $size)
+    {
+        $products = Product::get();
+        $attributes = [];
+        $finalAttributes = [];
+        foreach($products as $product){
+            $attributes =[$product->id => json_decode($product->attributes)];
+            array_push($finalAttributes, $attributes);
+        }
+        foreach($finalAttributes as $finalAttribute){
+            print_r($finalAttribute);
+        }
+        // return $finalAttributes;
+        // if($product){
+        //     return response()->json(['status'=> true,'data' =>$product], 200);       
+        // }else{
+        //     return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
+        // }
+    }
+    public function getProductByPriceRange(Request $request, $min, $max)
+    {
+        $product = Product::whereBetween('price', [$min,$max])->get();
+        if($product){
+            return response()->json(['status'=> true,'data' =>$product], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
+        }
     }
     public function getMin(Request $request)
     {
@@ -967,6 +996,32 @@ class ProductController extends Controller
             return response()->json(['status'=> false,'data' => 'Unable to Fetch Price'], 400);        
         }
     }
+    public function getByCategory(Request $request, $id)
+    {
+        $products = Product::where('active',true)
+            ->where('category_id', $id)
+            ->get();
+        if($products){
+            return response()->json(['status'=> true,'data' => $products], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' => 'Unable to Fetch Products'], 400);        
+        }
+    }
+    public function categories(Request $request){
+        $products = Product::where('active',true)
+        ->get();
+        $category = [];
+        foreach($products as $pro){
+            $cat = Category::where('id',$pro->category_id)->first();
+            array_push($category, $cat);
+        }
+        if($category){
+            return response()->json(['status'=> true,'data' => $category], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' => 'Unable to Fetch Category'], 400);        
+        }
+    }
+
     public function getSizes(Request $request)
     {
         $sizes = [];
