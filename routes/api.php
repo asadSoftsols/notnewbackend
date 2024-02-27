@@ -249,7 +249,7 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/', [Api\ProductController::class, 'index']);
     Route::get('/show/{product:guid}', [Api\ProductController::class, 'show']);
     Route::get('media/{product:guid}', [Api\ProductController::class, 'media']);
-    Route::get('/search', [Api\ProductController::class, 'search']);
+    Route::post('/search', [Api\ProductController::class, 'search']);
     Route::post('/checkEmailReview/{id}', [Api\ProductController::class, 'checkEmailReview']);
     Route::get('/userRating/{product:user_id}', [Api\ProductController::class, 'userRating']);
     Route::get('/getAttributes/{categoryID}', [Api\ProductController::class, 'getAttributes']);
@@ -259,6 +259,12 @@ Route::group(['prefix' => '/products'], function () {
     Route::post('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
     Route::delete('/destory/{guid}', [Api\ProductController::class, 'destory']);
     Route::get('/storeproduct/{storeid}', [Api\ProductController::class, 'getProductbyStore']);
+    Route::get('/getbycategory/{id}', [Api\ProductController::class, 'getByCategory']);
+    Route::get('/categories', [Api\ProductController::class, 'categories']);
+    Route::get('/getbyprice/{val}', [Api\ProductController::class, 'getProductByPrice']);
+    Route::get('/getbypricerange/{min}/{max}', [Api\ProductController::class, 'getProductByPriceRange']);
+    Route::get('/getproductbysize/{size}', [Api\ProductController::class, 'getProductBySize']);
+    Route::get('/getauctionedproducts', [Api\ProductController::class, 'getAuctionedProducts']);
 });
 
 Route::group(['prefix' => '/location'], function () {

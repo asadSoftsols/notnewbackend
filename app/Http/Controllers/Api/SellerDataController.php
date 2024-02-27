@@ -73,7 +73,7 @@ class SellerDataController extends Controller
                     $sellerData->save();
                     $user = User::where('id', \Auth::user()->id)->first();
                     $user->notify(new SellerDataNotify($user));
-                    return $this->genericResponse(false, "Seller Register Successfully!", 200);
+                    return $this->genericResponse(true, "Seller Register Successfully!", 200);
                 
             // }
         }); 
@@ -114,9 +114,14 @@ class SellerDataController extends Controller
 
     public function getShopDetails($id)
     {
-        return SellerData::where('user_id', \Auth::user()->id)->first();
+        $seller = SellerData::where('user_id', \Auth::user()->id)->first();
+        if($seller){
+            return response()->json(['status'=> true,'data' =>$seller], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Seller"], 400);       
+        }
     }
-
+    
     public function getAllShopDetails($id)
     {
         return SellerData::where('user_id', $id)->get();

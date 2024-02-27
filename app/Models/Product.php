@@ -330,4 +330,9 @@ class Product extends Base implements IMediaInteraction
     {
         return $this->load('shop');
     }
+
+    public function attributes()
+    {
+        return $this->belongsTo(ProductAttributes::class);
+    }
 }
