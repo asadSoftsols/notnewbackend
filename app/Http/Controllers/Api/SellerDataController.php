@@ -122,9 +122,18 @@ class SellerDataController extends Controller
         }
     }
     
-    public function getAllShopDetails($id)
+    public function getShopDetail($id)
     {
-        return SellerData::where('user_id', $id)->get();
+        $userId = \Auth::user()->id? \Auth::user()->id: $id;
+        
+        $seller = SellerData::where('user_id', $userId)->first();
+
+        if($seller){
+            return response()->json(['status'=> true,'data' =>$seller], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get  Shop"], 400);       
+        }
+        
     }
     /**
      * Show the form for editing the specified resource.

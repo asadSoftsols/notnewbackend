@@ -49,7 +49,7 @@ use App\Notifications\AddReview;
 use App\Notifications\AdApproved;
 use App\Notifications\TrustedSeller;
 use App\Notifications\DepositReminder;
-
+use App\Images;
 use Image;
 
 class OfferUser {
@@ -356,8 +356,41 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $data = [
+            // 'images'=> $request->get('product')['images']?$request->get('product')['images']: [],
+            'title'=> $request->get('product')['title'],
+            'condition'=> $request->get('product')['condition'],
+            'model'=> $request->get('product')['model'],
+            'category_id'=> $request->get('product')['category'],
+            'brand'=> $request->get('product')['brand'],
+            'stockcapacity'=> $request->get('product')['stockCapacity'],
+            'attributes'=>$request->get('product')['sizes'],
+            'available_colors'=>$request->get('product')['availableColors'],
+            'description'=>$request->get('product')['description'],
+            'selling_now'=>$request->get('product')['sellingNow'],
+            'price'=>$request->get('product')['price'],
+            'sale_price'=>$request->get('product')['saleprice'],
+            'listing'=>$request->get('product')['listing'],
+            'auctioned'=>$request->get('product')['auctions'],
+            'bids'=>$request->get('product')['bids'],
+            'durations'=>$request->get('product')['durations'],
+            'auction_listing'=>$request->get('product')['auctionListing'],
+            'deliverd_domestic'=>$request->get('product')['deliverddomestic'],
+            'deliverd_international'=>$request->get('product')['deliverdinternational'],
+            'deliver_company'=>$request->get('product')['deliverycompany'],
+            'country'=>$request->get('product')['country'],
+            'state'=>$request->get('product')['state'],
+            'city'=>$request->get('product')['city'],
+            'shippingprice'=>$request->get('product')['shippingprice'],
+        ];
+        $images = [
+            'image'=>$request->get('image')
+        ];
+        return $data;
+        die();
         DB::beginTransaction();
         try {
+
             $active = false;
             $product = new Product();
             $parentCategory =  Category::where('id',$request->get('category'))->first();
