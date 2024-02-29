@@ -89,7 +89,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/size', [Api\ProductController::class, 'getSizes']);
             // HOTFIX
             // @TODO check why /upload is not working maybe another route with the same name (GIVING 404 on /upload route) is declared.
-            Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);
+            // Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);
+            Route::post('/image-upload', [Api\ProductController::class, 'upload']);
             Route::post('saved-users/{product:guid}', [Api\ProductController::class, 'saved']);
             Route::get('saved', [Api\ProductController::class, 'getSaved']);
             Route::get('getSaveByUser', [Api\ProductController::class, 'getSaveByUser']);
@@ -98,6 +99,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::delete('media/{media:guid}', [Api\ProductController::class, 'deleteMedia']);
             Route::get('offers/buying', [Api\ProductController::class, 'getBuyingOffers']);
             Route::get('offers/selling', [Api\ProductController::class, 'getSellingOffers']);
+            Route::post('/upload', [Api\ProductController::class, 'Imgupload']);
         });
         Route::group(['prefix' => '/stock'], function(){
             Route::get('/instock', [Api\ProductController::class, 'inStock']);
