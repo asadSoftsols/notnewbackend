@@ -13,6 +13,7 @@ use App\Models\Media;
 use App\Models\Offer;
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\SellerData;
 use App\Models\ProductsAttribute;
 use App\Models\ProductAttributes;
 use App\Models\User;
@@ -356,90 +357,153 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $data = [
-            // 'images'=> $request->get('product')['images']?$request->get('product')['images']: [],
-            'title'=> $request->get('product')['title'],
-            'condition'=> $request->get('product')['condition'],
-            'model'=> $request->get('product')['model'],
-            'category_id'=> $request->get('product')['category'],
-            'brand'=> $request->get('product')['brand'],
-            'stockcapacity'=> $request->get('product')['stockCapacity'],
-            'attributes'=>$request->get('product')['sizes'],
-            'available_colors'=>$request->get('product')['availableColors'],
-            'description'=>$request->get('product')['description'],
-            'selling_now'=>$request->get('product')['sellingNow'],
-            'price'=>$request->get('product')['price'],
-            'sale_price'=>$request->get('product')['saleprice'],
-            'listing'=>$request->get('product')['listing'],
-            'auctioned'=>$request->get('product')['auctions'],
-            'bids'=>$request->get('product')['bids'],
-            'durations'=>$request->get('product')['durations'],
-            'auction_listing'=>$request->get('product')['auctionListing'],
-            'deliverd_domestic'=>$request->get('product')['deliverddomestic'],
-            'deliverd_international'=>$request->get('product')['deliverdinternational'],
-            'deliver_company'=>$request->get('product')['deliverycompany'],
-            'country'=>$request->get('product')['country'],
-            'state'=>$request->get('product')['state'],
-            'city'=>$request->get('product')['city'],
-            'shippingprice'=>$request->get('product')['shippingprice'],
-        ];
-        $images = [
-            'image'=>$request->get('image')
-        ];
-        return $data;
-        die();
+        // $multiple_gallery_file_upload = $request->file('image');
+        // $original_name = "";
+        // if($request->hasFile('image'))
+        // {
+        //     $original_name=$request->file('image')->getClientOriginalName();
+        
+        // }
+        // return $original_name;
+        // // $file =$request->file('file');
+        // $data = [];
+        // // foreach ($request->get('file') as $file) {
+        // //     $name = time() . '.' . explode('/', explode(':', substr($file, 0, strpos($file, ';')))[1])[1];
+        // //     // \Image::make($file)->save(public_path('images/') . $name);
+        // //     array_push($data, $name);
+        // // }
+        // return $file;
+    //     $file =$request->file('images');
+    //     $extension = $file->getClientOriginalExtension();
+    //     $guid = GuidHelper::getGuid();
+    //     $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+    //     $name = "{$path}/{$guid}.{$extension}";
+    //     $media = new Media();
+    //     $media->fill([
+    //         'name' => $name,
+    //         'extension' => $extension,
+    //         'type' => Media::PRODUCT_IMAGES,
+    //         'user_id' => \Auth::user()->id,
+    //         'product_id' => $product->id,
+    //         'active' => true,
+    //     ]);
+
+    //     $media->save();
+        
+    //     $image = Image::make($request->file('file'));
+    //     $image->orientate();
+    //     $image->resize(1024, null, function ($constraint) {
+    //         $constraint->aspectRatio();
+    //         $constraint->upsize();
+    //    });
+    //     $image->stream();
+    //     Storage::put('public/'. $name, $image->encode());
+    //     return [
+    //         'uid' => $media->id,
+    //         'name' => $media->url,
+    //         'status' => 'done',
+    //         'url' => $media->url,
+    //         'guid' => $media->guid,
+    //         'productguid'=> $product->guid
+    //     ];
         DB::beginTransaction();
         try {
+            /**
+             * PayLoad Summy Data Start
+             */
+            $data = [
+                // 'images'=> $request->get('product')['images']?$request->get('product')['images']: [],
+                'title'=> $request->get('product')['title'],
+                'condition'=> $request->get('product')['condition'],
+                'model'=> $request->get('product')['model'],
+                'category_id'=> $request->get('product')['category'],
+                'brand'=> $request->get('product')['brand'],
+                'stockcapacity'=> $request->get('product')['stockCapacity'],
+                'attributes'=>$request->get('product')['sizes'],
+                'available_colors'=>$request->get('product')['availableColors'],
+                'description'=>$request->get('product')['description'],
+                'selling_now'=>$request->get('product')['sellingNow'],
+                'price'=>$request->get('product')['price'],
+                'sale_price'=>$request->get('product')['saleprice'],
+                'min_purchase'=>$request->get('product')['minpurchase'],
+                'listing'=>$request->get('product')['listing'],
+                'auctioned'=>$request->get('product')['auctions'],
+                'bids'=>$request->get('product')['bids'],
+                'durations'=>$request->get('product')['durations'],
+                'auction_listing'=>$request->get('product')['auctionListing'],
+                'deliverd_domestic'=>$request->get('product')['deliverddomestic'],
+                'tags'=>$request->get('product')['tags'],
+                'deliverd_international'=>$request->get('product')['deliverdinternational'],
+                'deliver_company'=>$request->get('product')['deliverycompany'],
+                'country'=>$request->get('product')['country'],
+                'state'=>$request->get('product')['state'],
+                'city'=>$request->get('product')['city'],
+                'shippingprice'=>$request->get('product')['shippingprice'],
+                'shipping_start' => $request->get('product')['shippingstart'],
+                'shipping_end' => $request->get('product')['shippingend'],
+                'return_shipping_price' => $request->get('product')['returnshippingprice'],
+                'return_ship_duration_limt' => $request->get('product')['returndurationlimit'],
+                'return_ship_paid_by' => $request->get('product')['returnshippingpaidby'],
+                'return_ship_location' => $request->get('product')['returnshippinglocation'],
+            ];
+            $images = [
+                'image'=>$request->get('image')
+            ];
+            /**
+             * PayLoad Summy Data End
+             */
 
             $active = false;
             $product = new Product();
-            $parentCategory =  Category::where('id',$request->get('category'))->first();
-            $user = User::where('id', Auth::user()->id)->first();
-            $country = Countries::where('id', $request->get('country'))->first();
-            $states = State::where('id', $request->get('states'))->first();
-            $city = City::where('id', $request->get('city'))->first();
 
-            $user = User::where('id',Auth::user()->id)->first();
-            $product->category_id = $request->get('category');
+            $user = User::where('id', Auth::user()->id)->first();
+            $country = Countries::where('id', $request->get('product')['country'])->first();
+            $states = State::where('id', $request->get('product')['state'])->first();
+            $city = City::where('id', $request->get('product')['city'])->first();
+            $store = SellerData::where('user_id',Auth::user()->id)->first();
+
             $product->user_id = Auth::user()->id;
-            $product->name = $request->get('title');
-            $product->description = $request->get('description');
-            $product->price = $request->get('price');
-            $product->sale_price = 0;
-            $product->scheduled = $request->get('scheduled');
-            $product->location = $request->get('location');
-            $product->condition = $request->get('condition');
-            $product->auctioned = $request->get('auctions');
-            $product->shipping_type = $request->get('shipping_type');
+            $product->name = $request->get('product')['title'];
+            $product->condition = $request->get('product')['condition'];
+            $product->model = $request->get('product')['model'];
+            $product->category_id = $request->get('product')['category'];
+            $product->brand = $request->get('product')['brand'];
+            $product->stockcapacity = $request->get('product')['stockCapacity'];
+            $product->attributes = json_encode($request->get('product')['sizes']);
+            $product->available_colors = json_encode($request->get('product')['availableColors']);
+            $product->description = $request->get('product')['description'];
+            $product->selling_now = $request->get('product')['sellingNow'];
+            $product->price = $request->get('product')['price'];
+            $product->sale_price = $request->get('product')['saleprice'];
+            $product->min_purchase = $request->get('product')['minpurchase'];
+            $product->listing = $request->get('product')['listing'];
+            $product->auctioned = $request->get('product')['auctions'];
+            
+            $product->bids = $request->get('product')['bids'];
+            $product->durations = $request->get('product')['durations'];
+            $product->auction_listing = $request->get('product')['auctionListing'];
+
+            $product->deliverd_domestic = $request->get('product')['deliverddomestic'];
+            $product->tags = json_encode($request->get('product')['tags']);
+            $product->deliverd_international = $request->get('product')['deliverdinternational'];
+            $product->delivery_company = $request->get('product')['deliverycompany'];
             $product->is_sold = false;
             $product->street_address = "";//$request->get('street_address');//for later when google address will be implement
             $product->country = $country->name;
             $product->city = $city->name;
             $product->state = $states->name;
             $product->IsSaved = true;
-            $product->model = $request->get('model');
-            $product->brand = $request->get('brand');
-            $product->stockcapacity = $request->get('stockCapacity');
-            $product->selling_now = $request->get('sellingNow');
-            $product->listing = $request->get('listing');
-            $product->buyitnow = $request->get('buyitnow');
-            $product->deliverd_domestic = $request->get('deliverddomestic');
-            $product->deliverd_international = $request->get('deliverdinternational');
-            $product->company = $request->get('deliverycompany');
-            $product->country = $request->get('country');
-            $product->shipping_price = $request->get('shippingprice');
-            $product->shipping_start = $request->get('shippingstart');
-            $product->shipping_end = $request->get('shippingend');
-            $product->return_shipping_price = $request->get('returnshippingprice');
-            $product->return_ship_duration_limt = $request->get('returndurationlimit');
-            $product->return_ship_paid_by = $request->get('returnshippingpaidby');
-            $product->return_ship_location = $request->get('returnshippinglocation');
-            $product->attributes = json_encode($request->get('sizes'));
-            $product->available_colors = json_encode($request->get('availableColors'));
-            $product->shop_id = $request->get('store');
+            $product->shipping_price = $request->get('product')['shippingprice'];
+            $product->shipping_start = $request->get('product')['shippingstart'];
+            $product->shipping_end = $request->get('product')['shippingend'];
+            $product->return_shipping_price =  $request->get('product')['returnshippingprice'];
+            $product->return_ship_duration_limt = $request->get('product')['returndurationlimit'];
+            $product->return_ship_paid_by = $request->get('product')['returnshippingpaidby'];
+            $product->return_ship_location = $request->get('product')['returnshippinglocation'];
+            $product->shop_id = $store->id;
             $product->save();
 
-            $sizes = $request->get('sizes');
+            $sizes = $request->get('product')['sizes'];
             foreach($sizes as $size){
                 foreach($size as $key => $siz){
                     $productattributes =new ProductAttributes();
@@ -449,14 +513,100 @@ class ProductController extends Controller
                     $productattributes->save();
                 }
             }
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
 
-        return $this->genericResponse(true, 'Product Created', 200, ['product' => $product->withCategory()]);
+        return $this->genericResponse(true, 'Product Created', 200, ['product' => $product->withCategory()->withShop()->withAttributes()]);
     }
+    public function Imgupload(Request $request){
+        return DB::transaction(function () use (&$request) {
+            $active = false;
+            $product = new Product();
+
+            $user = User::where('id', Auth::user()->id)->first();
+            $store = SellerData::where('user_id',Auth::user()->id)->first();
+
+            $product->user_id = Auth::user()->id;
+            $product->name = 'title';
+            $product->condition = 'condition';
+            $product->model = 'model';
+            $product->category_id = '1';
+            $product->brand = 'brand';
+            $product->stockcapacity = 0;
+            $product->attributes = json_encode(['sizes']);
+            $product->available_colors = json_encode(['availableColors']);
+            $product->description = 'description';
+            $product->selling_now = false;
+            $product->price = 0;
+            $product->sale_price = 0;
+            $product->min_purchase = 1;
+            $product->listing = "listing";
+            $product->auctioned = 'auctions';
+            $product->bids = 0;
+            $product->durations = 0;
+            $product->auction_listing = 'auctionListing';
+            $product->deliverd_domestic = false;
+            $product->tags = json_encode(['tags']);
+            $product->deliverd_international = false;
+            $product->delivery_company = 'deliverycompany';
+            $product->is_sold = false;
+            $product->street_address = "";//$request->get('street_address');//for later when google address will be implement
+            $product->country = 'countryname';
+            $product->city = 'cityname';
+            $product->state = 'statesname';
+            $product->IsSaved = true;
+            $product->shipping_price = 0;
+            $product->shipping_start = '2024-02-29 17:09:48';
+            $product->shipping_end = '2024-02-29 17:09:48';
+            $product->return_shipping_price =  0;
+            $product->return_ship_duration_limt = 0;
+            $product->return_ship_paid_by = 'admin';
+            $product->return_ship_location = 'local';
+            $product->shop_id = $store->id;
+            $product->save();
+            $file =$request->file('images');
+            $extension = $file->getClientOriginalExtension();
+
+            $guid = GuidHelper::getGuid();
+            $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+            $name = "{$path}/{$guid}.{$extension}";
+            $media = new Media();
+            $media->fill([
+                'name' => $name,
+                'extension' => $extension,
+                'type' => Media::PRODUCT_IMAGES,
+                'user_id' => \Auth::user()->id,
+                'product_id' => $product->id,
+                'category_id' => $product->category_id,
+                'active' => true,
+            ]);
+
+            $media->save();
+            
+            $image = Image::make($request->file('images'));
+            $image->orientate();
+            $image->resize(1024, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+        });
+            $image->stream();
+            Storage::put('public/'. $name, $image->encode());
+
+            return [
+                'uid' => $media->id,
+                'name' => $media->url,
+                'status' => 'done',
+                'url' => $media->url,
+                'guid' => $media->guid,
+                'product'=>$product->guid,
+            ];
+        }); 
+    }
+
     public function getAttributes(Request $request, $categoryID)
     {
         return CategoryAttributes::where('category_id', $categoryID)
@@ -728,10 +878,10 @@ class ProductController extends Controller
      * @return array|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
     public function upload(Product $product, Request $request)
+    // public function upload(Request $request)
     {
-        return DB::transaction(function () use (&$request, &$product) {
+        return DB::transaction(function () use (&$request) {
             $file =$request->file('file');
-            
             $extension = $file->getClientOriginalExtension();
             $guid = GuidHelper::getGuid();
             $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
@@ -774,7 +924,8 @@ class ProductController extends Controller
                 'name' => $media->url,
                 'status' => 'done',
                 'url' => $media->url,
-                'guid' => $media->guid
+                'guid' => $media->guid,
+                'productguid'=> $product->guid
             ];
         });
     }

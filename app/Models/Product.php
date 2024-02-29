@@ -108,8 +108,8 @@ class Product extends Base implements IMediaInteraction
     'length', 'width', 'policies', 'in_review', 'steps', 'shipment_type', 'condition','auctioned','state',
     'model', 'brand', 'stockcapacity', 'selling_now', 'listing', 'buyitnow', 'deliverd_domestic', 
     'deliverd_international', 'company','country', 'shipping_price', 'shipping_start', 'shipping_end',
-    'return_shipping_price', 'return_ship_duration_limt', 'return_ship_paid_by', 'return_ship_location',
-    'featured', 'featured_until','shipping_type', 'city', 'ratings_count','attributes','scheduled',
+    'return_shipping_price', 'return_ship_duration_limt', 'return_ship_paid_by', 'return_ship_location', 'delivery_company',
+    'featured', 'featured_until','shipping_type', 'city', 'ratings_count','attributes','scheduled','tags', 'min_purchase',
     'available_colors', 'shop_id','return_ship_duration_limt','return_ship_location','return_ship_paid_by'];
     
     protected $appends = ['cover_image', 'is_owner'];
@@ -330,9 +330,13 @@ class Product extends Base implements IMediaInteraction
     {
         return $this->load('shop');
     }
-
     public function attributes()
     {
-        return $this->belongsTo(ProductAttributes::class);
+        // return $this->belongsTo(ProductAttributes::class);
+        return $this->hasMany(ProductAttributes::class, 'product_id');
+    }
+    public function withAttributes()
+    {
+        return $this->load('attributes');
     }
 }

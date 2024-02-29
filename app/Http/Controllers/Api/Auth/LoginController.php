@@ -66,7 +66,7 @@ class LoginController extends Controller
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
-            'remember_me' => 'boolean'
+            // 'remember_me' => 'boolean'
         ]);
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
