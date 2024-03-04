@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('tags');
+            $table->jsonb('tags');
             $table->float('min_purchase');
         });
     }

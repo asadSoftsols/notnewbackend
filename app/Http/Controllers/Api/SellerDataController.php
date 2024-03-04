@@ -112,7 +112,7 @@ class SellerDataController extends Controller
       //
     }
 
-    public function getShopDetails($id)
+    public function getShopDetails()
     {
         $seller = SellerData::where('user_id', \Auth::user()->id)->first();
         if($seller){
@@ -124,9 +124,9 @@ class SellerDataController extends Controller
     
     public function getShopDetail($id)
     {
-        $userId = \Auth::user()->id? \Auth::user()->id: $id;
+        // $userId = \Auth::user()->id? \Auth::user()->id: $id;
         
-        $seller = SellerData::where('user_id', $userId)->first();
+        $seller = SellerData::where('user_id', \Auth::user()->id)->first();
 
         if($seller){
             return response()->json(['status'=> true,'data' =>$seller], 200);       
@@ -212,8 +212,15 @@ class SellerDataController extends Controller
             $saveseller->shop_id = $request->get('shop_id');
             $saveseller->user_id = \Auth::user()->id;
             $saveseller->save();
-            return "You have SuccessFully Update Shop Data!";
+            return "You have successfully saved the Seller Details!";
         });
+    }
+
+    public function getSaveSeller(Request $request, $storeId){
+        $saveseller = SaveSeller::where('shop_id', $storeId)
+        ->where('user_id', 27,)//\Auth::user()->id)
+        ->get();
+        return $saveseller;
     }
     public function updateBank(Request $request){
         return DB::transaction(function () use ($request) {

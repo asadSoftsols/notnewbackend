@@ -326,7 +326,7 @@
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:iI0KB9pzm0kj9pKn3xb1zUSIAHOCK+INMXL9JmrhslM=',
+    'key' => 'base64:4Ix2MWXJc5+gHmFBpmdv8fsBT7qyxmBGO+r09a4OvrI=',
     'cipher' => 'AES-256-CBC',
     'providers' => 
     array (
