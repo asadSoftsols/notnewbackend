@@ -14,9 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->float('bids')->default(0);
-            $table->float('durations')->default(0);
-            $table->string('auction_listing')->nullable();
+            $table->integer('min_purchase')->default(0);
         });
     }
 

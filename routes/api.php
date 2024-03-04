@@ -212,7 +212,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/add', [Api\SellerDataController::class, 'store']);
             Route::post('/setbank', [Api\SellerDataController::class, 'setBankData']);
             Route::post('/update', [Api\SellerDataController::class, 'updateSellerData']);
-            Route::get('/getshopdetails/{id}', [Api\SellerDataController::class, 'getShopDetails']);
+            Route::get('/getshopdetails', [Api\SellerDataController::class, 'getShopDetails']);
             Route::get('/getshops/{id}', [Api\SellerDataController::class, 'getShopDetail']);
             Route::post('/saveSeller', [Api\SellerDataController::class, 'saveSeller']);
             Route::post('/updateBank', [Api\SellerDataController::class, 'updateBank']);
@@ -259,14 +259,17 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/recent', [Api\ProductController::class, 'recentView']);
     Route::post('/createRecent', [Api\ProductController::class, 'createRecentView']);
     Route::post('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
-    Route::delete('/destory/{guid}', [Api\ProductController::class, 'destory']);
+    Route::delete('/destory/{guid}', [Api\ProductController::class, 'destroy']);
     Route::get('/storeproduct/{storeid}', [Api\ProductController::class, 'getProductbyStore']);
+    Route::get('/storecategories/{storeid}', [Api\ProductController::class, 'getcategorybyStore']);
     Route::get('/getbycategory/{id}', [Api\ProductController::class, 'getByCategory']);
     Route::get('/categories', [Api\ProductController::class, 'categories']);
     Route::get('/getbyprice/{val}', [Api\ProductController::class, 'getProductByPrice']);
     Route::get('/getbypricerange/{min}/{max}', [Api\ProductController::class, 'getProductByPriceRange']);
     Route::get('/getproductbysize/{size}', [Api\ProductController::class, 'getProductBySize']);
     Route::get('/getauctionedproducts', [Api\ProductController::class, 'getAuctionedProducts']);
+    Route::get('/trendingProduct/{guid}', [Api\ProductController::class, 'getTrendingProduct']);
+    Route::get('/getsaveseller/{id}', [Api\SellerDataController::class, 'getSaveSeller']);
 });
 
 Route::group(['prefix' => '/location'], function () {

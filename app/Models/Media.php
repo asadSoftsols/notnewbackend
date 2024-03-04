@@ -73,7 +73,9 @@ class Media extends Base
 
     public function getUrlAttribute()
     {
-        return url(Storage::url($this->name));
+        // return url(Storage::url($this->name));
+        return public_path('image\\product\\'.$this->name);
+        
     }
 
 }
