@@ -663,6 +663,8 @@ class ProductController extends Controller
                     $query->select(Product::defaultSelect());
                 }])->get();
     }
+
+    
     
     /**
      * @param Product $product
@@ -678,7 +680,6 @@ class ProductController extends Controller
             // ->appendDetailAttribute()
             ->withUser();
     }
-
     public function getTrendingProduct($id){
         $product =  Product::where('guid', $id)->first();
         $storeId = SellerData::where('user_id', $product->user_id)->first();
@@ -686,7 +687,6 @@ class ProductController extends Controller
             ->where('is_sold', 1)
             ->count();
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -1562,6 +1562,14 @@ class ProductController extends Controller
                 'categories.name as category',
                 'products.*'
             ]);
+        return $products; 
+    }
+
+    public function getcategorybyStore(Request $request, $storeId)
+    {
+        $products=Product::with('category') 
+            ->where('shop_id', $storeId)
+            ->get();
         return $products; 
     }
 }
