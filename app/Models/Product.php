@@ -106,7 +106,7 @@ class Product extends Base implements IMediaInteraction
      'location', 'google_address', 'postal_address', 'longitude', 'latitude', 'active', 'guid', 
      'created_at', 'updated_at', 'weight', 'height', 'IsSaved', 'ounces', 'parent_category_id',
     'length', 'width', 'policies', 'in_review', 'steps', 'shipment_type', 'condition','auctioned','state',
-    'model', 'brand', 'stockcapacity', 'selling_now', 'listing', 'buyitnow', 'deliverd_domestic', 
+    'model', 'brand', 'stockcapacity', 'selling_now', 'listing','auction_listing', 'buyitnow', 'deliverd_domestic', 
     'deliverd_international', 'company','country', 'shipping_price', 'shipping_start', 'shipping_end',
     'return_shipping_price', 'return_ship_duration_limt', 'return_ship_paid_by', 'return_ship_location', 'delivery_company',
     'featured', 'featured_until','shipping_type', 'city', 'ratings_count','attributes','scheduled','tags', 'min_purchase',
@@ -243,6 +243,8 @@ class Product extends Base implements IMediaInteraction
         }
         return null;
     }
+
+    
 
     public function getIsOwnerAttribute()
     {

@@ -79,7 +79,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
         Route::group(['prefix' => '/products'], function () {
             Route::post('/add', [Api\ProductController::class, 'store']);
-            Route::patch('/{product:guid}', [Api\ProductController::class, 'update']);
+            Route::post('/{product:guid}', [Api\ProductController::class, 'update']);
             Route::patch('/ratings/{product:guid}', [Api\ProductController::class, 'ratings']);
             Route::get('/checkRatings/{productId}/{userId}/{orderId}', [Api\ProductController::class, 'checkRatings']);
             Route::get('/self/', [Api\ProductController::class, 'self']);
@@ -105,7 +105,11 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/instock', [Api\ProductController::class, 'inStock']);
             Route::get('/outstock', [Api\ProductController::class, 'outStock']);
         });
-        
+
+        Route::group(['prefix' => '/watchlist'], function () {
+            Route::post('/add', [Api\WatchListController::class, 'store']);    
+        });
+                
         Route::group(['prefix' => '/cart'], function () {
             Route::post('/add', [Api\UserCartController::class, 'store']);
             Route::get('/', [Api\UserCartController::class, 'index']);
@@ -251,13 +255,13 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/', [Api\ProductController::class, 'index']);
     Route::get('/show/{product:guid}', [Api\ProductController::class, 'show']);
     Route::get('media/{product:guid}', [Api\ProductController::class, 'media']);
-    Route::post('/search', [Api\ProductController::class, 'search']);
+    Route::post('/search', [Api\ProductController::class, 'searched']);
     Route::post('/checkEmailReview/{id}', [Api\ProductController::class, 'checkEmailReview']);
     Route::get('/userRating/{product:user_id}', [Api\ProductController::class, 'userRating']);
     Route::get('/getAttributes/{categoryID}', [Api\ProductController::class, 'getAttributes']);
     Route::get('/getProductAttributes/{id}', [Api\ProductController::class, 'getProductAttributes']);
     Route::get('/recent', [Api\ProductController::class, 'recentView']);
-    Route::post('/createRecent', [Api\ProductController::class, 'createRecentView']);
+    Route::post('/createRecents', [Api\ProductController::class, 'createRecentView']);
     Route::post('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
     Route::delete('/destory/{guid}', [Api\ProductController::class, 'destory']);
     Route::get('/storeproduct/{storeid}', [Api\ProductController::class, 'getProductbyStore']);
@@ -267,6 +271,9 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/getbypricerange/{min}/{max}', [Api\ProductController::class, 'getProductByPriceRange']);
     Route::get('/getproductbysize/{size}', [Api\ProductController::class, 'getProductBySize']);
     Route::get('/getauctionedproducts', [Api\ProductController::class, 'getAuctionedProducts']);
+    Route::get('/trendingProduct/{guid}', [Api\ProductController::class, 'getTrendingProduct']);
+    Route::get('/getsaveseller/{id}', [Api\SellerDataController::class, 'getSaveSeller']);
+
 });
 
 Route::group(['prefix' => '/location'], function () {
@@ -283,6 +290,12 @@ Route::group(['prefix' => '/state'], function () {
 Route::group(['prefix' => '/countries'], function () {
     Route::get('/', [Api\CityStateController::class, 'getCountries']);
 });
+Route::group(['prefix' => '/bids'], function () {
+    Route::get('/getMax/{id}', [Api\BidsController::class, 'getMaxBids']);
+    Route::post('/add', [Api\BidsController::class, 'store']);
+    Route::get('/getProductBids/{id}', [Api\BidsController::class, 'getProductBids']);
+});
+
 Route::post('/getCityStatebyPostal/{zipcode}', [Api\CityStateController::class, 'getCityStatebyPostal']);
 Route::post('forgot-password', [Api\Auth\ForgotPasswordController::class, 'check']);
 Route::post('verify/otp', [Api\Auth\ForgotPasswordController::class, 'verifyOtp']);

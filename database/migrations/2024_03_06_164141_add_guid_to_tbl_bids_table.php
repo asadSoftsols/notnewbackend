@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->float('bids')->default(0);
-            $table->float('durations')->default(0);
-            $table->string('auction_listing')->nullable();
+        Schema::table('tbl_bids', function (Blueprint $table) {
+            $table->uuid('guid')->unique()->default(\App\Helpers\GuidHelper::getGuid());
         });
     }
 
@@ -27,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('tbl_bids', function (Blueprint $table) {
             //
         });
     }

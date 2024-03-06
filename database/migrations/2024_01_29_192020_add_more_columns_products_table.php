@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->integer('stockcapacity');
             $table->boolean('selling_now')->default(false);
-            $table->boolean('listing')->default(false);
+            // $table->boolean('listing')->default(false);
+            $table->timestamp('listing')->nullable();
             $table->boolean('buyitnow')->default(false);
             $table->boolean('deliverd_domestic')->default(false);
             $table->boolean('deliverd_international')->default(false);
