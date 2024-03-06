@@ -48,7 +48,7 @@
                     <label>Media</label>
                     <div>
                         @foreach($media as $item)
-                            <img style="width: 100px; height: 100px;" src="{{$item->url}}" alt="{{$item->guid}}"/>
+                            <img style="width: 100px; height: 100px;" src="http://localhost:8000/image/product/{{$item->name}}" alt="{{$item->guid}}"/>
                         @endforeach
                     </div>
                 </div>

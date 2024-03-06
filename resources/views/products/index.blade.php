@@ -28,6 +28,7 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Product Name</th>
+                <th scope="col">Product Type</th>
                 <th scope="col">Status</th>
                 <th scope="col">Price</th>
                 <th scope="col">Created By</th>
@@ -44,6 +45,13 @@
                 <tr>
                     <td>{{$count++}}</td>
                     <td>{{$item->name}}</td>
+                    <td>
+                        @if($item->selling_now == 1)
+                         <p>Sell it now</p>   
+                        @elseif($item->auctioned == 1)
+                         <p>Auctioned</p>
+                        @endif
+                    </td>
                     <td>
                         <button type="button"
                                 class="{{$item->active  == 1 ? "btn btn-success" : "btn btn-danger"}}"

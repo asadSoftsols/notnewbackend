@@ -184,7 +184,13 @@ class SellerDataController extends Controller
     {
         //
     }
+    public function getSaveSeller(Request $request, $storeId){
 
+        $saveseller = SaveSeller::where('shop_id', $storeId)
+        // ->where('user_id', \Auth::user()->id)
+        ->get();
+        return $saveseller;
+    }
     public function setBankData(Request $request)
     {
         return DB::transaction(function () use ($request) {
