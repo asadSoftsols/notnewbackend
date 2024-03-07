@@ -123,6 +123,11 @@ class Product extends Base implements IMediaInteraction
         return $this->belongsTo('App\Models\User');
     }
 
+    public function bids()
+    {
+        return $this->belongsTo('App\Models\Bids');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

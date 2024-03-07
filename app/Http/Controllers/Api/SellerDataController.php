@@ -222,12 +222,12 @@ class SellerDataController extends Controller
         });
     }
 
-    public function getSaveSeller(Request $request, $storeId){
-        $saveseller = SaveSeller::where('shop_id', $storeId)
-        ->where('user_id', 27,)//\Auth::user()->id)
-        ->get();
-        return $saveseller;
-    }
+    // public function getSaveSeller(Request $request, $storeId){
+    //     $saveseller = SaveSeller::where('shop_id', $storeId)
+    //     ->where('user_id', 27,)//\Auth::user()->id)
+    //     ->get();
+    //     return $saveseller;
+    // }
     public function updateBank(Request $request){
         return DB::transaction(function () use ($request) {
             UserBank::where('user_id', \Auth::user()->id)
