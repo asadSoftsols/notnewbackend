@@ -75,7 +75,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/updateaddress', [Api\UserController::class, 'updateAddress']);
             Route::get('/recentuserview', [Api\ProductController::class, 'recentUserView']);
             Route::delete('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
-            
+            Route::get('/getbid/{id}', [Api\BidsController::class, 'getBidsUserProduct']);
         });
         Route::group(['prefix' => '/products'], function () {
             Route::post('/add', [Api\ProductController::class, 'store']);
@@ -201,7 +201,13 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/refund', [Api\OrderController::class, 'customerRefundOrders']);
             Route::get('/buyagainorders', [Api\OrderController::class, 'buyAgainOrders']);
         });
- 
+        Route::group(['prefix' => '/bids'], function () {
+            Route::get('/getMax/{id}', [Api\BidsController::class, 'getMaxBids']);
+            Route::post('/add', [Api\BidsController::class, 'store']);
+            Route::post('/confirmedBids', [Api\BidsController::class, 'confirmedBids']);
+            Route::get('/gettotalbidsproduct/{id}', [Api\BidsController::class, 'getTotalBidsProduct']);
+        });
+        
         Route::group(['prefix' => '/prices'], function () {
             Route::get('/getbyId/{id}', [Api\PricesController::class, 'getbyId']);
         });
@@ -289,11 +295,6 @@ Route::group(['prefix' => '/state'], function () {
 });
 Route::group(['prefix' => '/countries'], function () {
     Route::get('/', [Api\CityStateController::class, 'getCountries']);
-});
-Route::group(['prefix' => '/bids'], function () {
-    Route::get('/getMax/{id}', [Api\BidsController::class, 'getMaxBids']);
-    Route::post('/add', [Api\BidsController::class, 'store']);
-    Route::get('/getProductBids/{id}', [Api\BidsController::class, 'getProductBids']);
 });
 
 Route::post('/getCityStatebyPostal/{zipcode}', [Api\CityStateController::class, 'getCityStatebyPostal']);

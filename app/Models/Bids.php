@@ -21,5 +21,16 @@ class Bids extends Model
     /**
      * @var array
      */
-    protected $fillable = ['max_bids', 'shipping_charges', 'time_bids', 'estimated_total', 'user_id', 'product_id', 'guid', 'created_at', 'updated_at'];
+    protected $fillable = ['max_bids', 'shipping_charges', 'time_bids', 'confirmed', 'estimated_total', 'user_id', 'product_id', 'guid', 'created_at', 'updated_at'];
+
+    public function product()
+    {
+        return $this->belongsTo('App\Models\Product', 'product_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User', 'user_id');
+    }
+
 }
