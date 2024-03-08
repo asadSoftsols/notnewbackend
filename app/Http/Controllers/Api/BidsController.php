@@ -55,9 +55,8 @@ class BidsController extends Controller
                 Bids::where('product_id', $product->id)
                 ->where('user_id', \Auth::user()->id)
                 ->delete();
-
                 $bids = new Bids();
-                $bids->max_bids = $request->get('max_bids');
+                $bids->max_bids = $maxBids ? $maxBids : 0;
                 $bids->shipping_charges = $request->get('shipping_charges');
                 $bids->time_bids = $request->get('time_bids');
                 $bids->estimated_total = $request->get('estimated_total');
@@ -126,8 +125,8 @@ class BidsController extends Controller
         $bids = Bids::get();
         if(count($bids) > 0){
             $product = Product::where('guid',$id)->first();
-            return Bids::where('user_id', \Auth::user()->id)
-            //where('product_id', $product->id)
+            // return Bids::where('user_id', \Auth::user()->id)
+            return Bids::where('product_id', $product->id)
             ->max('max_bids');
         }else{
             return '0';
@@ -160,6 +159,18 @@ class BidsController extends Controller
 
         if($totalBids){
             return response()->json(['status'=> true,'data' =>$totalBids], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Bids of this Product!"], 200);       
+        }
+    }
+    public function getUserBids()
+    {
+        $bids = Bids::where('user_id', \Auth::user()->id)
+            ->with('product')
+            ->with('user')
+            ->get();
+        if($bids){
+            return response()->json(['status'=> true,'data' =>$bids], 200);       
         }else{
             return response()->json(['status'=> false,'data' =>"Unable To Get Bids of this Product!"], 400);       
         }
@@ -194,5 +205,42 @@ class BidsController extends Controller
             return response()->json(['status'=> false,'data' =>"Unable To Get Seller"], 400);       
         }
     }
-
+    public function getSellerActiveBid(Request $request){
+        //     $productIds = [];
+        //     foreach($bids as $bid){
+        //         array_push($productIds, $bid->product_id);   
+        //     }
+        //     $productId = array_unique($productIds);
+        //     $products = Product::
+        //     whereIn('id',$productId)
+        //     ->where('user_id', \Auth::user()->id)
+        //     ->get();
+        // return $products;
+        // die();
+        $bids = Bids::where('status','pending')
+        ->get();
+        $data = "";
+        $getData = [];
+        foreach($bids as $bid){
+            $product = Product::where('id', $bid->product_id)
+                ->where('user_id', \Auth::user()->id)
+                ->first();
+            $bids = Bids::where('product_id', $product->id)
+                ->orderBy('created_at', 'desc')->first();
+            $bidsNo = Bids::where('product_id', $product->id)->count();
+            $data =[
+                'product' => $product,
+                'currentbid'=>$bids,
+                'bidsno'=>$bidsNo,
+                'endsIn'=>$product->auction_listing
+            ];    
+            array_push($getData, $data);
+        }
+        if($getData){
+            return response()->json(['status'=> true,'data' =>$getData], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Bids"], 400);       
+        }
+        
+    }
 }
