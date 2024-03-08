@@ -76,6 +76,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/recentuserview', [Api\ProductController::class, 'recentUserView']);
             Route::delete('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
             Route::get('/getbid/{id}', [Api\BidsController::class, 'getBidsUserProduct']);
+            Route::get('/getuserbid', [Api\BidsController::class, 'getUserBids']);
+            Route::get('/getselleractivebid', [Api\BidsController::class, 'getSellerActiveBid']);
         });
         Route::group(['prefix' => '/products'], function () {
             Route::post('/add', [Api\ProductController::class, 'store']);

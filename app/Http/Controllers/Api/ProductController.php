@@ -414,7 +414,6 @@ class ProductController extends Controller
 
             $active = false;
             $product = new Product();
-
             $user = User::where('id', Auth::user()->id)->first();
             $country = Countries::where('id', $request->get('country'))->first();
             $states = State::where('id', $request->get('state'))->first();
@@ -537,16 +536,16 @@ class ProductController extends Controller
             /**
              * For Product Attributes Start
              */
-            $sizes = json_decode($request->get('sizes'));
-            foreach($sizes as $size){
-                foreach($size as $key => $siz){
-                    $productattributes =new ProductAttributes();
-                    $productattributes->name=$key;
-                    $productattributes->value=$siz;
-                    $productattributes->product_id=$product->id;
-                    $productattributes->save();
-                }
-            }
+            // $sizes = json_decode($request->get('sizes'));
+            // foreach($sizes as $size){
+            //     foreach($size as $key => $siz){
+            //         $productattributes =new ProductAttributes();
+            //         $productattributes->name=$key;
+            //         $productattributes->value=$siz;
+            //         $productattributes->product_id=$product->id;
+            //         $productattributes->save();
+            //     }
+            // }
             /**
              * For Product Attributes Ends
              */
