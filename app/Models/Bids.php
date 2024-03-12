@@ -23,7 +23,9 @@ class Bids extends Model
     /**
      * @var array
      */
-    protected $fillable = ['max_bids', 'shipping_charges', 'time_bids', 'status', 'confirmed', 'estimated_total', 'user_id', 'product_id', 'guid', 'created_at', 'updated_at'];
+    protected $fillable = ['max_bids', 'shipping_charges', 'time_bids', 'status', 'confirmed', 
+            'estimated_total', 'user_id', 'product_id', 'guid', 'created_at', 'updated_at',
+            'accept', 'reject'];
 
     public function product()
     {

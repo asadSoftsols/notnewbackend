@@ -21,7 +21,7 @@ class SellerData extends Model
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'country_id', 'state_id', 'city_id', 'fullname', 'email', 'phone', 'address',  'zip',  'zip',  'password',  'password_confirmation','created_at', 'updated_at', 'description'];
+    protected $fillable = ['user_id', 'country_id', 'state_id', 'featured', 'city_id', 'fullname', 'email', 'phone', 'address',  'zip',  'active',  'password',  'password_confirmation','created_at', 'updated_at', 'description'];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -45,10 +45,6 @@ class SellerData extends Model
         return $this->belongsTo(City::class, 'city_id');
     }
 
-    public function product()
-    {
-        return $this->hasMany(Product::class);
-    }
     public function cart(){
         return $this->hasMany(UserCart::class);
     }

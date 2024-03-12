@@ -79,7 +79,7 @@ class UserController extends Controller
         $userId = Auth::user()->id;
         return DB::select("SELECT messages.*,
                      CASE
-                     WHEN sender_id!=$userId  THEN (select name from users where id = sender_id)
+                      WHEN sender_id!=$userId  THEN (select name from users where id = sender_id)
                       WHEN recipient_id!=$userId THEN (select name from users where id = recipient_id)
 		            END as recipient_name
 		          FROM
@@ -94,13 +94,17 @@ class UserController extends Controller
 
     public function messages(User $user)
     {
-        return Message::whereIn('sender_id', [Auth::user()->id, $user->id])
-            ->whereIn('recipient_id', [Auth::user()->id, $user->id])
-            ->orderBy('created_at', 'desc')
+        return Message::
+             where('sender_id', Auth::user()->id)
+            ->orWhere('recipient_id', Auth::user()->id)
+            // whereIn('sender_id', [Auth::user()->id, $user->id])
+            // ->whereIn('recipient_id', [Auth::user()->id, $user->id])
+            ->orderBy('created_at', 'asc')
             ->with(['sender' => function (BelongsTo $belongsTo) {
                 $belongsTo->select(['id', 'name']);
             }])
-            ->paginate();
+            // ->paginate();
+            ->get();
     }
 
     public function sendMessage(User $user, Request $request)
@@ -111,7 +115,7 @@ class UserController extends Controller
         $message->data = $request->get('message');
         $message->save();
 
-        MessageReceived::trigger($user);
+        // MessageReceived::trigger($user);
 
         return $this->genericResponse(true, 'Message sent successfully.');
     }

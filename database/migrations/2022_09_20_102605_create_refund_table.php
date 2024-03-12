@@ -21,7 +21,7 @@ class CreateRefundTable extends Migration
             $table->string('reason');
             $table->string('comment');
             $table->enum('status', [Refund::statuses()]);
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
+            // $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

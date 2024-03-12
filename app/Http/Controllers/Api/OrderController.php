@@ -350,12 +350,12 @@ class OrderController extends Controller
             $order->address = $shippingDetails->street_address ? $shippingDetails->street_address: $request->get("secondaddress");
             $order->discountcode = $request->get("discountcode");
             $order->orderItems = json_encode($request->get("orderItems"));
-            $order->subtotal_cost = '20';//$request->get("subtotal_cost") ? $request->get("subtotal_cost") : 0;
-            $order->actual_cost = '20';//$request->get("actual_cost") ? $request->get("actual_cost") : 0;
+            $order->subtotal_cost = $request->get("subtotal_cost") ? $request->get("subtotal_cost") : 0;
+            $order->actual_cost = $request->get("actual_cost") ? $request->get("actual_cost") : 0;
             $order->shipping_cost = $request->get("shipping_cost") ? $request->get("shipping_cost") : 0;
             $order->prices = json_encode($request->get("prices"));
-            $order->order_total = '20';//$request->get("order_total");
-            $order->status= UserOrder::STATUS_ORDERED;
+            $order->order_total = $request->get("order_total");
+            $order->status= UserOrder::STATUS_PENDING;
             $order->payment_intents = $request->get("payment_intents");
             $order->Curency = $request->get("Curency");
             $order->order_type = $request->get("order_type");
@@ -424,8 +424,11 @@ class OrderController extends Controller
             // $user->notify(new OrderPlaced($order));
             // dispatch(new captureFunds($order));
             // return depositStripeFund::dispatch()->onQueue('processing');
-            
-            return $order;
+            if($order){
+                return response()->json(['status'=> true,'data' =>"your Order has been Submited!"], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Submit Order!"], 400);       
+            }
         });
     }
     public function prices(){
@@ -469,8 +472,8 @@ class OrderController extends Controller
 
 
     public function getById($id){
-        return UserOrder::where('id', $id)->
-            with("buyer")->first();
+        return UserOrder::where('id', $id)
+            ->with("buyer")->first();
     }
 
     /**
