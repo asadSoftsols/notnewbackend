@@ -540,16 +540,16 @@ class ProductController extends Controller
             /**
              * For Product Attributes Start
              */
-            $sizes = json_decode($request->get('sizes'));
-            foreach($sizes as $size){
-                foreach($size as $key => $siz){
-                    $productattributes =new ProductAttributes();
-                    $productattributes->name=$key;
-                    $productattributes->value=$siz;
-                    $productattributes->product_id=$product->id;
-                    $productattributes->save();
-                }
-            }
+            // $sizes = json_decode($request->get('sizes'));
+            // foreach($sizes as $size){
+            //     foreach($size as $key => $siz){
+            //         $productattributes =new ProductAttributes();
+            //         $productattributes->name=$key;
+            //         $productattributes->value=$siz;
+            //         $productattributes->product_id=$product->id;
+            //         $productattributes->save();
+            //     }
+            // }
             /**
              * For Product Attributes Ends
              */

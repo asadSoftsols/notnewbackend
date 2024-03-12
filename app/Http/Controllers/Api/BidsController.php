@@ -60,7 +60,7 @@ class BidsController extends Controller
                 ->where('user_id', \Auth::user()->id)
                 ->delete();
                 $bids = new Bids();
-                $bids->max_bids = $request->get('max_bids');
+                $bids->max_bids = $maxBids ? $maxBids : 0;
                 $bids->shipping_charges = $request->get('shipping_charges');
                 $bids->time_bids = $request->get('time_bids');
                 $bids->estimated_total = $request->get('estimated_total');
