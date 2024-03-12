@@ -249,5 +249,19 @@ class SellerDataController extends Controller
     public function getBankDetails(Request $request){
             return UserBank::where('user_id', \Auth::user()->id)->first();
     }
+
+    public function getFeatured()
+    {
+        $seller = SellerData::where('active', true)
+        ->where('featured', true)
+        ->get();
+
+        if($seller){
+            return response()->json(['status'=> true,'data' =>$seller], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Featured Stores"], 400);       
+        }
+        
+    }
     
 }

@@ -10,6 +10,7 @@ use App\Helpers\StringHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Media;
+use App\Models\Stock;
 use App\Models\Offer;
 use App\Models\Product;
 use App\Models\Service;
@@ -93,6 +94,8 @@ class ProductController extends Controller
             ->with(['shop'])
             ->where($this->applyFilters($request))
             ->where('products.is_sold', false)
+            // ->where('products.listing' > Carbon::now()->toDateTimeString())
+            // ->orWhere('products.auction_listing' > Carbon::now()->toDateTimeString())
             // ->where('products.IsSaved', true)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
@@ -414,7 +417,6 @@ class ProductController extends Controller
 
             $active = false;
             $product = new Product();
-
             $user = User::where('id', Auth::user()->id)->first();
             $country = Countries::where('id', $request->get('country'))->first();
             $states = State::where('id', $request->get('state'))->first();
@@ -448,6 +450,7 @@ class ProductController extends Controller
             $product->bids = $request->get('bids');
             $product->durations = $request->get('durations');
             $product->auction_listing = $request->get('auctionListing');
+            $product->auction_End_listing = $request->get('auctionEndListing');
             $deliverdDomestic = 0;
             if($request->get('deliverddomestic') == 'true'){
                 $deliverdDomestic = 1;
@@ -550,6 +553,19 @@ class ProductController extends Controller
             /**
              * For Product Attributes Ends
              */
+
+             /**
+              * Stock Starts
+              */
+            //   store
+              $stock = new Stock();
+              $stock->user_id = Auth::user()->id;
+              $stock->product_id = $product->id;
+              $stock->quantity = $request->get('stockCapacity');
+              $stock->save();
+              /**
+               * Stock Ends
+               */
 
             DB::commit();
         } catch (\Exception $e) {
@@ -677,6 +693,7 @@ class ProductController extends Controller
         return $product->withCategory()
             ->withAttributes()
             ->withShop()
+            // ->withBids()
             // ->appendDetailAttribute()
             ->withUser();
     }
@@ -767,6 +784,7 @@ class ProductController extends Controller
                 "bids" => $request->get('bids'),
                 "durations" => $request->get('durations'),
                 "auction_listing" => $request->get('auctionListing'),
+                "auction_End_listing" => $request->get('auctionEndListing'),
                 "deliverd_domestic" => $deliverdDomestic,
                 "tags" => json_encode($request->get('tags')),
                 "deliverd_international" => $deliverdInternational,
@@ -845,20 +863,20 @@ class ProductController extends Controller
             /**
              * For Product Attributes Start
              */
-            $attributes = ProductAttributes::where('product_id', $product->id)->first();
-            if($attributes){
-                ProductAttributes::where('product_id', $product->id)->delete();
-            }
-            $sizes = json_decode($request->get('sizes'));
-            foreach($sizes as $size){
-                foreach($size as $key => $siz){
-                    $productattributes =new ProductAttributes();
-                    $productattributes->name=$key;
-                    $productattributes->value=$siz;
-                    $productattributes->product_id=$product->id;
-                    $productattributes->save();
-                }
-            }
+            // $attributes = ProductAttributes::where('product_id', $product->id)->first();
+            // if($attributes){
+            //     ProductAttributes::where('product_id', $product->id)->delete();
+            // }
+            // $sizes = json_decode($request->get('sizes'));
+            // foreach($sizes as $size){
+            //     foreach($size as $key => $siz){
+            //         $productattributes =new ProductAttributes();
+            //         $productattributes->name=$key;
+            //         $productattributes->value=$siz;
+            //         $productattributes->product_id=$product->id;
+            //         $productattributes->save();
+            //     }
+            // }
             /**
              * For Product Attributes Ends
              */
@@ -876,6 +894,8 @@ class ProductController extends Controller
     {
         return DB::transaction(function () use (&$request, &$id) {
             Product::where('guid', $id)->delete();
+            $product = Product::where('guid', $id)->first();
+            Stock::where('product_id', $product->id)->delete();
             return response()->json(['message' => 'Product Deleted Successfully'], 200);
         });
     }

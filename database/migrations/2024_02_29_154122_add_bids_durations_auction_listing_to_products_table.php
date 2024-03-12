@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
             $table->float('bids')->default(0);
             $table->float('durations')->default(0);
-            $table->string('auction_listing')->nullable();
+            $table->timestamp('auction_listing')->nullable();
         });
     }
 

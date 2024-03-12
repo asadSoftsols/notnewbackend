@@ -17,10 +17,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        return view('trusted-seller.index', ['user' =>
-        User::join('trusted_sellers', 'users.id', '=', 'trusted_sellers.user_id')
-              ->orderBy('trusted_sellers.created_at', 'ASC')
-            ->get()
+        // return view('trusted-seller.index', ['user' =>
+        // User::join('trusted_sellers', 'users.id', '=', 'trusted_sellers.user_id')
+        //       ->orderBy('trusted_sellers.created_at', 'ASC')
+        //     ->get()
+        // ]);
+        return view('user.index', ['user' =>
+        User::get()
         ]);
     }
 

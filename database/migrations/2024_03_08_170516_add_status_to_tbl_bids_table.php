@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            // $table->integer('min_purchase')->default(0);
+        Schema::table('tbl_bids', function (Blueprint $table) {
+            $table->string('status')->default('pending');
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('tbl_bids', function (Blueprint $table) {
             //
         });
     }

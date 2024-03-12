@@ -76,6 +76,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/recentuserview', [Api\ProductController::class, 'recentUserView']);
             Route::delete('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
             Route::get('/getbid/{id}', [Api\BidsController::class, 'getBidsUserProduct']);
+            Route::get('/getuserbid', [Api\BidsController::class, 'getUserBids']);
+            Route::get('/getselleractivebid', [Api\BidsController::class, 'getSellerActiveBid']);
         });
         Route::group(['prefix' => '/products'], function () {
             Route::post('/add', [Api\ProductController::class, 'store']);
@@ -87,6 +89,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/min', [Api\ProductController::class, 'getMin']);
             Route::get('/max', [Api\ProductController::class, 'getMax']);
             Route::get('/size', [Api\ProductController::class, 'getSizes']);
+            Route::get('/shows/{product:guid}', [Api\ProductController::class, 'show']);
             // HOTFIX
             // @TODO check why /upload is not working maybe another route with the same name (GIVING 404 on /upload route) is declared.
             // Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);
@@ -102,6 +105,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/upload', [Api\ProductController::class, 'Imgupload']);
         });
         Route::group(['prefix' => '/stock'], function(){
+            Route::post('/add', [Api\StockController::class, 'store']);
             Route::get('/instock', [Api\ProductController::class, 'inStock']);
             Route::get('/outstock', [Api\ProductController::class, 'outStock']);
         });
@@ -161,13 +165,14 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/self', [Api\CheckoutController::class, 'self']);
             Route::get('/destroy/{id}', [Api\CheckoutController::class, 'destroy']);
         });
-        Route::get('/message/conversations/{productId}', [Api\MessageController::class, 'conversations']);
+        // Route::get('/message/conversations/{productId}', [Api\MessageController::class, 'conversations']);
+        Route::get('/message/userConversations/', [Api\MessageController::class, 'conversations']);
         Route::get('/message/conversations', [Api\MessageController::class, 'getUserConversations']);
         Route::post('/message/saveAssociated', [Api\MessageController::class, 'saveAssociated']);
         Route::get('/message/{recipientId}/{productId}', [Api\MessageController::class, 'show']);
-        Route::get('/message/checkMessage', [Api\MessageController::class, 'checkMessage']);
+        // Route::get('/message/checkMessage', [Api\MessageController::class, 'checkMessage']);
         Route::Resources([
-            // 'order' => \Api\OrderController::class,
+            'order' => \Api\OrderController::class,
             'prices' => \Api\PricesController::class,
             // 'transaction' => \Api\TransactionController::class,
         ]);
@@ -205,9 +210,11 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/getMax/{id}', [Api\BidsController::class, 'getMaxBids']);
             Route::post('/add', [Api\BidsController::class, 'store']);
             Route::post('/confirmedBids', [Api\BidsController::class, 'confirmedBids']);
+            Route::post('/acceptbid', [Api\BidsController::class, 'acceptBid']);
+            Route::post('/rejectbid', [Api\BidsController::class, 'rejectBid']);
             Route::get('/gettotalbidsproduct/{id}', [Api\BidsController::class, 'getTotalBidsProduct']);
         });
-        
+
         Route::group(['prefix' => '/prices'], function () {
             Route::get('/getbyId/{id}', [Api\PricesController::class, 'getbyId']);
         });
@@ -256,7 +263,9 @@ Route::group(['prefix' => '/categories', ['middleware' => 'throttle:20,5']], fun
     Route::get('/', [Api\CategoryController::class, 'index']);
     Route::get('/overAll', [Api\CategoryController::class, 'all']);
 });
-
+Route::group(['prefix' => '/seller'], function () {
+    Route::get('/getfeatured', [Api\SellerDataController::class, 'getFeatured']);
+});
 Route::group(['prefix' => '/products'], function () {
     Route::get('/', [Api\ProductController::class, 'index']);
     Route::get('/show/{product:guid}', [Api\ProductController::class, 'show']);

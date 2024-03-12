@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            // $table->integer('min_purchase')->default(0);
+        Schema::table('seller_datas', function (Blueprint $table) {
+            $table->boolean('featured')->default(false);
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('seller_datas', function (Blueprint $table) {
             //
         });
     }
