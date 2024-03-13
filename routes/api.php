@@ -234,6 +234,9 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/saveSeller', [Api\SellerDataController::class, 'saveSeller']);
             Route::post('/updateBank', [Api\SellerDataController::class, 'updateBank']);
             Route::get('/getBankDetails', [Api\SellerDataController::class, 'getBankDetails']);
+            Route::get('/getusersaveseller', [Api\SellerDataController::class, 'getUserSaveSeller']);
+            Route::get('/feedback/{id}', [Api\SellerDataController::class, 'feedback']);
+            
         });
         Route::group(['prefix' => '/transaction'], function () {
             Route::get('/usertransaction', [Api\TransactionController::class, 'getUserTransactions']);
