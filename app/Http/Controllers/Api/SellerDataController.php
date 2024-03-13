@@ -7,6 +7,7 @@ use App\Helpers\GuidHelper;
 use Illuminate\Http\Request;
 use App\Models\SellerData;
 use App\Models\User;
+use App\Models\Feedback;
 use App\Models\UserBank;
 use App\Models\SaveSeller;
 use App\Models\Bank;
@@ -126,7 +127,7 @@ class SellerDataController extends Controller
     {
         // $userId = \Auth::user()->id? \Auth::user()->id: $id;
         
-        $seller = SellerData::where('user_id', \Auth::user()->id)->first();
+        $seller = SellerData::where('guid', $id)->first();
 
         if($seller){
             return response()->json(['status'=> true,'data' =>$seller], 200);       
@@ -188,6 +189,13 @@ class SellerDataController extends Controller
 
         $saveseller = SaveSeller::where('shop_id', $storeId)
         // ->where('user_id', \Auth::user()->id)
+        ->get();
+        return $saveseller;
+    }
+    public function getUserSaveSeller(Request $request){
+
+        $saveseller = SaveSeller::where('user_id', \Auth::user()->id)
+        ->with('seller')
         ->get();
         return $saveseller;
     }
@@ -262,6 +270,15 @@ class SellerDataController extends Controller
             return response()->json(['status'=> false,'data' =>"Unable To Get Featured Stores"], 400);       
         }
         
+    }
+    public function feedback(Request $request, $storeId){
+        $feedback =Feedback::where('store_id', $storeId)->count();
+        if($feedback){
+            return response()->json(['status'=> true,'data' =>$feedback], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Featured Stores"], 400);       
+        }
+
     }
     
 }

@@ -540,16 +540,16 @@ class ProductController extends Controller
             /**
              * For Product Attributes Start
              */
-            // $sizes = json_decode($request->get('sizes'));
-            // foreach($sizes as $size){
-            //     foreach($size as $key => $siz){
-            //         $productattributes =new ProductAttributes();
-            //         $productattributes->name=$key;
-            //         $productattributes->value=$siz;
-            //         $productattributes->product_id=$product->id;
-            //         $productattributes->save();
-            //     }
-            // }
+            $sizes = json_decode($request->get('sizes'));
+            foreach($sizes as $size){
+                foreach($size as $key => $siz){
+                    $productattributes =new ProductAttributes();
+                    $productattributes->name=$key;
+                    $productattributes->value=$siz;
+                    $productattributes->product_id=$product->id;
+                    $productattributes->save();
+                }
+            }
             /**
              * For Product Attributes Ends
              */
@@ -560,6 +560,7 @@ class ProductController extends Controller
             //   store
               $stock = new Stock();
               $stock->user_id = Auth::user()->id;
+              $stock->guid = GuidHelper::getGuid();
               $stock->product_id = $product->id;
               $stock->quantity = $request->get('stockCapacity');
               $stock->save();
@@ -1276,22 +1277,40 @@ class ProductController extends Controller
             return response()->json(['status'=> false,'data' => 'Unable to Fetch Products'], 400);        
         }
     }
+    // public function categories(Request $request){
+    //     $products = Product::where('active',true)
+    //     ->get();
+    //     $category = [];
+    //     foreach($products as $pro){
+    //         $cat = Category::where('id',$pro->category_id)->first();
+    //         array_push($category, $cat);
+    //     }
+    //     $resultCategory = array_unique($category);
+    //     if($resultCategory){
+    //         return response()->json(['status'=> true,'data' => $resultCategory], 200);       
+    //     }else{
+    //         return response()->json(['status'=> false,'data' => 'Unable to Fetch Category'], 400);        
+    //     }
+    // }
     public function categories(Request $request){
         $products = Product::where('active',true)
         ->get();
         $category = [];
         foreach($products as $pro){
             $cat = Category::where('id',$pro->category_id)->first();
-            array_push($category, $cat);
+            array_push($category, $cat->id);
+         // array_push($category, $cat);
         }
+
         $resultCategory = array_unique($category);
-        if($resultCategory){
-            return response()->json(['status'=> true,'data' => $resultCategory], 200);       
+        $resultCategories = array_values($resultCategory);
+        $categories = Category::whereIn('id', $resultCategories)->get();
+        if($categories){
+            return response()->json(['status'=> true,'data' => $categories], 200);       
         }else{
             return response()->json(['status'=> false,'data' => 'Unable to Fetch Category'], 400);        
         }
     }
-
     public function getSizes(Request $request)
     {
         $attributes = ProductAttributes::get();

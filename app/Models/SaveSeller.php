@@ -33,7 +33,8 @@ class SaveSeller extends Model
      */
     public function seller()
     {
-        return $this->belongsTo('App\Models\SellerData');
+        return $this->belongsTo('App\Models\SellerData', 'shop_id');
     }
+
 
 }

@@ -61,6 +61,7 @@ class Media extends Base
 
     public const PRODUCT_IMAGES = "PRODUCT";
     public const SERVICE_IMAGES = "SERVICE";
+    public const REFUND_IMAGES = "REFUND";
     public const TRUSTEDSELLER_FILES = "TRUSTEDSELLER";
 
     /**
@@ -73,8 +74,8 @@ class Media extends Base
 
     public function getUrlAttribute()
     {
-        // return url(Storage::url($this->name));
-        return public_path('image\\product\\'.$this->name);
+        return url(Storage::url($this->name));
+        // return ('image\\product\\'.$this->name);
         
     }
 

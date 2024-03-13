@@ -4,16 +4,25 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Helpers\StripeHelper;
+use App\Helpers\ArrayHelper;
+use App\Helpers\GuidHelper;
+use App\Helpers\StringHelper;
 use App\Models\Product;
 use App\Models\Refund;
+use App\Models\UserOrder;
+use App\Models\Media;
 use App\Models\Fedex;
 use App\Models\ShippingDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Stripe\StripeClient;
 use Carbon\Carbon;
+use App\Images;
+use Image;
 
 class RefundController extends Controller
 {
@@ -46,15 +55,66 @@ class RefundController extends Controller
     public function store(Request $request)
     {
         return DB::transaction(function () use ($request) {
+            $imageName = [];
+            if($request->hasFile('file')){
+                foreach ($request->file('file') as $file) {
+                    $extension = $file->getClientOriginalExtension();    
+                    $guid = GuidHelper::getGuid();
+                    $path = User::getUploadPath() . StringHelper::trimLower(Media::REFUND_IMAGES);
+                    $name = "{$path}/{$guid}.{$extension}";  
+                    // $name = $file->getClientOriginalName();
+                    array_push($imageName, $name);
+                    $media = new Media();
+                    $order = UserOrder::where('id', $request->get('order_id'))->first();
+                    $product = json_decode(json_decode($order->orderItems));
+                    
+                    $media->fill([
+                        'name' => $name,
+                        'extension' => $extension,
+                        'type' => Media::REFUND_IMAGES,
+                        'user_id' => \Auth::user()->id,
+                        // 'product_id' => $product[0]->id,
+                        'order_id'=> $request->get('order_id'),
+                        'active' => true,
+                    ]);
+            
+                    $media->save();
+                    // $image = Image::make($file)->save(public_path('image/product/') . $name);
+                    $image = Image::make($file);
+                        $image->orientate();
+                        $image->resize(1024, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                    });
+                        $image->stream();
+                        Storage::put('public/'. $name, $image->encode());
+                }
+            }
+
+            //delete the previous Refunded
+            Refund::where('order_id', $request->get('order_id'))->delete();
+
+            //insert new refunded
             $refund = new Refund();
-            $refund->product_id = $request->product_id;
-            $refund->order_id = $request->order_id;
-            $refund->reason = $request->reason;
-            $refund->comment = $request->comment;
+            // $refund->product_id = $product[0]->id;
+            $refund->order_id = $request->get('order_id');
+            $refund->reason = $request->get('reason');
+            $refund->comment = " ";//$request->get('comment');
             $refund->status = Refund::STATUS_PENDING;
             $refund->save();
+            
+            $userOrder = UserOrder::where('id',$request->get('order_id'))->update(
+                [
+                    'status'=> UserOrder::REFUND,
+                ]
+            );
 
-            return $refund;
+            if($refund){
+                return response()->json(['status'=>'true','data'=>"Order Has been Refunded!!"],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Unable to Place Bid!'],403);
+            }
+
         });
     }
 
