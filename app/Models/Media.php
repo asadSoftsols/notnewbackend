@@ -63,6 +63,8 @@ class Media extends Base
     public const SERVICE_IMAGES = "SERVICE";
     public const REFUND_IMAGES = "REFUND";
     public const TRUSTEDSELLER_FILES = "TRUSTEDSELLER";
+    public const USER = "USER";
+    public const STORE = "STORE";
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -74,6 +76,7 @@ class Media extends Base
 
     public function getUrlAttribute()
     {
+        // return url(Storage::url($this->name));
         return url(Storage::url($this->name));
         // return ('image\\product\\'.$this->name);
         

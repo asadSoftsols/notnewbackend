@@ -16,7 +16,6 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
-                <th scope="col">Flexe Fee</th>
                 <th scope="col">Status</th>
                 <th scope="col">Auto Active</th>
                 <th scope="col">Cancel Status</th>
@@ -32,7 +31,7 @@
                     <td>{{$count++}}</td>
                     <td>{{$item->name}}</td>
                     <td>{{$item->email}}</td>
-                    <td>{{$item->percentage?$item->percentage:0}}</td>
+                    <!-- <td>{{$item->percentage?$item->percentage:0}}</td> -->
                     <td><span
                             class="{{$item->status == 0 ? 'badge badge-danger' : 'badge badge-success'}}">{{$item->status == 0 ? 'IN-ACTIVE' : 'ACTIVE' }}</span>
                     </td>
@@ -59,13 +58,6 @@
                                 data-toggle="modal" data-target="#products1{{$item->id}}">
                                 <i class="fa fa-trash" style="color: white"></i>
                         </button>
-                        <!-- <form action="{{ route('user.destroy', $item) }}" method="POST"
-                              style="display: unset">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            <button class="btn btn-danger" type="submit"><i class="fa fa-trash"
-                                                                            style="color: white"></i></button>
-                        </form> -->
                     </div>
                     </td>
                 </tr>   

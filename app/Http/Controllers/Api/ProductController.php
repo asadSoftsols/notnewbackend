@@ -291,11 +291,16 @@ class ProductController extends Controller
             ->withoutGlobalScope(SoldScope::class)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
-            ->paginate($this->pageSize, [
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get(
+                [
                 'categories.name as category',
                 'products.*'
-            ]);
-
+                ]
+            );
         }else if($status=="inactive"){
             // return Product::join('categories as categories','categories.id','=','products.category_id')
             return Product::join('categories as categories','categories.id','=','products.category_id')
@@ -311,10 +316,16 @@ class ProductController extends Controller
             ->withoutGlobalScope(SoldScope::class)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
-            ->paginate($this->pageSize, [
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get(
+                [
                 'categories.name as category',
                 'products.*'
-            ]);
+                ]
+            );
             
         }else if($status=="scheduled"){
             return Product::join('categories as categories','categories.id','=','products.category_id')
@@ -330,10 +341,16 @@ class ProductController extends Controller
             ->withoutGlobalScope(SoldScope::class)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
-            ->paginate($this->pageSize, [
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get(
+                [
                 'categories.name as category',
                 'products.*'
-            ]);
+                ]
+            );
             
         }else{
             return Product::join('categories as categories','categories.id','=','products.category_id')
@@ -348,10 +365,17 @@ class ProductController extends Controller
             ->withoutGlobalScope(SoldScope::class)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
-            ->paginate($this->pageSize, [
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get(
+                [
                 'categories.name as category',
                 'products.*'
-            ]);
+                ]
+            );
+
         }
     }
 

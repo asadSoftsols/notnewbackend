@@ -105,4 +105,23 @@ class ForgotPasswordController extends Controller
         }
 
     }
+    public function resendForgetOtp(Request $request){
+        try{
+            $user =User::where('email', $request->get('email'))->first();
+            $checkOtp = Otp::where('email', $request->get('email'))
+            ->where('otp_type', 'ForgetPassword')
+            ->first();
+            if($checkOtp){
+                Otp::where('email', $request->get('email'))
+                ->where('otp_type', 'ForgetPassword')
+                ->delete();
+            }
+            $user->notify(new ForgetPasswordVerification($user));
+            return response()->json(['status'=>'true','data'=>"OTP has been Resend!!"],200);
+        }
+        catch(Exception $e) {
+            return response()->json(['status'=>'false','data'=>$e],500);
+        }
+    }
+    // Notification::send($user, new ForgetPasswordVerification());
 }

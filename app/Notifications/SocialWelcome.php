@@ -1,25 +1,33 @@
 <?php
 
 namespace App\Notifications;
-use App\Helpers\ArrayHelper;
+
 use App\Mail\BaseMailable;
+use App\Models\Order;
+use App\Models\Media;
+use App\Models\Product;
+use App\Models\ShippingDetail;
+use App\Models\Prices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\Otp;
-class ForgetPasswordVerification extends Notification
+
+class SocialWelcome extends Notification
 {
     use Queueable;
 
+    protected $user;
+    protected $otp;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($user)
     {
-        //
+        // $this->product = $product;
+        $this->user = $user;
     }
 
     /**
@@ -37,24 +45,18 @@ class ForgetPasswordVerification extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return
      */
     public function toMail($notifiable)
     {
-        $verificationCode = ArrayHelper::otpGenerate();
-        $otp = new Otp();
-        $otp->otp = $verificationCode;
-        $otp->email = $notifiable->email;
-        $otp->name = $notifiable->name;
-        $otp->otp_type = "ForgetPassword";
-        $otp->save();
         $baseMailable = new BaseMailable();
-        
+        $user = $this->user;
+
         return $baseMailable->to($notifiable->email)
-            ->subject($notifiable->name . '- Password Rest Email')
-            ->markdown('emails.auth.verification-code', [
-                'user' => $notifiable,
-                'verificationUrl' => $verificationCode]);
+        ->subject($notifiable->name . '- Welcome to Zecodo')
+        ->markdown('emails.auth.soicalwelcome', [
+            'user' => $user
+        ]);
     }
 
     /**
@@ -66,7 +68,7 @@ class ForgetPasswordVerification extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
+           //
         ];
     }
 }
