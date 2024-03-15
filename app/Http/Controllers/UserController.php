@@ -22,9 +22,11 @@ class UserController extends Controller
         //       ->orderBy('trusted_sellers.created_at', 'ASC')
         //     ->get()
         // ]);
-        return view('user.index', ['user' =>
-        User::get()
-        ]);
+        dd('get user');
+
+        // return view('user.index', ['user' =>
+        // User::get()
+        // ]);
     }
 
     public function get()

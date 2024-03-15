@@ -63,7 +63,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/deleteAccount/{id}', [Api\UserController::class, 'deleteAccount']);
             Route::post('/cancelDelete/{id}', [Api\UserController::class, 'cancelDelete']);
             Route::patch('/', [Api\UserController::class, 'update']);
-            Route::patch('/profileupdate', [Api\UserController::class, 'profileUpdate']);
+            Route::post('/profileupdate', [Api\UserController::class, 'profileUpdate']);
             Route::get('/refresh/{user}', [Api\UserController::class, 'refreshOnboardingUrl']);
             Route::get('/checkAccount/{account}', [Api\StripeController::class, 'checkAccount']);
             Route::post('saveAddress/', [Api\SaveAddressController::class, 'create']);
@@ -319,4 +319,15 @@ Route::group(['prefix' => '/user'], function () {
 });
 Route::group(['prefix' => '/bank'], function () {
     Route::get('/get', [Api\SellerDataController::class, 'getBank']);
+});
+Route::group(['prefix' => '/user'], function () {
+    Route::post('/resendOtp', [Api\Auth\RegisterController::class, 'resendOtpEmailVerification']);
+    Route::post('/resendForgetOtp', [Api\Auth\ForgotPasswordController::class, 'resendForgetOtp']);
+});
+Route::group(['prefix' => '/brands'], function () {
+    Route::get('/', [Api\BrandsController::class, 'index']);
+    Route::get('/category/{id}', [Api\BrandsController::class, 'withCategory']);
+});
+Route::get('/linkstorage', function () {
+    Artisan::call('storage:link');
 });

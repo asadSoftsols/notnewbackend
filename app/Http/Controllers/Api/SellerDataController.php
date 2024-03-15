@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Helpers\GuidHelper;
+use App\Helpers\StringHelper;
 use Illuminate\Http\Request;
 use App\Models\SellerData;
 use App\Models\User;
+use App\Models\Media;
 use App\Models\Feedback;
 use App\Models\UserBank;
 use App\Models\SaveSeller;
@@ -14,7 +16,11 @@ use App\Models\Bank;
 use App\Http\Requests\SellerDataRequest;
 use App\Notifications\SellerDataNotify;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Images;
+use Image;
 
 class SellerDataController extends Controller
 {
@@ -51,7 +57,36 @@ class SellerDataController extends Controller
      */
     public function store(Request $request)
     {
-               
+        if($request->hasFile('file')){
+            $user = User::where('id', Auth::user()->id)->first();
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();    
+            $guid = GuidHelper::getGuid();
+            $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::STORE);
+            $name = "{$path}/{$guid}.{$extension}";  
+            // $name = $file->getClientOriginalName();
+            // array_push($imageName, $name);
+            $media = new Media();
+            $media->fill([
+                'name' => $name,
+                'extension' => $extension,
+                'type' => Media::STORE,
+                'user_id' => $user->id,
+                'active' => true,
+            ]);
+    
+            $media->save();
+            // $image = Image::make($file)->save(public_path('image/product/') . $name);
+            $image = Image::make($file);
+                $image->orientate();
+                $image->resize(1024, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+            });
+                $image->stream();
+                Storage::put('/'. $name, $image->encode());
+        }
+        die();
         return DB::transaction(function () use ($request) {
             $checkseller = SellerData::where('user_id', \Auth::user()->id)->delete();
             // $checkseller = SellerData::where('user_id', \Auth::user()->id)->first();

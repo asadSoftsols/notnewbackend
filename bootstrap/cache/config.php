@@ -121,79 +121,99 @@
       ),
       9 => 
       array (
-        'header' => 'Products',
+        'header' => 'Brands',
       ),
       10 => 
+      array (
+        'text' => 'Active Brands',
+        'url' => 'admin/brands',
+        'icon' => 'fa fa-list-alt',
+      ),
+      11 => 
+      array (
+        'header' => 'Delivery',
+      ),
+      12 => 
+      array (
+        'text' => 'Active Company',
+        'url' => 'admin/deliverycompany',
+        'icon' => 'fa fa-list-alt',
+      ),
+      13 => 
+      array (
+        'header' => 'Products',
+      ),
+      14 => 
       array (
         'text' => 'Active Products',
         'url' => 'admin/products',
         'icon' => 'fab fa-product-hunt',
       ),
-      11 => 
+      15 => 
       array (
         'text' => 'In-Active Products',
         'url' => 'admin/in-active-products',
         'icon' => 'fa fa-times',
       ),
-      12 => 
+      16 => 
       array (
         'header' => 'Media',
       ),
-      13 => 
+      17 => 
       array (
         'text' => 'Media',
         'url' => 'admin/media',
         'icon' => 'fa fa-image',
       ),
-      14 => 
+      18 => 
       array (
         'header' => 'Attributes',
       ),
-      15 => 
+      19 => 
       array (
         'text' => 'Attributes',
         'url' => 'admin/attribute',
         'icon' => 'fa fa-bars',
       ),
-      16 => 
+      20 => 
       array (
         'text' => 'Unit Type',
         'url' => 'admin/unit-type',
         'icon' => 'fa fa-bars',
       ),
-      17 => 
+      21 => 
       array (
         'header' => 'account_settings',
       ),
-      18 => 
+      22 => 
       array (
         'text' => 'profile',
         'url' => 'admin/settings',
         'icon' => 'fas fa-fw fa-user',
       ),
-      19 => 
+      23 => 
       array (
         'text' => 'change_password',
         'url' => 'admin/settings',
         'icon' => 'fas fa-fw fa-lock',
       ),
-      20 => 
+      24 => 
       array (
         'text' => 'Bank',
         'url' => 'admin/banks',
         'icon' => 'fas fa-fw fa-lock',
       ),
-      21 => 
+      25 => 
       array (
         'header' => 'Settings',
       ),
-      22 => 
+      26 => 
       array (
         'text' => ' Active Prices',
         'url' => 'admin/price',
         'icon' => 'fa fa-list-alt',
       ),
-      23 => 
+      27 => 
       array (
         'text' => ' In-Active Prices',
         'url' => 'admin/in-active-prices',
@@ -309,13 +329,13 @@
     'name' => 'notnew',
     'env' => 'local',
     'debug' => true,
-    'url' => 'http://localhost',
+    'url' => 'http://localhost:8000',
     'client_url' => 'http://localhost:3000',
     'asset_url' => NULL,
     'facebook' => 
     array (
-      'app_id' => NULL,
-      'app_secret' => NULL,
+      'app_id' => '855777062581776',
+      'app_secret' => '8b8d7459655b7f73c9d143186d09618d',
     ),
     'google' => 
     array (
@@ -666,20 +686,20 @@
   ),
   'filesystems' => 
   array (
-    'default' => 'local',
+    'default' => 'public',
     'cloud' => 's3',
     'disks' => 
     array (
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
+        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app/public',
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
-        'url' => 'http://localhost/storage',
+        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app/public',
+        'url' => 'http://localhost:8000/storage',
         'visibility' => 'public',
       ),
       's3' => 
@@ -1037,7 +1057,7 @@
   ),
   'api-postman' => 
   array (
-    'base_url' => 'http://localhost',
+    'base_url' => 'http://localhost:8000',
     'filename' => '{timestamp}_{app}_collection.json',
     'structured' => false,
     'crud_folders' => true,

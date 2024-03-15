@@ -16,7 +16,6 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
-                <th scope="col">Flexe Fee</th>
                 <th scope="col">Status</th>
                 <th scope="col">Action</th>
             </tr>
@@ -30,7 +29,6 @@
                     <td>{{$count++}}</td>
                     <td>{{$item->name}}</td>
                     <td>{{$item->email}}</td>
-                    <td>{{$item->percentage?$item->percentage:0}}</td>
                     <td><span
                             class="{{$item->isTrustedSeller == 0 ? 'badge badge-danger' : 'badge badge-success'}}">{{$item->isTrustedSeller == 0 ? 'IN-ACTIVE' : 'ACTIVE' }}</span>
                     </td>

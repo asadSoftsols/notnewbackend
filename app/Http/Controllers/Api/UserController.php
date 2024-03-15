@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\MessageReceived;
 use App\Helpers\StripeHelper;
+use App\Helpers\GuidHelper;
+use App\Helpers\StringHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\BaseMailable;
-use App\Model\Media;
+use App\Models\Media;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\Notification;
@@ -18,7 +20,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Storage;
+use Storage;
+use Stripe\StripeClient;
+use Carbon\Carbon;
+use App\Images;
+use Image;
 
 
 class UserController extends Controller
@@ -28,6 +35,7 @@ class UserController extends Controller
     public function detail()
     {
         $user = User::find(\Auth::user()->id)
+        ->withMedia()
         ->withNotifications()->trusted();
         // return encrypt($user);
         return $user;
@@ -37,6 +45,7 @@ class UserController extends Controller
     {
         $user = User::where('id',\Auth::user()->id)
         ->with(['savelater'])
+        ->with(['media'])
         ->first();
         // return encrypt($user);
         return $user;
@@ -132,19 +141,64 @@ class UserController extends Controller
         }
 
     }
-
     public function profileUpdate(Request $request)
     {
+        return DB::transaction(function () use ($request) {
         if (Auth::check()) {
-            $user = User::where('id', Auth::user()->id)->update([
-                "email" => $request->get('email'),
-                "phone" => $request->get('phone'),
-                "site" => $request->get('site'),
-                "address" => $request->get('address'),
-            ]);
+                $data =[
+                    "email" => $request->get('email'),
+                    "phone" => $request->get('phone'),
+                    "site" => $request->get('site'),
+                    "address" => $request->get('address'),
+                ];
 
+                $user = User::where('id', Auth::user()->id)->update($data);
+              
+                if($request->hasFile('file')){
+                    $user = User::orderBy('id', 'desc')->first();
+                    $file = $request->file('file');
+                    $extension = $file->getClientOriginalExtension();    
+                    $guid = GuidHelper::getGuid();
+                    $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::USER);
+                    $name = "{$path}/{$guid}.{$extension}";  
+                    // $name = $file->getClientOriginalName();
+                    // array_push($imageName, $name);
+
+                    $userMedia = Media::where('user_id',$user->id)
+                        ->where('type','user')
+                        ->first();
+                    if($userMedia){
+                        Storage::delete($userMedia->url);
+                        // Storage::disk('public')->delete($userMedia->url);
+                    }
+                    Media::where('user_id',$user->id)
+                        ->where('type','user')
+                        ->delete();
+                    $media = new Media();
+                    $media->fill([
+                        'name' => $name,
+                        'extension' => $extension,
+                        'type' => Media::USER,
+                        'user_id' => $user->id,
+                        'active' => true,
+                    ]);
+                    $media->save();
+                    $updateCoverImage = User::where('id',$user->id)->update([
+                        'profile_image' => $name
+                    ]);
+                    // $image = Image::make($file)->save(public_path('image/product/') . $name);
+                    $image = Image::make($file);
+                        $image->orientate();
+                        $image->resize(1024, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                    });
+                        $image->stream();
+                        Storage::put('/'. $name, $image->encode());
+                }
+            }
             return $this->genericResponse(true, "Profile Updated");
-        }
+        });
     }
     public function setSecretQuestion(Request $request){
         if (Auth::check()) {

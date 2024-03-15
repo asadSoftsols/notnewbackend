@@ -49,6 +49,7 @@ class RegistrationVerificationNotification extends Notification
         $otp = new Otp();
         $otp->otp = $verificationCode;
         $otp->email = $notifiable->email;
+        $otp->otp_type = "EmailVerification";
         $otp->name = $notifiable->name;
         $otp->save();
         $baseMailable = new BaseMailable();
