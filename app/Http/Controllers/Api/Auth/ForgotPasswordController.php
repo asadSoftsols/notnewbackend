@@ -46,6 +46,7 @@ class ForgotPasswordController extends Controller
         if (Otp::where('otp', $request->otp)->count() != 1) {
             throw ValidationException::withMessages(['message' => "Otp Is Incorrect"]);
         } 
+        Otp::where('otp', $request->otp)->delete();
         return $this->genericResponse(200, 'You can change your password.');
      
     }
@@ -123,5 +124,5 @@ class ForgotPasswordController extends Controller
             return response()->json(['status'=>'false','data'=>$e],500);
         }
     }
-    // Notification::send($user, new ForgetPasswordVerification());
+    // Notification::send($user, new ForgetPassrdVerification());
 }

@@ -90,7 +90,12 @@ class UserOrder extends Model
     {
         return $this->belongsTo('App\Models\ShippingDetail','shipping_detail_id');
     }
-
+    public function orderDetails()
+    {
+        // return $this->belongsToMany(UserOrderDetails::class);
+        // return $this->hasMany(UserOrderDetails::class);
+        return $this->hasMany(UserOrderDetails::class, 'order_id');
+    }
     // 
     public static function statuses() {
         return [

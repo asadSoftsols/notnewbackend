@@ -14,6 +14,7 @@ use App\Models\USPS;
 use App\Models\Order;
 use App\Models\UserCart;
 use App\Models\UserOrder;
+use App\Models\UserOrderDetails;
 use App\Models\Prices;
 use App\Models\Product;
 use App\Models\flexefee;
@@ -412,7 +413,7 @@ class OrderController extends Controller
                 $notification->notifiable_type = 'Order Generated';
                 $notification->notifiable_id = Auth::user()->id;
                 // $notification->uuid = GuidHelper::getGuid();//Auth::user()->id;
-                $notification->data = "You Order Has Been Generated click the link -> <a href='http://localhost:3000/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
+                $notification->data = "You Order Has Been Generated click the link -> <a href='http://localhost:8000/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
                 $notification->save();  
                 $userCart = UserCart::where('user_id', '=' , Auth::user()->id)->delete();
                 /** @var User $user */

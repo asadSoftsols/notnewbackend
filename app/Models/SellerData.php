@@ -18,10 +18,11 @@ class SellerData extends Model
      * @var string
      */
     protected $keyType = 'integer';
+    const MEDIA_UPLOAD = 'SellerData';
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'country_id', 'state_id', 'featured', 'city_id', 'fullname', 'email', 'phone', 'address',  'zip',  'active',  'password',  'password_confirmation','created_at', 'updated_at', 'description'];
+    protected $fillable = ['user_id', 'cover_image', 'country_id', 'state_id', 'featured', 'city_id', 'fullname', 'email', 'latitude', 'longitude', 'phone', 'address',  'zip',  'active',  'password',  'password_confirmation','created_at', 'updated_at', 'description'];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -47,5 +48,9 @@ class SellerData extends Model
 
     public function cart(){
         return $this->hasMany(UserCart::class);
+    }
+    public function media()
+    {
+        return $this->hasMany(Media::class);
     }
 }

@@ -26,6 +26,7 @@ use Stripe\StripeClient;
 use Carbon\Carbon;
 use App\Images;
 use Image;
+use File;
 
 
 class UserController extends Controller
@@ -63,21 +64,28 @@ class UserController extends Controller
     public function upload(Request $request)
     {
         return DB::transaction(function () use ($request) {
-            $uploadData = $this->uploadImage($request, Auth::user());
-            /// todo handle it in Interact with upload making a method which remove the old one and create new
-            $user = \Auth::user();
+            $user="";
+            if(\Auth::check()){
+                $user = User::where('id', Auth::user()->id)->first();
+            }else{
+                $user = User::where('id', $request->get('user_id'))->first();
+            }
+            $uploadData = $this->uploadImage($request, $user);
+            // todo handle it in Interact with upload making a method which remove the old one and create new
+            // $user = \Auth::user();
 
-            $hasPreviousImage = Auth::user()->getRawOriginal('profile_url');
-
+            // $hasPreviousImage = Auth::user()->getRawOriginal('profile_url');
+            $hasPreviousImage = $user->getRawOriginal('profile_image');
             if (!empty($hasPreviousImage)) {
-                $previous_media = Auth::user()->media()->where('type', User::MEDIA_UPLOAD)->first();
-
-                Storage::delete('public/' . $hasPreviousImage);
+                $previous_media = $user->media()->where('type', User::MEDIA_UPLOAD)->first();
+                if(File::exists($previous_media->url)) {
+                    File::delete($previous_media->url);
+                }
+                // Storage::delete('public/' . $hasPreviousImage);
                 $previous_media->delete();
             }
-            
-            $user->fill(['profile_url' => $uploadData['absolute_path']]);
-            $user->save();
+            $user->fill(['profile_url' => '', 'profile_image' => $uploadData['url']]);
+            $user->update();
             return $user;
         });
 
@@ -155,49 +163,58 @@ class UserController extends Controller
                 $user = User::where('id', Auth::user()->id)->update($data);
               
                 if($request->hasFile('file')){
-                    $user = User::orderBy('id', 'desc')->first();
-                    $file = $request->file('file');
-                    $extension = $file->getClientOriginalExtension();    
-                    $guid = GuidHelper::getGuid();
-                    $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::USER);
-                    $name = "{$path}/{$guid}.{$extension}";  
-                    // $name = $file->getClientOriginalName();
-                    // array_push($imageName, $name);
+                    $userData = User::where('id', Auth::user()->id)->first();
+                    $uploadData = $this->uploadImage($request, $userData);                    
+                    $updateUser = User::where('id', $userData->id)->update([
+                        'profile_image' => $uploadData['url']
+                    ]);
+                    // $file = $request->file('file');
+                    // $extension = $file->getClientOriginalExtension();    
+                    // $guid = GuidHelper::getGuid();
+                    // $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::USER);
+                    // $name = "{$path}/{$guid}.{$extension}";  
+                    // // $name = $file->getClientOriginalName();
+                    // // array_push($imageName, $name);
 
-                    $userMedia = Media::where('user_id',$user->id)
-                        ->where('type','user')
-                        ->first();
-                    if($userMedia){
-                        Storage::delete($userMedia->url);
-                        // Storage::disk('public')->delete($userMedia->url);
-                    }
-                    Media::where('user_id',$user->id)
-                        ->where('type','user')
-                        ->delete();
-                    $media = new Media();
-                    $media->fill([
-                        'name' => $name,
-                        'extension' => $extension,
-                        'type' => Media::USER,
-                        'user_id' => $user->id,
-                        'active' => true,
-                    ]);
-                    $media->save();
-                    $updateCoverImage = User::where('id',$user->id)->update([
-                        'profile_image' => $name
-                    ]);
-                    // $image = Image::make($file)->save(public_path('image/product/') . $name);
-                    $image = Image::make($file);
-                        $image->orientate();
-                        $image->resize(1024, null, function ($constraint) {
-                            $constraint->aspectRatio();
-                            $constraint->upsize();
-                    });
-                        $image->stream();
-                        Storage::put('/'. $name, $image->encode());
+                    // $userMedia = Media::where('user_id',$user->id)
+                    //     ->where('type','user')
+                    //     ->first();
+                    // if($userMedia){
+                    //     Storage::delete($userMedia->url);
+                    //     // Storage::disk('public')->delete($userMedia->url);
+                    // }
+                    // Media::where('user_id',$user->id)
+                    //     ->where('type','user')
+                    //     ->delete();
+                    // $media = new Media();
+                    // $media->fill([
+                    //     'name' => $name,
+                    //     'extension' => $extension,
+                    //     'type' => Media::USER,
+                    //     'user_id' => $user->id,
+                    //     'active' => true,
+                    // ]);
+                    // $media->save();
+                    // $updateCoverImage = User::where('id',$user->id)->update([
+                    //     'profile_image' => $name
+                    // ]);
+                    // // $image = Image::make($file)->save(public_path('image/product/') . $name);
+                    // $image = Image::make($file);
+                    //     $image->orientate();
+                    //     $image->resize(1024, null, function ($constraint) {
+                    //         $constraint->aspectRatio();
+                    //         $constraint->upsize();
+                    // });
+                    //     $image->stream();
+                    //     Storage::put('/'. $name, $image->encode());
                 }
             }
-            return $this->genericResponse(true, "Profile Updated");
+            if($updateUser){
+                return response()->json(['status'=> true,'data' =>"Profile Updated"], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
+            }
+            // return $this->genericResponse(true, "Profile Updated");
         });
     }
     public function setSecretQuestion(Request $request){

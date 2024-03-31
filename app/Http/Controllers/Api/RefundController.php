@@ -56,11 +56,12 @@ class RefundController extends Controller
     {
         return DB::transaction(function () use ($request) {
             $imageName = [];
+            $user = User::where('id',Auth::user()->id)->first();
             if($request->hasFile('file')){
                 foreach ($request->file('file') as $file) {
                     $extension = $file->getClientOriginalExtension();    
                     $guid = GuidHelper::getGuid();
-                    $path = User::getUploadPath() . StringHelper::trimLower(Media::REFUND_IMAGES);
+                    $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::REFUND_IMAGES);
                     $name = "{$path}/{$guid}.{$extension}";  
                     // $name = $file->getClientOriginalName();
                     array_push($imageName, $name);

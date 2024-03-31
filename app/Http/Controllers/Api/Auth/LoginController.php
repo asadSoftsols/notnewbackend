@@ -16,6 +16,8 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\JWTAuth;
 use App\Notifications\Welcome;
+use App\Notifications\SocialWelcome;
+
 
 
 class LoginController extends Controller
@@ -150,7 +152,7 @@ class LoginController extends Controller
 
     public function facebookLogin(Request $request)
     {
-
+        \Artisan::call('config:clear');
         $fb = new Facebook([
             'app_id' => config('app.facebook.app_id'),
             'app_secret' => config('app.facebook.app_secret'),
@@ -167,7 +169,8 @@ class LoginController extends Controller
                 'email' => $fbUser->getEmail()? $fbUser->getEmail() : "no-email@facebook.com",
                 'password' => Hash::make(Str::random(8)),
                 'guid' => GuidHelper::getGuid(),
-                'email_verified_at' => Carbon::now()
+                'email_verified_at' => Carbon::now(),
+                'register_type' => "facebook"
             ]);
             $internalUser->save();
             $internalUser->notify(new SocialWelcome($internalUser));
@@ -182,10 +185,10 @@ class LoginController extends Controller
 
     public function googleLogin(Request $request)
     {
+        // \Artisan::call('config:clear');
         $client = new \Google_Client(['client_id' => config('app.google.client_id')]);
         $googleUser = $client->verifyIdToken($request->get('credential'));
         // $valid = $client->verifyIdToken("eyJhbGciOiJSUzI1NiIsImtpZCI6IjdjMGI2OTEzZmUxMzgyMGEzMzMzOTlhY2U0MjZlNzA1MzVhOWEwYmYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI1NjQ5MzI1NjQ1MzEtYjl1Y2hrdmZsZGozdTFkcnQwZnZmM2w0ZTZjZThodTEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI1NjQ5MzI1NjQ1MzEtYjl1Y2hrdmZsZGozdTFkcnQwZnZmM2w0ZTZjZThodTEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDExNTI1MjI2NTk2Nzg0MzQ2NTgiLCJlbWFpbCI6InJhamFhc3NhZDMyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE2OTQ2MTQyOTYsIm5hbWUiOiJBc3NhZCBSYWphIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0lYUzg0TjMybG92UVVxR3piZ2xMbjBtdUZZMnN3NUlZeVNOeTFGdmV3YT1zOTYtYyIsImdpdmVuX25hbWUiOiJBc3NhZCIsImZhbWlseV9uYW1lIjoiUmFqYSIsImxvY2FsZSI6ImVuLUdCIiwiaWF0IjoxNjk0NjE0NTk2LCJleHAiOjE2OTQ2MTgxOTYsImp0aSI6ImRhZWMyZmUwNjAyOGNlYzhlMzZhOTBiMDk0YTYzOTkzODRmOWY5MmUifQ.M_SZh6amtBxyXrKDYLHETjlXJvTVU7_8e9N01x3MJc0_vYX2n3uC34x4hdaR7qYCeb1C_hykE27CMbnmMAJ53otmBrHU5ycCBOwxKycc97aEwfL7L8R4tL4UBW4tmKx-mN2IXtcdbOvIMmux4KZTkhv6mHwZ083gM-yymvgrpMsHPmq5nLyWGnLZ71BKW3GlGciPra1vJQVIcyVAzEZcLy0I2_I6GgTHPeJXDKG_-hSOYa9nwYIJ2e3vYWn13HV7KF9PYGlupsARM3QdMwmQITbcvpUzCREU1KhcjCAfXHhWXK66DMn0cNLjPTZq0Lxxrru6RhjDcF2245YbINnHKQ");
-       
         if ($googleUser || $request->has('is_mobile')) {
             // $googleUser = $request->get('user');
             $internalUser = User::where('email', $googleUser['email'])->first();
@@ -195,7 +198,12 @@ class LoginController extends Controller
                     [
                         'password' => Hash::make(Str::random(8)),
                         'guid' => GuidHelper::getGuid(),
-                        'email_verified_at' => Carbon::now()
+                        'email' => $googleUser['email'],
+                        'email_verified_at' => Carbon::now(),
+                        'profile_image' => $googleUser['picture'],
+                        'name'=> $googleUser['name'],
+                        'last_name'=> $googleUser['family_name'],
+                        'register_type' => "google"
                     ]
                 ));
                 $internalUser->save();
@@ -228,7 +236,9 @@ class LoginController extends Controller
                     [
                         'password' => Hash::make(Str::random(8)),
                         'guid' => GuidHelper::getGuid(),
-                        'email_verified_at' => Carbon::now()
+                        'email_verified_at' => Carbon::now(),
+                        'register_type' => "apple"
+
                     ]
                 ));
                 $internalUser->save();

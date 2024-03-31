@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Core\Base;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Storage;
 
 /**
  * App\Models\Media
@@ -77,7 +77,14 @@ class Media extends Base
     public function getUrlAttribute()
     {
         // return url(Storage::url($this->name));
-        return url(Storage::url($this->name));
+        if($this->type == 'User'){
+            // return url($this->type.'\\'.$this->user_id.'\\'.$this->name);
+            return  'images/'.$this->type.'/'.$this->user_id.'/'."$this->name";
+        }else  if($this->type == 'SellerData'){
+            // return url($this->type.'\\'.$this->user_id.'\\'.$this->name);
+            return  'images/'.$this->type.'/'.$this->user_id.'/'."$this->name";
+        }
+
         // return ('image\\product\\'.$this->name);
         
     }

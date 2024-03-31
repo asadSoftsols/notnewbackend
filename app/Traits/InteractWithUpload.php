@@ -23,18 +23,30 @@ trait InteractWithUpload
     {
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-
+            $user="";
+            $checkuser = $request->get('user_id');            
+            if(\Auth::check()){
+                $user = User::where('id', \Auth::user()->id)->first();
+            }else {
+                if($checkuser)
+                {
+                    $user = User::where('id', $request->get('user_id'))->first();
+                }else{
+                    $user = User::orderBy('id', 'desc')->first();
+                }
+            }
             $extension = $file->getClientOriginalExtension();
             $guid = GuidHelper::getGuid();
-            $path = User::getUploadPath() . $entity::MEDIA_UPLOAD;
-            $name = "{$path}/{$guid}.{$extension}";
+            // $path = User::getUploadPath($user->id) . $entity::MEDIA_UPLOAD;
+            $name = "{$guid}.{$extension}";
+
             $media = new Media();
 
             $properties = [
                 'name' => $name,
                 'extension' => $extension,
                 'type' => $entity::MEDIA_UPLOAD,
-                'user_id' => \Auth::user()->id,
+                'user_id' => $user->id,
                 'active' => true,
             ];
 
@@ -43,21 +55,23 @@ trait InteractWithUpload
             if ($entity instanceof Product) {
                 $entityProperty = ['product_id' => $entity->id];
             }
-
-            $media->fill(ArrayHelper::merge($properties, $entityProperty));
-
+            // $media->fill(ArrayHelper::merge($properties, $entityProperty));
+            // return ArrayHelper::merge($properties, $entityProperty);
+            // die();
+            $media->fill($properties);
             $media->save();
-
-            Storage::putFileAs(
-                'public/' . $path, $request->file('file'), "{$guid}.{$extension}"
-            );
-
+            // Storage::putFileAs(
+            //     'public/' . $path, $request->file('file'), "{$guid}.{$extension}"
+            // );
+            // $path = public_path('images/'.$entity::MEDIA_UPLOAD.'/'.$entity->id);
+            $path = 'images/'.$entity::MEDIA_UPLOAD.'/'.$user->id;
+            $request->file->move($path, "{$guid}.{$extension}");
             return [
                 'uid' => $media->id,
-                'name' => $media->url,
+                'name' => 'images/'.$entity::MEDIA_UPLOAD.'/'.$user->id.'/'."{$guid}.{$extension}",
                 'status' => 'done',
-                'url' => $media->url,
-                'absolute_path'=>$name
+                'url' => 'images/'.$entity::MEDIA_UPLOAD.'/'.$user->id.'/'."{$guid}.{$extension}",
+                'absolute_path'=> 'images/'.$entity::MEDIA_UPLOAD.'/'.$user->id.'/'."{$guid}.{$extension}"
             ];
         }
         throw new NotFoundHttpException('file not attach');
