@@ -64,7 +64,7 @@ class RegistrationVerificationNotification extends Notification
 
     protected function verificationOTP($notifiable)
     {
-        $domain = env('FRONT_END_URL') . '/emailverification';
+        $domain = env('FRONT_END_URL') . 'emailverification';
         $envKey = env('APP_KEY');
         $expires = Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60));
         $key = $notifiable->getKey();

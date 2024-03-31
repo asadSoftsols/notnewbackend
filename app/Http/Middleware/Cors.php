@@ -16,7 +16,7 @@ class Cors
     public function handle($request, Closure $next)
     {
         $allowedOrigins = [
-            'http://localhost:3000',
+            'http://localhost:8000/',
             'http://127.0.0.1',
             'http://front.letsdeploy.us',
             'https://front.letsdeploy.us',

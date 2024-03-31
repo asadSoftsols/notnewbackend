@@ -56,7 +56,7 @@ class AdApproved extends Notification
         $baseMailable = new BaseMailable();
         $status = $this->status;
         $product = $this->product;
-        $url = env('FRONT_END_URL', 'https://localhost:3000/');
+        $url = env('FRONT_END_URL', 'http://localhost:8000/');
 
         return $baseMailable->to($notifiable->email)
         ->subject($status ? $notifiable->name . '- Your Ad is Now Live on NotNew!' : $notifiable->name . '- Your Ad is Now Live on NotNew!')

@@ -54,7 +54,7 @@ class serviceApproved extends Notification
         $baseMailable = new BaseMailable();
         // $status = $this->status;
         $service = $this->service;
-        $url = env('FRONT_END_URL', 'https://localhost:3000/');
+        $url = env('FRONT_END_URL', 'http://localhost:8000/');
 
         return $baseMailable->to($notifiable->email)
         ->subject($notifiable->name . '- Your Ad is Now Live on NotNew!')

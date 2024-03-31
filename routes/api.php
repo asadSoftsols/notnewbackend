@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
 Route::group(['prefix' => 'auth'], function () {
 //    Route::post('login', [Api\AuthController::class,'login']);
 //    Route::post('register', [Api\AuthController::class,'register']);
@@ -89,12 +91,11 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/min', [Api\ProductController::class, 'getMin']);
             Route::get('/max', [Api\ProductController::class, 'getMax']);
             Route::get('/size', [Api\ProductController::class, 'getSizes']);
-            Route::get('/shows/{product:guid}', [Api\ProductController::class, 'show']);
             // HOTFIX
             // @TODO check why /upload is not working maybe another route with the same name (GIVING 404 on /upload route) is declared.
             // Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);
             Route::post('/image-upload', [Api\ProductController::class, 'upload']);
-            Route::post('saved-users/{product:guid}', [Api\ProductController::class, 'saved']);
+            Route::post('/saved-users/{product:guid}', [Api\ProductController::class, 'saved']);
             Route::get('saved', [Api\ProductController::class, 'getSaved']);
             Route::get('getSaveByUser', [Api\ProductController::class, 'getSaveByUser']);
             Route::get('saved/{id}', [Api\ProductController::class, 'getSavedbyId']);
@@ -236,6 +237,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/getBankDetails', [Api\SellerDataController::class, 'getBankDetails']);
             Route::get('/getusersaveseller', [Api\SellerDataController::class, 'getUserSaveSeller']);
             Route::get('/feedback/{id}', [Api\SellerDataController::class, 'feedback']);
+            Route::get('/getsellerorder', [Api\SellerDataController::class, 'getSellOrder']);
             
         });
         Route::group(['prefix' => '/transaction'], function () {
@@ -268,6 +270,7 @@ Route::group(['prefix' => '/categories', ['middleware' => 'throttle:20,5']], fun
 });
 Route::group(['prefix' => '/seller'], function () {
     Route::get('/getfeatured', [Api\SellerDataController::class, 'getFeatured']);
+    Route::post('/createRecents', [Api\ProductController::class, 'createRecentView']);
 });
 Route::group(['prefix' => '/products'], function () {
     Route::get('/', [Api\ProductController::class, 'index']);
@@ -279,7 +282,6 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/getAttributes/{categoryID}', [Api\ProductController::class, 'getAttributes']);
     Route::get('/getProductAttributes/{id}', [Api\ProductController::class, 'getProductAttributes']);
     Route::get('/recent', [Api\ProductController::class, 'recentView']);
-    Route::post('/createRecents', [Api\ProductController::class, 'createRecentView']);
     Route::post('/deleteRecent', [Api\ProductController::class, 'deleteRecent']);
     Route::delete('/destory/{guid}', [Api\ProductController::class, 'destroy']);
     Route::get('/storeproduct/{storeid}', [Api\ProductController::class, 'getProductbyStore']);
@@ -292,6 +294,7 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/getauctionedproducts', [Api\ProductController::class, 'getAuctionedProducts']);
     Route::get('/trendingProduct/{guid}', [Api\ProductController::class, 'getTrendingProduct']);
     Route::get('/getsaveseller/{id}', [Api\SellerDataController::class, 'getSaveSeller']);
+    Route::get('/shows/{product:guid}', [Api\ProductController::class, 'show']);
 });
 
 Route::group(['prefix' => '/location'], function () {
@@ -315,7 +318,7 @@ Route::post('verify/otp', [Api\Auth\ForgotPasswordController::class, 'verifyOtp'
 Route::post('verify/Auth/otp', [Api\Auth\ForgotPasswordController::class, 'verifyAuthOtp']);
 Route::post('password/reset', [Api\Auth\ResetPasswordController::class, 'reset']);
 Route::group(['prefix' => '/user'], function () {
-    Route::post('upload', [Api\UserController::class, 'upload']);
+    Route::post('/upload', [Api\UserController::class, 'upload']);
 });
 Route::group(['prefix' => '/bank'], function () {
     Route::get('/get', [Api\SellerDataController::class, 'getBank']);
@@ -328,6 +331,7 @@ Route::group(['prefix' => '/brands'], function () {
     Route::get('/', [Api\BrandsController::class, 'index']);
     Route::get('/category/{id}', [Api\BrandsController::class, 'withCategory']);
 });
+Route::get('/getcompanies', [Api\ProductController::class, 'getCompanies']);
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
 });

@@ -6,15 +6,20 @@ use App\Events\OfferMade;
 use App\Helpers\StripeHelper;
 use App\Helpers\ArrayHelper;
 use App\Helpers\GuidHelper;
+use App\Helpers\DateTimeHelper;
 use App\Helpers\StringHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Media;
+use App\Models\DeliverCompany;
 use App\Models\Stock;
+use App\Models\InStock;
+use App\Models\OutStock;
 use App\Models\Offer;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\SellerData;
+use App\Models\SaveSearch;
 use App\Models\ProductsAttribute;
 use App\Models\ProductAttributes;
 use App\Models\User;
@@ -53,6 +58,7 @@ use App\Notifications\TrustedSeller;
 use App\Notifications\DepositReminder;
 use App\Images;
 use Image;
+use File;
 
 class OfferUser {
     public $name;
@@ -68,7 +74,6 @@ class OfferUser {
 
 class ProductController extends Controller
 {
-    //
     public function index(Request $request)
     {
         // why Product Categories whynot products ? @todo refactor it make it simple
@@ -83,8 +88,12 @@ class ProductController extends Controller
         // }
         // $productid = array_unique($productid);
         // $productid = array_unique($productid);
-        
-        $products=Product::join('categories as categories','categories.id','=','products.category_id')
+        // 2024-03-22 00:53:00
+        // return Carbon::now()->format('Y-m-d h:m:s');
+        // die();
+        // return Carbon::now()->format('Y-m-d');
+        // die();
+        $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
             ->where('products.active', true)
             // ->where('products.weight', '<>', null)
             ->where('products.price', '<>', null)
@@ -94,8 +103,10 @@ class ProductController extends Controller
             ->with(['shop'])
             ->where($this->applyFilters($request))
             ->where('products.is_sold', false)
-            // ->where('products.listing' > Carbon::now()->toDateTimeString())
-            // ->orWhere('products.auction_listing' > Carbon::now()->toDateTimeString())
+            // ->where('products.listing','<>','0000-00-00 00:00:00')
+            // ->whereDate('products.listing','>=',Carbon::now()->format('Y-m-d'))
+            ->where('products.listing', '<=', date('Y-m-d'))
+            // ->orwhere('products.auction_End_listing' ,'>=', today())
             // ->where('products.IsSaved', true)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
@@ -107,20 +118,37 @@ class ProductController extends Controller
                 'categories.name as category',
                 'products.*'
             ]);
-        // $service = Service::join('categories as categories','categories.id','=','services.category_id')
-        //     ->where('services.active', true)
-        //     // ->where('products.weight', '<>', null)
-        //     ->where('services.price', '<>', null)
-        //     ->with(['user'])
-        //     ->with(['savedUsers'])
-        //     ->where($this->applyFilters($request))
-        //     ->where('services.is_sold', false)
-        //     ->orderByDesc('services.created_at')
-        //     ->paginate($this->pageSize, [
-        //         'categories.name as category',
-        //         'services.*'
-        //     ]);
-        return $products; 
+        $productAuctioned=Product::join('categories as categories','categories.id','=','products.category_id')
+            ->where('products.active', true)
+            // ->where('products.weight', '<>', null)
+            ->where('products.price', '<>', null)
+            ->with(['user'])
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->with(['shop'])
+            ->where($this->applyFilters($request))
+            ->where('products.is_sold', false)
+            // ->where('products.auction_listing', '<>', '0000-00-00 00:00:00')
+            ->where('products.auction_listing','<=', Carbon::now()->format('Y-m-d h:m:s'))
+            // ->orwhere('products.auction_End_listing' ,'>=', today())
+            // ->where('products.IsSaved', true)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get([
+                'categories.name as category',
+                'products.*'
+            ]);
+            $product = array_merge(json_decode($productNormal), json_decode($productAuctioned));
+            if($product){
+                return response()->json(['status'=> true,'data' =>$product], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
+            }
+            
            /**
            * Below code for getting Products 
            * and services data and shown in same page
@@ -135,7 +163,8 @@ class ProductController extends Controller
     }
 
     public function recentView(Request $request){
-        $recentProducts = RecentView::with(['products'])->orderBy('created_at', 'DESC')->get();
+        $recentProducts = RecentView::with(['products'])
+        ->orderBy('created_at', 'DESC')->get();
         $userProducts = [];
         foreach($recentProducts as $recentProduct){
             //    $getRecent =  
@@ -168,8 +197,9 @@ class ProductController extends Controller
         }
     }
     public function inStock(Request $request){
-        $stockIn = Product::where('stockcapacity' , '>', 0)
-        ->where('user_id', \Auth::user()->id)->get();
+        
+        $stockIn = InStock::with('products')
+            ->where('user_id', \Auth::user()->id)->get();
 
         if($stockIn){
             return response()->json(['status'=>'true','data'=>$stockIn],200);
@@ -178,8 +208,8 @@ class ProductController extends Controller
         }
     }
     public function outStock(Request $request){
-        $stockOut = Product::where('stockcapacity' , '==', 0)
-        ->where('user_id', \Auth::user()->id)->get();
+        $stockOut = OutStock::with('products')
+            ->where('user_id', \Auth::user()->id)->get();
         if($stockOut){
             return response()->json(['status'=>'true','data'=>$stockOut],200);
         }else{
@@ -196,7 +226,15 @@ class ProductController extends Controller
             return response()->json(['status'=>'false','message'=>'Unable to CLeared Recent view!'],500);
         }
     }
-
+    public function createUserRecientView(Request $request){
+            $product = Product::where('guid',$request->get('id'))->first();
+            $recentview = RecentView::orderby('id','desc')->first();
+            $recentuserview =new  RecentUserView();
+            $recentuserview->recent_view_id = $recentview->id;
+            $recentuserview->product_id = $product->id;
+            $recentuserview->user_id = \Auth::user()->id;
+            $recentuserview->save();
+    }
     public function createRecentView(Request $request){
         DB::beginTransaction();
         try{
@@ -207,11 +245,6 @@ class ProductController extends Controller
             $recentview = new RecentView();
             $recentview->product_id = $product->id;
             $recentview->save();
-            $recentuserview =new  RecentUserView();
-            $recentuserview->recent_view_id = $recentview->id;
-            $recentuserview->product_id = $product->id;
-            $recentuserview->user_id = 25;//\Auth::user()->id;
-            $recentuserview->save();
            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -264,7 +297,10 @@ class ProductController extends Controller
         ->withoutGlobalScope(SoldScope::class)
         ->orderByDesc('products.featured')
         ->orderByDesc('products.created_at')
-        ->get();
+        ->get([
+            'categories.name as category',
+            'products.*'
+        ]);
         // ->paginate($this->pageSize, [
         //     'categories.name as category',
         //     'products.*'
@@ -278,7 +314,7 @@ class ProductController extends Controller
         //     ->withoutGlobalScope(SoldScope::class)
         //     ->paginate($this->pageSize);
         if($status=="active"){
-            return Product::join('categories as categories','categories.id','=','products.category_id')
+            $product=  Product::join('categories as categories','categories.id','=','products.category_id')
             ->with(['media'])
             ->with(['savedUsers'])
             ->with(['user'])
@@ -301,9 +337,14 @@ class ProductController extends Controller
                 'products.*'
                 ]
             );
+            if($product){
+                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
+            }
         }else if($status=="inactive"){
             // return Product::join('categories as categories','categories.id','=','products.category_id')
-            return Product::join('categories as categories','categories.id','=','products.category_id')
+            $product = Product::join('categories as categories','categories.id','=','products.category_id')
             ->with(['media'])
             ->with(['savedUsers'])
             ->with(['user'])
@@ -327,33 +368,91 @@ class ProductController extends Controller
                 ]
             );
             
+            if($product){
+                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
+            }
         }else if($status=="scheduled"){
-            return Product::join('categories as categories','categories.id','=','products.category_id')
+            // return Product::join('categories as categories','categories.id','=','products.category_id')
+            // ->with(['media'])
+            // ->with(['savedUsers'])
+            // ->with(['user'])
+            // ->where('scheduled', true)
+            // ->where('user_id', \Auth::user()->id)
+            // // ->where('products.weight', '<>', null)
+            // // ->where($this->applyFilters($request))
+            // // ->where('products.is_sold', false)
+            // ->withoutGlobalScope(ActiveScope::class)
+            // ->withoutGlobalScope(SoldScope::class)
+            // ->orderByDesc('products.featured')
+            // ->orderByDesc('products.created_at')
+            // // ->paginate($this->pageSize, [
+            // //     'categories.name as category',
+            // //     'products.*'
+            // // ]);
+            // ->get(
+            //     [
+            //     'categories.name as category',
+            //     'products.*'
+            //     ]
+            // );
+            $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
+            ->where('products.active', true)
+            // ->where('products.weight', '<>', null)
+            ->where('products.price', '<>', null)
+            ->with(['user'])
             ->with(['media'])
             ->with(['savedUsers'])
-            ->with(['user'])
-            ->where('scheduled', true)
-            ->where('user_id', \Auth::user()->id)
-            // ->where('products.weight', '<>', null)
-            // ->where($this->applyFilters($request))
-            // ->where('products.is_sold', false)
-            ->withoutGlobalScope(ActiveScope::class)
-            ->withoutGlobalScope(SoldScope::class)
+            ->with(['shop'])
+            ->where($this->applyFilters($request))
+            ->where('products.is_sold', false)
+            ->where('products.listing','<>',null)
+            ->orwhere('products.listing','>=',today())
+            // ->orwhere('products.auction_End_listing' ,'>=', today())
+            // ->where('products.IsSaved', true)
             ->orderByDesc('products.featured')
             ->orderByDesc('products.created_at')
             // ->paginate($this->pageSize, [
             //     'categories.name as category',
             //     'products.*'
             // ]);
-            ->get(
-                [
+            ->get([
                 'categories.name as category',
                 'products.*'
-                ]
-            );
-            
+            ]);
+        $productAuctioned=Product::join('categories as categories','categories.id','=','products.category_id')
+            ->where('products.active', true)
+            // ->where('products.weight', '<>', null)
+            ->where('products.price', '<>', null)
+            ->with(['user'])
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->with(['shop'])
+            ->where($this->applyFilters($request))
+            ->where('products.is_sold', false)
+            ->where('products.auction_listing', '<>', null)
+            ->orwhere('products.auction_listing', '>=', today())
+            // ->orwhere('products.auction_End_listing' ,'>=', today())
+            // ->where('products.IsSaved', true)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get([
+                'categories.name as category',
+                'products.*'
+            ]);
+            $product = array_merge(json_decode($productNormal), json_decode($productAuctioned));
+            if($product){
+                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
+            }
         }else{
-            return Product::join('categories as categories','categories.id','=','products.category_id')
+            $product = Product::join('categories as categories','categories.id','=','products.category_id')
             ->with(['media'])
             ->with(['savedUsers'])
             ->with(['user'])
@@ -375,7 +474,11 @@ class ProductController extends Controller
                 'products.*'
                 ]
             );
-
+            if($product){
+                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
+            }
         }
     }
 
@@ -390,61 +493,14 @@ class ProductController extends Controller
         DB::beginTransaction();
         try {
             /**
-             * PayLoad Summy Data Start
-             */
-            // $data = [
-            //     // 'images'=> $request->get('product')['images']?$request->get('product')['images']: [],
-            //     'title'=> $request->get('product')['title'],
-            //     'condition'=> $request->get('product')['condition'],
-            //     'model'=> $request->get('product')['model'],
-            //     'category_id'=> $request->get('product')['category'],
-            //     'brand'=> $request->get('product')['brand'],
-            //     'stockcapacity'=> $request->get('product')['stockCapacity'],
-            //     'attributes'=>$request->get('product')['sizes'],
-            //     'available_colors'=>$request->get('product')['availableColors'],
-            //     'description'=>$request->get('product')['description'],
-            //     'selling_now'=>$request->get('product')['sellingNow'],
-            //     'price'=>$request->get('product')['price'],
-            //     'sale_price'=>$request->get('product')['saleprice'],
-            //     'min_purchase'=>$request->get('product')['minpurchase'],
-            //     'listing'=>$request->get('product')['listing'],
-            //     'auctioned'=>$request->get('product')['auctions'],
-            //     'bids'=>$request->get('product')['bids'],
-            //     'durations'=>$request->get('product')['durations'],
-            //     'auction_listing'=>$request->get('product')['auctionListing'],
-            //     'deliverd_domestic'=>$request->get('product')['deliverddomestic'],
-            //     'tags'=>$request->get('product')['tags'],
-            //     'deliverd_international'=>$request->get('product')['deliverdinternational'],
-            //     'deliver_company'=>$request->get('product')['deliverycompany'],
-            //     'country'=>$request->get('product')['country'],
-            //     'state'=>$request->get('product')['state'],
-            //     'city'=>$request->get('product')['city'],
-            //     'shippingprice'=>$request->get('product')['shippingprice'],
-            //     'shipping_start' => $request->get('product')['shippingstart'],
-            //     'shipping_end' => $request->get('product')['shippingend'],
-            //     'return_shipping_price' => $request->get('product')['returnshippingprice'],
-            //     'return_ship_duration_limt' => $request->get('product')['returndurationlimit'],
-            //     'return_ship_paid_by' => $request->get('product')['returnshippingpaidby'],
-            //     'return_ship_location' => $request->get('product')['returnshippinglocation'],
-            // ];
-            // $images = [
-            //     'image'=>$request->get('image')
-            // ];
-            /**
-             * PayLoad Summy Data End
-             */
-
-             
-            /**
              * For Product Starts
              */
-
             $active = false;
             $product = new Product();
             $user = User::where('id', Auth::user()->id)->first();
-            $country = Countries::where('id', $request->get('country'))->first();
-            $states = State::where('id', $request->get('state'))->first();
-            $city = City::where('id', $request->get('city'))->first();
+            // $country = Countries::where('id', $request->get('country'))->first();
+            // $states = State::where('id', $request->get('state'))->first();
+            // $city = City::where('id', $request->get('city'))->first();
             $store = SellerData::where('user_id',Auth::user()->id)->first();
 
             $product->user_id = Auth::user()->id;
@@ -460,21 +516,21 @@ class ProductController extends Controller
             $sellingNow = 0;
             if($request->get('sellingNow') == 'true'){
                 $sellingNow = 1;
+                $product->listing = $request->get('listing');
             }
             $product->selling_now = $sellingNow;
             $product->price = $request->get('price');
             $product->sale_price = $request->get('saleprice');
             $product->min_purchase = $request->get('minpurchase');
-            $product->listing = $request->get('listing');
             $auctioned = 0;
-            if($request->get('auctions') == 'true'){
+            if($request->get('auctioned') == 'true'){
                 $auctioned = 1;
+                $product->bids = $request->get('bids');
+                $product->auction_listing = $request->get('auctionListing');
+                $product->auction_End_listing = $request->get('auctionEndListing');
             }
             $product->auctioned = $auctioned;
-            $product->bids = $request->get('bids');
             $product->durations = $request->get('durations');
-            $product->auction_listing = $request->get('auctionListing');
-            $product->auction_End_listing = $request->get('auctionEndListing');
             $deliverdDomestic = 0;
             if($request->get('deliverddomestic') == 'true'){
                 $deliverdDomestic = 1;
@@ -488,10 +544,14 @@ class ProductController extends Controller
             $product->deliverd_international = $deliverdInternational;
             $product->delivery_company = $request->get('deliverycompany');
             $product->is_sold = false;
-            $product->street_address = "";//$request->get('street_address');//for later when google address will be implement
-            $product->country = $country->name;
-            $product->city = $city->name;
-            $product->state = $states->name;
+            $product->google_address = $request->get('google_address');
+            $product->postal_address = $request->get('postal_address');
+            $product->street_address = $request->get('street_address');
+            $product->latitude = $request->get('latitude');
+            $product->longitude = $request->get('longitude');
+            $product->country = $request->get('country');
+            $product->city = $request->get('city');
+            $product->state = $request->get('state');
             $product->IsSaved = true;
             $product->shipping_price = $request->get('shippingprice');
             $product->shipping_start = $request->get('shippingstart');
@@ -513,18 +573,11 @@ class ProductController extends Controller
             $imageName = [];
             if($request->hasFile('file')){
                 foreach ($request->file('file') as $file) {
-                    // return $imageName;
-                    // $file =$request->file('images');
                     $extension = $file->getClientOriginalExtension();
-                    // if($extension != 'jpg' || $extension != 'png' || $extension != 'jpeg'){
-                    //     return $this->genericResponse(true, 'Invalid Format', 500, ['message'=>'Invalid Format Image must be jpg or png']);                
-                    // }
                     $guid = GuidHelper::getGuid();
-                    $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
-                    $name = $file->getClientOriginalName();
-                    // $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
-                    $imgName = "{$path}/{$guid}.{$extension}";
-                    array_push($imageName, $name);
+                    // $path = User::getUploadPath(Auth::user()->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+                    $path = 'images/'.$entity::PRODUCT_IMAGES.'/'.Auth::user()->id;
+                    $name = "{$path}/{$guid}.{$extension}";
                     $media = new Media();
                     $media->fill([
                         'name' => $name,
@@ -534,27 +587,17 @@ class ProductController extends Controller
                         'product_id' => $product->id,
                         'active' => true,
                     ]);
-            
+
                     $media->save();
-                    $image = Image::make($file)->save(public_path('image/product/') . $name);
-                    // Storage::put('public/'. $imgName, $image->encode());
-                    // $image = Image::make($request->file('file'));
-                    //     $image->orientate();
-                    //     $image->resize(1024, null, function ($constraint) {
-                    //         $constraint->aspectRatio();
-                    //         $constraint->upsize();
-                    //    });
-                    // $image->stream();
-                    // Storage::put('public/'. $name, $image->encode());
-                    // return [
-                    //     'uid' => $media->id,
-                    //     'name' => $media->url,
-                    //     'status' => 'done',
-                    //     'url' => $media->url,
-                    //     'guid' => $media->guid,
-                    //     'productguid'=> 7
-                    // ];
-    
+                    
+                    $image = Image::make($request->file('file'));
+                    $image->orientate();
+                    $image->resize(1024, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                });
+                    $image->stream();
+                    $request->file->move($path, "{$guid}.{$extension}");                
                 }
             }
             /**
@@ -588,17 +631,34 @@ class ProductController extends Controller
               $stock->product_id = $product->id;
               $stock->quantity = $request->get('stockCapacity');
               $stock->save();
+
+              $instock = new InStock();
+              $instock->user_id = Auth::user()->id;
+              $instock->guid = GuidHelper::getGuid();
+              if($request->get('auctioned') == 'true'){
+                $instock->listingdate = $request->get('auctionListing');
+              }else if($request->get('sellingNow') == 'true'){
+                $instock->listingdate = $request->get('listing');
+              }
+              $instock->productid = $product->id;
+              $instock->quantity = $request->get('stockCapacity');
+              $instock->save();
+
               /**
                * Stock Ends
-               */
-
+            */
+            if($product){
+                return response()->json(['status'=>'true','data'=>"Product has been Created!"],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
+            }
+            
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
-
-        return $this->genericResponse(true, 'Product Created', 200, ['product' => $product->withCategory()->withShop()->withAttributes()]);
+        // return $this->genericResponse(true, 'Product Created', 200, ['product' => $product->withCategory()->withShop()->withAttributes()]);
     }
     public function Imgupload(Request $request){
         return DB::transaction(function () use (&$request) {
@@ -716,7 +776,7 @@ class ProductController extends Controller
         $product->price = $product->getPrice();
 
         return $product->withCategory()
-            ->withAttributes()
+            // ->withAttributes()
             ->withShop()
             // ->withBids()
             // ->appendDetailAttribute()
@@ -778,7 +838,7 @@ class ProductController extends Controller
                 $sellingNow = 1;
             }
             $auctioned = 0;
-            if($request->get('auctions') == 'true'){
+            if($request->get('auctioned') == 'true'){
                 $auctioned = 1;
             }
             $deliverdDomestic = 0;
@@ -844,7 +904,7 @@ class ProductController extends Controller
                     //     return $this->genericResponse(true, 'Invalid Format', 500, ['message'=>'Invalid Format Image must be jpg or png']);                
                     // }
                     $guid = GuidHelper::getGuid();
-                    $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+                    $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
                     $name = $file->getClientOriginalName();
                     // $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
                     $imgName = "{$path}/{$guid}.{$extension}";
@@ -918,8 +978,8 @@ class ProductController extends Controller
     public function destroy($id)
     {
         return DB::transaction(function () use (&$request, &$id) {
-            Product::where('guid', $id)->delete();
             $product = Product::where('guid', $id)->first();
+            Product::where('guid', $id)->delete();
             Stock::where('product_id', $product->id)->delete();
             return response()->json(['message' => 'Product Deleted Successfully'], 200);
         });
@@ -1232,7 +1292,6 @@ class ProductController extends Controller
         }else{
             return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
         }
-
     }
     public function getProductBySize(Request $request, $size)
     {
@@ -1460,7 +1519,7 @@ class ProductController extends Controller
             ->first();
             
             if($user){
-                return response()->json(['status'=> true,'data' => $user], 200);       
+                return response()->json(['status'=> true,'message' => 'Found WishList','data' => $user], 200);       
             }else{
                 return response()->json(['status'=> false,'message' => 'Unable to get WishList'], 500);        
             }
@@ -1634,5 +1693,83 @@ class ProductController extends Controller
             ->where('shop_id', $storeId)
             ->get();
         return $products; 
+    }
+
+    public function results(Request $request, $search)
+    {
+        $products=Product::with('category') 
+            ->where('name', 'like', '%' . $search . '%')
+            ->get();
+        if($products){
+            return response()->json(['status'=> true,'data' =>$products], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Related Products"], 400);       
+        }   
+    }
+
+    public function relatedProduct(Request $request, $guid)
+    {
+        $category = Category::where('guid', $guid)->first();
+        $products=Product::with('category') 
+            ->with(['user'])
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->where('category_id',  $category->id)
+            ->get();
+        $data = [
+            'products' =>$products,
+            'category' => $category
+        ];
+        if($products){
+            return response()->json(['status'=> true,'data' =>$data], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Related Products"], 400);       
+        }   
+    }
+    public function savedSearch(Request $request){
+        return DB::transaction(function () use ($request) {
+            //Delete previous Searches if exists
+            $getsavesearch = SaveSearch::where('user_id',Auth::user()->id)
+                ->where('keywords', $request->get("keywords"))->delete();
+            //Insert new save searches
+            $savedSearches =new  SaveSearch();
+            $savedSearches->user_id = Auth::user()->id;
+            $savedSearches->keywords = $request->get("keywords");
+            $savedSearches->email_alert = $request->get("emailAlert");
+            $savedSearches->guid = GuidHelper::getGuid();
+            $savedSearches->save();
+            if($savedSearches){
+                return response()->json(['status'=> true,'data' =>'Saved on saved searches'], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Saved on saved searches"], 400);       
+            }   
+        });
+    }
+    public function getSavedSearch(Request $request){
+        $savedSearches =SaveSearch::where('user_id', Auth::user()->id)->get();
+        if($savedSearches){
+            return response()->json(['status'=> true,'data' =>$savedSearches], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get  Saved searches"], 400);       
+        }   
+    }
+    public function getRecomemdedProducts(Request $request,$shops)
+    {
+        return $shops;
+        // $products = Product::whereIn('shop_id', $request->get('shops'))->get();
+        // if($products){
+        //     return response()->json(['status'=> true,'data' =>$products], 200);       
+        // }else{
+        //     return response()->json(['status'=> false,'data' =>"Unable To Get Recomended Products"], 400);       
+        // }
+    }
+    public function getCompanies(Request $request){
+        $deleiverycomapny =  DeliverCompany::get();
+        if($deleiverycomapny){
+            return response()->json(['status'=>'true','data'=>"Delivery Company Found!", 'data'=> $deleiverycomapny],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Find Delivery Company'],403);
+        }
+
     }
 }

@@ -266,6 +266,12 @@ return [
             'url' => 'admin/brands',
             'icon' => 'fa fa-list-alt'
         ],
+        ['header' => 'Stores'],
+        [
+            'text' => 'Active Stores',
+            'url' => 'admin/sellerdata',
+            'icon' => 'fa fa-list-alt'
+        ],
         ['header' => 'Delivery'],
         [
             'text' => 'Active Company',

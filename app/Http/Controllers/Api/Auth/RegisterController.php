@@ -16,6 +16,7 @@ use App\Models\ShippingDetail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
+use App\Traits\InteractWithUpload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -26,10 +27,12 @@ use Stripe\StripeClient;
 use Carbon\Carbon;
 use App\Images;
 use Image;
+use File;
 
 
 class RegisterController extends Controller
 {
+    use InteractWithUpload;
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -71,7 +74,8 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+            'firstname' => ['required', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             // 'password' => ['required', 'string', 'min:8', 'confirmed'],
             'password' => ['required', 'string'],
@@ -86,6 +90,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        
         //Stripe Customer ID Created..
         $stripe = new \Stripe\StripeClient(
             env('STRIPE_SK')
@@ -94,12 +99,21 @@ class RegisterController extends Controller
             'description' => strtolower($data['email']),
           ]);
         $user = User::create([
-            'name' => $data['name'],
+            'name' => $data['firstname'],
             'phone' => $data['phone'],
             'email' => strtolower($data['email']),
+            'address' => $data['address'],
             'password' => Hash::make($data['password']),
+            'last_name' => $data['lastname'],
+            'zip' => $data['zip'],
             'guid' => $data['guid'],
+            'country_id' => $data['country'],
+            'state_id' => $data['state'],
+            'city_id' => $data['city'],
+            'latitute' => $data['latitude'],
+            'longitude' => $data['longitude'],
             'customer_stripe_id' => $stripe_data->id,
+            'register_type'=> 'email'
         ]);
         $city = City::where('id', $data['city'])->first();
         $state = State::where('id', $data['state'])->first();
@@ -108,8 +122,8 @@ class RegisterController extends Controller
         $shippingdetails->user_id = $user->id;
         $shippingdetails->name = $user->name;
         $shippingdetails->street_address = $data['address'];
-        // $shippingdetails->state = $state->name;
-        // $shippingdetails->city = $city->name;
+        $shippingdetails->state = $data['state'];
+        $shippingdetails->city =  $data['city'];
         $shippingdetails->zip = $data['zip'];
         $shippingdetails->save();
 
@@ -139,14 +153,17 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
+        \Artisan::call('config:clear');
+        // die();
         return DB::transaction(function () use ($request) {
             $user = User::where('email', $request->get('email'))->first();
             $checkUser = $user ? $user:null;
             if($checkUser){
                 return response()->json([
+                    'success' => false,
                     'status' => 'email',
                     'message' => "Email Already Exists"
-                ]);
+                ], 409);
             }else{
                 // $CheckUser = User::where('email', $request->get('email'))->first();
                 // if($CheckUser){
@@ -163,32 +180,42 @@ class RegisterController extends Controller
                         
                         if($request->hasFile('file')){
                             $user = User::orderBy('id', 'desc')->first();
-                            $file = $request->file('file');
-                            $extension = $file->getClientOriginalExtension();    
-                            $guid = GuidHelper::getGuid();
-                            $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::USER);
-                            $name = "{$path}/{$guid}.{$extension}";  
-                            // $name = $file->getClientOriginalName();
-                            // array_push($imageName, $name);
-                            $media = new Media();
-                            $media->fill([
-                                'name' => $name,
-                                'extension' => $extension,
-                                'type' => Media::USER,
-                                'user_id' => $user->id,
-                                'active' => true,
+
+                            $uploadData = $this->uploadImage($request, $user);
+                          
+                            User::where('id', $user->id)->update([
+                                'profile_image' => $uploadData['url']
                             ]);
+                            // $file = $request->file('file');
+                            // $extension = $file->getClientOriginalExtension();    
+                            // $guid = GuidHelper::getGuid();
+                            // $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::USER);
+                            // $name = "{$path}/{$guid}.{$extension}";  
+                            // // $name = $file->getClientOriginalName();
+                            // // array_push($imageName, $name);
+                            // $media = new Media();
+                            // $media->fill([
+                            //     'name' => $name,
+                            //     'extension' => $extension,
+                            //     'type' => Media::USER,
+                            //     'user_id' => $user->id,
+                            //     'active' => true,
+                            // ]);
                     
-                            $media->save();
-                            // $image = Image::make($file)->save(public_path('image/product/') . $name);
-                            $image = Image::make($file);
-                                $image->orientate();
-                                $image->resize(1024, null, function ($constraint) {
-                                    $constraint->aspectRatio();
-                                    $constraint->upsize();
-                            });
-                                $image->stream();
-                                Storage::put('/'. $name, $image->encode());
+                            // $media->save();
+                            // // $image = Image::make($file)->save(public_path('image/product/') . $name);
+                            // $image = Image::make($file);
+                            //     $image->orientate();
+                            //     $image->resize(1024, null, function ($constraint) {
+                            //         $constraint->aspectRatio();
+                            //         $constraint->upsize();
+                            // });
+                            //     $image->stream();
+                            //     Storage::put('/'. $name, $image->encode());
+                                
+                            //      User::where('id', $user->id)->update([
+                            //             'profile_image' => $name
+                            //         ]);
                         }
         //            $user = Auth::user();
         //            $token = $user->createToken('Personal Access Token')->accessToken;

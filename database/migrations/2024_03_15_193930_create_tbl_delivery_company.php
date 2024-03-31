@@ -17,7 +17,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->uuid('guid')->unique()->default(\App\Helpers\GuidHelper::getGuid());
-            $table->timestamps();        });
+            $table->timestamps();  
+        });
     }
 
     /**

@@ -43,7 +43,7 @@
         <div class="form-group">
             <label>Profile Image</label>
             <br />
-            <img style="width: 100px; height: 100px;"  src="{{ 'http://localhost:8000/storage/'.$user->profile_image }}" />
+            <img style="width: 100px; height: 100px;"  src="/{{$user->profile_image}}" />
         </div>
         @endif
         <div class="form-group">

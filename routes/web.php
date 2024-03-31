@@ -43,15 +43,17 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         'price' => PriceController::class,
         'brands' => BrandsController::class,
         'deliverycompany' => DeliveryCompanyController::class,
+        'sellerdata' => SellerDataController::class,
     ]);
 
 
     Route::get('category', 'CategoryController@search')->name('category.search');
     
     Route::get('prices', 'PriceController@search')->name('prices.search');
-    Route::get('prices', 'PriceController@search')->name('prices.search');
+    Route::get('sellerdata', 'SellerDataController@search')->name('sellerdata.search');
     Route::get('deliverycompanys', 'DeliveryCompanyController@search')->name('deliverycompany.search');
     Route::get('brandss', 'BrandsController@search')->name('brands.search');
+    Route::get('banks', 'BankController@search')->name('banks.search');
     Route::get('bank/{id}', 'BankController@edit')->name('bank.edit');
     Route::get('attributes', 'AttributeController@search')->name('attributes.search');
     Route::get('category/{category}/attributes/{product?}', 'CategoryController@attributes')->name('category.attributes');

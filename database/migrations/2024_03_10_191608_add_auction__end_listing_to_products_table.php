@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->timestamp('auction_End_listing')->nullable();
+            $table->timestamp('auction_End_listing')->nullable()->default(null);
         });
     }
 };
