@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('seller_datas', function (Blueprint $table) {
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 11, 8);
+            // $table->decimal('latitude', 10, 8);
+            // $table->decimal('longitude', 11, 8);
         });
     }
 

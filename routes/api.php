@@ -69,7 +69,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/refresh/{user}', [Api\UserController::class, 'refreshOnboardingUrl']);
             Route::get('/checkAccount/{account}', [Api\StripeController::class, 'checkAccount']);
             Route::post('saveAddress/', [Api\SaveAddressController::class, 'create']);
-            Route::patch('secretquestion/', [Api\UserController::class, 'setSecretQuestion']);
+            Route::post('secretquestion/', [Api\UserController::class, 'setSecretQuestion']);
             Route::post('change-password', [Api\Auth\ForgotPasswordController::class, 'changePassword']);
             Route::post('two-steps', [Api\UserController::class, 'twoStepsVerifications']);
             Route::post('third-party', [Api\UserController::class, 'thirdParty']);
@@ -91,6 +91,9 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/min', [Api\ProductController::class, 'getMin']);
             Route::get('/max', [Api\ProductController::class, 'getMax']);
             Route::get('/size', [Api\ProductController::class, 'getSizes']);
+            Route::get('/active', [Api\ProductController::class, 'active']);
+            Route::get('/inactive', [Api\ProductController::class, 'inactive']);
+            
             // HOTFIX
             // @TODO check why /upload is not working maybe another route with the same name (GIVING 404 on /upload route) is declared.
             // Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);
@@ -184,6 +187,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/order/customer/pend/count', [Api\OrderController::class, 'customerOrderPendCount']);
         Route::get('/order/customer/refund/count', [Api\OrderController::class, 'customerOrderRefundCount']);
         Route::get('/order/counts', [Api\OrderController::class, 'getUserCompletedCount']);
+        Route::get('/order/offers/counts', [Api\OrderController::class, 'getUserOffersCount']);
         Route::get('/order/tracking/{id}', [Api\OrderController::class, 'tracking']);
         Route::patch('/order/packed/{id}', [Api\OrderController::class, 'packed']);
         Route::post('/order/ratecalculator', [Api\OrderController::class, 'ratecalculator']);
@@ -265,9 +269,11 @@ Route::group(['prefix' => '/categories', ['middleware' => 'throttle:20,5']], fun
     Route::get('/tabs', [Api\CategoryController::class, 'tabs']);
     Route::get('tabs/list', [Api\CategoryController::class, 'tabs']);
     Route::get('/product-attributes/{category}', [Api\CategoryController::class, 'productAttributes']);
+    Route::get('/product-attributes-app/{category}', [Api\CategoryController::class, 'productAttributesNew']);
     Route::get('/', [Api\CategoryController::class, 'index']);
     Route::get('/overAll', [Api\CategoryController::class, 'all']);
 });
+Route::get('/recursiveCategories', [Api\CategoryController::class, 'recursive']);
 Route::group(['prefix' => '/seller'], function () {
     Route::get('/getfeatured', [Api\SellerDataController::class, 'getFeatured']);
     Route::post('/createRecents', [Api\ProductController::class, 'createRecentView']);
@@ -294,7 +300,7 @@ Route::group(['prefix' => '/products'], function () {
     Route::get('/getauctionedproducts', [Api\ProductController::class, 'getAuctionedProducts']);
     Route::get('/trendingProduct/{guid}', [Api\ProductController::class, 'getTrendingProduct']);
     Route::get('/getsaveseller/{id}', [Api\SellerDataController::class, 'getSaveSeller']);
-    Route::get('/shows/{product:guid}', [Api\ProductController::class, 'show']);
+    Route::get('/{product:guid}', [Api\ProductController::class, 'getProductById']);
 });
 
 Route::group(['prefix' => '/location'], function () {
@@ -329,9 +335,11 @@ Route::group(['prefix' => '/user'], function () {
 });
 Route::group(['prefix' => '/brands'], function () {
     Route::get('/', [Api\BrandsController::class, 'index']);
-    Route::get('/category/{id}', [Api\BrandsController::class, 'withCategory']);
+    // Route::get('/category/{id}', [Api\BrandsController::class, 'withCategory']);
 });
 Route::get('/getcompanies', [Api\ProductController::class, 'getCompanies']);
+Route::get('/getbrandscompanies', [Api\ProductController::class, 'getBrandsCompanies']);
+Route::get('/products/shows/{product:guid}', [Api\ProductController::class, 'show']);
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
 });

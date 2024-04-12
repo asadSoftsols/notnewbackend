@@ -48,7 +48,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
 
     Route::get('category', 'CategoryController@search')->name('category.search');
-    
     Route::get('prices', 'PriceController@search')->name('prices.search');
     Route::get('sellerdata', 'SellerDataController@search')->name('sellerdata.search');
     Route::get('deliverycompanys', 'DeliveryCompanyController@search')->name('deliverycompany.search');
@@ -84,7 +83,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::post('add/{category:guid}', 'CategoryController@addAttributes')->name('category.add-attributes');
         Route::post('attributes/{id}', 'CategoryController@deleteCategoryAttribute')->name('category.delete-attributes');
         Route::get('search', 'CategoryController@searchCatAttributes')->name('category.show-single-attributes');
-        
+    });
+    Route::group(['prefix' => 'properties'], function () {
+        Route::delete('/destroy/{id}', 'CategoryController@deleteCategoryAttribute')->name('properties.destroy');
     });
 });
 

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('seller_datas', function (Blueprint $table) {
-            $table->boolean('active')->default(false);
+            // $table->boolean('active')->default(false);
         });
     }
 

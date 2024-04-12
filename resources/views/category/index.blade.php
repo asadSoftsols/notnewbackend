@@ -59,8 +59,8 @@
                     <td>
                         <a href="{{route('category.edit', $item->id)}}" class="btn btn-info"><i
                                 class="fa fa-pen"></i></a>
-                        {{--<!-- <a href="{{route('category.show-list', $item->guid)}}" class="btn btn-info"><i
-                                    class="fa fa-pen"></i>add/update properties</a> -->--}}
+                                <a href="{{route('category.show-list', $item->guid)}}" class="btn btn-info"><i
+                                    class="fa fa-pen"></i>add/update properties</a>
                                 <button type="button"
                                 class="btn btn-danger"
                                 data-toggle="modal" data-target="#products1{{$item->id}}">

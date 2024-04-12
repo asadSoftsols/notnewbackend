@@ -32,7 +32,10 @@ class Attribute extends Base
         CHECKBOX = 'CHECKBOX',
         CHECKBOX_GROUP = 'CHECKBOX_GROUP',
         RADIO_GROUP = 'RADIO_GROUP',
-        SELECT = 'SELECT';
+        FILE = 'FILE',
+        COLOR_PICKER = 'COLOR_PICKER',
+        SELECT = 'SELECT',
+        RADIO ='RADIO';
 
 //    protected $hasGuid = false;
     protected $autoBlame = false;
@@ -79,7 +82,10 @@ class Attribute extends Base
             static::CHECKBOX => 'Checkbox',
             static::CHECKBOX_GROUP => 'Checkbox Group',
             static::RADIO_GROUP => 'Radio Group',
-            static::SELECT => 'Select'
+            static::SELECT => 'Select',
+            static::FILE => 'File',
+            static::COLOR_PICKER => 'Color Picker',
+            static::RADIO => 'Radio'
         ];
     }
 

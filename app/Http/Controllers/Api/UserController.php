@@ -152,75 +152,45 @@ class UserController extends Controller
     public function profileUpdate(Request $request)
     {
         return DB::transaction(function () use ($request) {
-        if (Auth::check()) {
-                $data =[
+            $user = '';
+            if (Auth::check()) {
+                $data = [
                     "email" => $request->get('email'),
                     "phone" => $request->get('phone'),
                     "site" => $request->get('site'),
                     "address" => $request->get('address'),
+                    "latitute"=> $request->get('latitude'),
+                    "longitude"=> $request->get('longitude'),
+                    "country_id" => $request->get('country'),
+                    "state_id" => $request->get('states'),
+                    "city_id" => $request->get('city'),
+                    "zip"=> $request->get('zip'),
                 ];
-
                 $user = User::where('id', Auth::user()->id)->update($data);
-              
-                if($request->hasFile('file')){
+
+               if($request->hasFile('file')){
                     $userData = User::where('id', Auth::user()->id)->first();
                     $uploadData = $this->uploadImage($request, $userData);                    
                     $updateUser = User::where('id', $userData->id)->update([
                         'profile_image' => $uploadData['url']
                     ]);
-                    // $file = $request->file('file');
-                    // $extension = $file->getClientOriginalExtension();    
-                    // $guid = GuidHelper::getGuid();
-                    // $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::USER);
-                    // $name = "{$path}/{$guid}.{$extension}";  
-                    // // $name = $file->getClientOriginalName();
-                    // // array_push($imageName, $name);
-
-                    // $userMedia = Media::where('user_id',$user->id)
-                    //     ->where('type','user')
-                    //     ->first();
-                    // if($userMedia){
-                    //     Storage::delete($userMedia->url);
-                    //     // Storage::disk('public')->delete($userMedia->url);
-                    // }
-                    // Media::where('user_id',$user->id)
-                    //     ->where('type','user')
-                    //     ->delete();
-                    // $media = new Media();
-                    // $media->fill([
-                    //     'name' => $name,
-                    //     'extension' => $extension,
-                    //     'type' => Media::USER,
-                    //     'user_id' => $user->id,
-                    //     'active' => true,
-                    // ]);
-                    // $media->save();
-                    // $updateCoverImage = User::where('id',$user->id)->update([
-                    //     'profile_image' => $name
-                    // ]);
-                    // // $image = Image::make($file)->save(public_path('image/product/') . $name);
-                    // $image = Image::make($file);
-                    //     $image->orientate();
-                    //     $image->resize(1024, null, function ($constraint) {
-                    //         $constraint->aspectRatio();
-                    //         $constraint->upsize();
-                    // });
-                    //     $image->stream();
-                    //     Storage::put('/'. $name, $image->encode());
                 }
             }
-            if($updateUser){
-                return response()->json(['status'=> true,'data' =>"Profile Updated"], 200);       
-            }else{
-                return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
+             $updateduser = User::where('id', Auth::user()->id)->first();
+            if ($user) {
+                return response()->json(['status' => 'true', 'message' => 'Profile Updated', 'data'=>$updateduser], 200);
+            } else {
+                return response()->json(['status' => 'false', 'message' => 'Unable to Update Profile!'], 500);
             }
-            // return $this->genericResponse(true, "Profile Updated");
         });
     }
+
     public function setSecretQuestion(Request $request){
-        if (Auth::check()) {
+        // if (Auth::check()) {
+           
             $user = User::where('id', Auth::user()->id)->update([
-                "secret_question" => $request->get('secret_question')
+                "secret_question" => $request->get('secret_question'),
+                "secret_answer" => $request->get('secret_answer')
             ]);
             if($user){
                 return response()->json(['status'=>'true','message'=>'Secret Question is Set.'],200);
@@ -229,8 +199,9 @@ class UserController extends Controller
             }
             
             // return $this->genericResponse(true, "Secret Question Updated");
-        }
+        // }
     }
+  
     public function refreshOnboardingUrl(User $user)
     {
         $accountLink = StripeHelper::createAccountLink($user);

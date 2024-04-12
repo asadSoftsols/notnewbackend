@@ -47,29 +47,19 @@
 
                     <td>{{$item->created_at}}</td>
                     <td>
-                        <!-- <a href="{{route('category.edit', $item->id)}}" class="btn btn-info"><i
-                                class="fa fa-pen"></i></a> -->
-                        <!-- <a href="{{route('category.show-list', $category->guid)}}" class="btn btn-info"><i
-                                class="fa fa-pen"></i>add properties</a> -->
-                        <!-- <form action="{{ route('category.delete-attributes', $item->id) }}" method="POST" style="display: unset">
-                            <input type="hidden" name="_method" value="POST">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            <button class="btn btn-danger" type="submit"><i class="fa fa-trash"
-                                                                            style="color: white"></i></button>
-                        </form> -->
+                        
                         <button type="button"
                                 class="btn btn-danger"
                                 data-toggle="modal" data-target="#products1{{$item->id}}">
                                 <i class="fa fa-trash" style="color: white"></i></button>
                     </td>
                 </tr>
-                @include('partials.delete-modal',['data' => $unitType,'route'=> "item"])
+               @include('partials.delete-modal-attributes',['data' => $item,'route'=> "properties"])
             @empty
                 <p>No Active Properties</p>
             @endforelse
             </tbody>
         </table>
-
     </div>
 @endsection
 

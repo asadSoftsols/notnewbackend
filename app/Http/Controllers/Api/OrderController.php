@@ -296,11 +296,17 @@ class OrderController extends Controller
     public function getUserCompleted(Request $request){
         return UserOrder::where('status',UserOrder::COMPLETED)->get();
     }
+    public function getUserOffersCount(Request $request){
+        return UserOrder::where('seller_id', \Auth::user()->id)
+        ->where('order_type', UserOrder::BIDS)->count();
+    }
     public function getUserCompletedCount(Request $request){
-        return 2;
+        return "10";
+        die();
         // $count = UserOrderSummary::where('seller_id', \Auth::user()->id)
         //     ->where('status',UserOrder::COMPLETED)
         //     ->count();
+        //     return $count;
         // if($count){
         //     return response()->json(['status'=> true,'data' => $count], 200);       
         // }else{
