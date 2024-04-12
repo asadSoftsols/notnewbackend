@@ -19,14 +19,12 @@ class BrandsController extends Controller
      */
     public function index()
     {
-        return Brands::with(['category'])
-        ->get();    
+        return Brands::get();    
     }
 
     public function withCategory(Request $request, $id)
     {
-        return Brands::with('category')
-            ->where('id', $id)
+        return Brands::where('id', $id)
             ->first();    
     }
 

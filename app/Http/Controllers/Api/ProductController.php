@@ -10,8 +10,8 @@ use App\Helpers\DateTimeHelper;
 use App\Helpers\StringHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Brands;
 use App\Models\Media;
-use App\Models\DeliverCompany;
 use App\Models\Stock;
 use App\Models\InStock;
 use App\Models\OutStock;
@@ -19,10 +19,12 @@ use App\Models\Offer;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\SellerData;
-use App\Models\SaveSearch;
 use App\Models\ProductsAttribute;
+use App\Models\RecentView;
 use App\Models\ProductAttributes;
 use App\Models\User;
+use App\Models\DeliverCompany;
+use App\Models\SaveSearch;
 use App\Models\RecentUserView;
 use App\Models\Countries;
 use App\Models\City;
@@ -32,7 +34,6 @@ use App\Models\CategoryAttributes;
 use App\Models\Attribute;
 use App\Models\Message;
 use App\Models\Order;
-use App\Models\RecentView;
 use App\Models\ProductRatings;
 use App\Models\SavedUsersProduct;
 use App\Models\ProductShippingDetail;
@@ -58,7 +59,6 @@ use App\Notifications\TrustedSeller;
 use App\Notifications\DepositReminder;
 use App\Images;
 use Image;
-use File;
 
 class OfferUser {
     public $name;
@@ -74,6 +74,7 @@ class OfferUser {
 
 class ProductController extends Controller
 {
+    //
     public function index(Request $request)
     {
         // why Product Categories whynot products ? @todo refactor it make it simple
@@ -98,6 +99,8 @@ class ProductController extends Controller
             // ->where('products.weight', '<>', null)
             ->where('products.price', '<>', null)
             ->with(['user'])
+            ->with(['category'])
+            ->with(['brand'])
             ->with(['media'])
             ->with(['savedUsers'])
             ->with(['shop'])
@@ -123,6 +126,8 @@ class ProductController extends Controller
             // ->where('products.weight', '<>', null)
             ->where('products.price', '<>', null)
             ->with(['user'])
+            ->with(['brand'])
+            ->with(['category'])
             ->with(['media'])
             ->with(['savedUsers'])
             ->with(['shop'])
@@ -162,9 +167,12 @@ class ProductController extends Controller
             //return $service;//$products->merge($service);//array_merge(json_decode($products),json_decode($service));
     }
 
+
     public function recentView(Request $request){
         $recentProducts = RecentView::with(['products'])
-        ->orderBy('created_at', 'DESC')->get();
+        ->join('products','recent_view.product_id','=','products.id')
+        ->where('products.active', true)
+        ->orderBy('recent_view.created_at', 'DESC')->get();
         $userProducts = [];
         foreach($recentProducts as $recentProduct){
             //    $getRecent =  
@@ -197,8 +205,7 @@ class ProductController extends Controller
         }
     }
     public function inStock(Request $request){
-        
-        $stockIn = InStock::with('products')
+       $stockIn = InStock::with('products')
             ->where('user_id', \Auth::user()->id)->get();
 
         if($stockIn){
@@ -208,7 +215,7 @@ class ProductController extends Controller
         }
     }
     public function outStock(Request $request){
-        $stockOut = OutStock::with('products')
+       $stockOut = OutStock::with('products')
             ->where('user_id', \Auth::user()->id)->get();
         if($stockOut){
             return response()->json(['status'=>'true','data'=>$stockOut],200);
@@ -226,7 +233,8 @@ class ProductController extends Controller
             return response()->json(['status'=>'false','message'=>'Unable to CLeared Recent view!'],500);
         }
     }
-    public function createUserRecientView(Request $request){
+    
+        public function createUserRecientView(Request $request){
             $product = Product::where('guid',$request->get('id'))->first();
             $recentview = RecentView::orderby('id','desc')->first();
             $recentuserview =new  RecentUserView();
@@ -235,6 +243,8 @@ class ProductController extends Controller
             $recentuserview->user_id = \Auth::user()->id;
             $recentuserview->save();
     }
+
+
     public function createRecentView(Request $request){
         DB::beginTransaction();
         try{
@@ -245,6 +255,7 @@ class ProductController extends Controller
             $recentview = new RecentView();
             $recentview->product_id = $product->id;
             $recentview->save();
+           
            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -297,7 +308,7 @@ class ProductController extends Controller
         ->withoutGlobalScope(SoldScope::class)
         ->orderByDesc('products.featured')
         ->orderByDesc('products.created_at')
-        ->get([
+         ->get([
             'categories.name as category',
             'products.*'
         ]);
@@ -338,7 +349,7 @@ class ProductController extends Controller
                 ]
             );
             if($product){
-                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+                return response()->json(['status'=>'true','data'=>$product],200);
             }else{
                 return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
             }
@@ -369,7 +380,7 @@ class ProductController extends Controller
             );
             
             if($product){
-                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+                return response()->json(['status'=>'true','data'=>$product],200);
             }else{
                 return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
             }
@@ -447,7 +458,7 @@ class ProductController extends Controller
             ]);
             $product = array_merge(json_decode($productNormal), json_decode($productAuctioned));
             if($product){
-                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+                return response()->json(['status'=>'true','data'=>$product],200);
             }else{
                 return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
             }
@@ -475,12 +486,13 @@ class ProductController extends Controller
                 ]
             );
             if($product){
-                return response()->json(['status'=>'true','message'=>'Product Finds','data'=>$product],200);
+                return response()->json(['status'=>'true','data'=>$product],200);
             }else{
                 return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
             }
         }
     }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -490,29 +502,34 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        DB::beginTransaction();
-        try {
+        return DB::transaction(function () use (&$request) {
+        // DB::beginTransaction();
+        // try {
             /**
              * For Product Starts
              */
             $active = false;
             $product = new Product();
             $user = User::where('id', Auth::user()->id)->first();
+            // $category = Category::where('id', $request->get('category'))->first();
+            // $category
             // $country = Countries::where('id', $request->get('country'))->first();
             // $states = State::where('id', $request->get('state'))->first();
             // $city = City::where('id', $request->get('city'))->first();
             $store = SellerData::where('user_id',Auth::user()->id)->first();
-
             $product->user_id = Auth::user()->id;
-            $product->name = $request->get('title');
             $product->condition = $request->get('condition');
-            $product->model = $request->get('model');
+            $product->terms_descriptions = $request->get('termsdescription');
+            $product->name = $request->get('title');
             $product->category_id = $request->get('category');
-            $product->brand = $request->get('brand');
-            $product->stockcapacity = $request->get('stockCapacity');
-            $product->attributes = $request->get('sizes');
-            $product->available_colors = json_encode($request->get('availableColors'));
+            $product->brand_id = $request->get('brand_id');
+            $product->model = $request->get('model');
             $product->description = $request->get('description');
+            $product->tags = json_encode($request->get('tags'));
+
+            $product->stockcapacity = 0;//$request->get('stockCapacity');
+            $product->attributes = json_encode($request->get('attributes'));//$request->get('sizes');
+            // $product->available_colors =json_encode("['boys','gilrs']");// json_encode($request->get('availableColors'));
             $sellingNow = 0;
             if($request->get('sellingNow') == 'true'){
                 $sellingNow = 1;
@@ -520,23 +537,24 @@ class ProductController extends Controller
             }
             $product->selling_now = $sellingNow;
             $product->price = $request->get('price');
-            $product->sale_price = $request->get('saleprice');
+            $product->sale_price = $request->get('saleprice') ? $request->get('saleprice'): 0;
             $product->min_purchase = $request->get('minpurchase');
             $auctioned = 0;
             if($request->get('auctioned') == 'true'){
                 $auctioned = 1;
                 $product->bids = $request->get('bids');
                 $product->auction_listing = $request->get('auctionListing');
-                $product->auction_End_listing = $request->get('auctionEndListing');
+                $product->auction_End_listing = '';//$request->get('auctionEndListing');
             }
             $product->auctioned = $auctioned;
             $product->durations = $request->get('durations');
+            $product->hours = $request->get('hours');
             $deliverdDomestic = 0;
             if($request->get('deliverddomestic') == 'true'){
                 $deliverdDomestic = 1;
             }
             $product->deliverd_domestic = $deliverdDomestic;
-            $product->tags = json_encode($request->get('tags'));
+           
             $deliverdInternational = 0;
             if($request->get('deliverdinternational') == 'true'){
                 $deliverdInternational = 1;
@@ -544,25 +562,38 @@ class ProductController extends Controller
             $product->deliverd_international = $deliverdInternational;
             $product->delivery_company = $request->get('deliverycompany');
             $product->is_sold = false;
-            $product->google_address = $request->get('google_address');
-            $product->postal_address = $request->get('postal_address');
-            $product->street_address = $request->get('street_address');
+            //$product->google_address = $request->get('google_address');
+            $product->postal_address = $request->get('address');
+            $product->street_address = $request->get('address');
             $product->latitude = $request->get('latitude');
             $product->longitude = $request->get('longitude');
             $product->country = $request->get('country');
             $product->city = $request->get('city');
             $product->state = $request->get('state');
+            $product->zip = $request->get('zip');
             $product->IsSaved = true;
             $product->shipping_price = $request->get('shippingprice');
-            $product->shipping_start = $request->get('shippingstart');
-            $product->shipping_end = $request->get('shippingend');
+            $product->shiping_durations =$request->get('shipingdurations');
+            // $product->shipping_start = $request->get('shippingstart');
+            // $product->shipping_end = $request->get('shippingend');
             $product->return_shipping_price =  $request->get('returnshippingprice');
             $product->return_ship_duration_limt = $request->get('returndurationlimit');
             $product->return_ship_paid_by = $request->get('returnshippingpaidby');
-            $product->return_ship_location = $request->get('returnshippinglocation');
+            // $product->return_ship_location = $request->get('returnshippinglocation');
+            // $product->return_country = $request->get('returncountry');
+            // $product->return_state = $request->get('returnstate');
+            // $product->return_city = $request->get('returncity');
+            // $product->return_zip = $request->get('returnzip');
+             $product->return_ship_location = $store->address;//$request->get('returnshippinglocation');
+            $product->return_country = $store->country_id;//$request->get('returncountry');
+            $product->return_state = $store->state_id;//$request->get('returnstate');
+            $product->return_city = $store->city_id;//$request->get('returncity');
+            $product->return_zip = $store->zip;//$request->get('returnzip');
             $product->shop_id = $store->id;
+            // $product->shop_id = $store->id;
             $product->save();
-        
+            //return $product;
+            //die();
             /**
              * For Product Ends
              */
@@ -570,36 +601,78 @@ class ProductController extends Controller
             /**
              * For Images Uploading Start
              */
-            $imageName = [];
+             $imageName = [];
             if($request->hasFile('file')){
                 foreach ($request->file('file') as $file) {
+                    
                     $extension = $file->getClientOriginalExtension();
                     $guid = GuidHelper::getGuid();
-                    // $path = User::getUploadPath(Auth::user()->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
-                    $path = 'images/'.$entity::PRODUCT_IMAGES.'/'.Auth::user()->id;
-                    $name = "{$path}/{$guid}.{$extension}";
+                    // $path = User::getUploadPath($user->id) . $entity::MEDIA_UPLOAD;
+                    $name = "{$guid}.{$extension}";
+                    $path = 'images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'. $product->id.'/'."{$guid}.{$extension}";
+                    $pathName = 'http://localhost:8000/images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'. $product->id.'/'."{$guid}.{$extension}/"."{$guid}.{$extension}";
                     $media = new Media();
-                    $media->fill([
-                        'name' => $name,
+                    // $name = 'images/'.Product::MEDIA_UPLOAD.'/'.$user->id.'/'. $product->id.'/'."{$guid}.{$extension}";
+                    $properties = [
+                        'name' => $pathName,
                         'extension' => $extension,
-                        'type' => Media::PRODUCT_IMAGES,
-                        'user_id' => \Auth::user()->id,
+                        'type' => Product::MEDIA_UPLOAD,
+                        'user_id' => Auth::user()->id,
                         'product_id' => $product->id,
-                        'active' => true,
-                    ]);
+                        'url' => $pathName,
+                        'active' => true
+                    ];
 
+                    $media->fill($properties);
                     $media->save();
-                    
-                    $image = Image::make($request->file('file'));
+                    // $path = User::getUploadPath(Auth::user()->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+                    $image = Image::make($file);
                     $image->orientate();
                     $image->resize(1024, null, function ($constraint) {
                         $constraint->aspectRatio();
                         $constraint->upsize();
-                });
+                    });
                     $image->stream();
-                    $request->file->move($path, "{$guid}.{$extension}");                
+                    $file->move($path, "{$guid}.{$extension}");
                 }
             }
+            
+            // $imageName = [];
+            // if($request->hasFile('file')){
+            //     foreach ($request->file('file') as $file) {
+            //         $extension = $file->getClientOriginalExtension();
+            //         $guid = GuidHelper::getGuid();
+            //         // $path = User::getUploadPath($user->id) . $entity::MEDIA_UPLOAD;
+            //         $name = "{$guid}.{$extension}";
+            //         $path = env('APP_URL').'images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'."{$guid}.{$extension}";
+                   
+            //         $media = new Media();
+
+            //         $properties = [
+            //             'name' => $name,
+            //             'extension' => $extension,
+            //             'type' => Product::MEDIA_UPLOAD,
+            //             'user_id' => Auth::user()->id,
+            //             'product_id' => $product->id,
+            //             'url' => $path,
+            //             'active' => true,
+            //         ];
+
+            //         $media->fill($properties);
+            //         $media->save();
+            //         $path = 'images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id;
+            //         // $path = User::getUploadPath(Auth::user()->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+            //         $image = Image::make($file);
+            //         $image->orientate();
+            //         $image->resize(1024, null, function ($constraint) {
+            //             $constraint->aspectRatio();
+            //             $constraint->upsize();
+            //         });
+            //         $image->stream();
+            //         $file->move($path, "{$guid}.{$extension}");
+            //     }
+            // }
+           
             /**
              * For Images Uploading End
              */
@@ -607,16 +680,17 @@ class ProductController extends Controller
             /**
              * For Product Attributes Start
              */
-            $sizes = json_decode($request->get('sizes'));
-            foreach($sizes as $size){
-                foreach($size as $key => $siz){
-                    $productattributes =new ProductAttributes();
-                    $productattributes->name=$key;
-                    $productattributes->value=$siz;
-                    $productattributes->product_id=$product->id;
-                    $productattributes->save();
-                }
-            }
+            // $sizes = json_decode($request->get('sizes'));
+            // foreach($sizes as $size){
+            //     foreach($size as $key => $siz){
+            //         $productattributes =new ProductAttributes();
+            //         $productattributes->name=$key;
+            //         $productattributes->value=$siz;
+            //         $productattributes->product_id=$product->id;
+            //         $productattributes->save();
+            //     }
+            // }
+
             /**
              * For Product Attributes Ends
              */
@@ -625,40 +699,42 @@ class ProductController extends Controller
               * Stock Starts
               */
             //   store
-              $stock = new Stock();
-              $stock->user_id = Auth::user()->id;
-              $stock->guid = GuidHelper::getGuid();
-              $stock->product_id = $product->id;
-              $stock->quantity = $request->get('stockCapacity');
-              $stock->save();
+            //   $stock = new Stock();
+            //   $stock->user_id = Auth::user()->id;
+            //   $stock->guid = GuidHelper::getGuid();
+            //   $stock->product_id = $product->id;
+            //   $stock->quantity = $request->get('stockCapacity');
+            //   $stock->save();
 
-              $instock = new InStock();
-              $instock->user_id = Auth::user()->id;
-              $instock->guid = GuidHelper::getGuid();
-              if($request->get('auctioned') == 'true'){
-                $instock->listingdate = $request->get('auctionListing');
-              }else if($request->get('sellingNow') == 'true'){
-                $instock->listingdate = $request->get('listing');
-              }
-              $instock->productid = $product->id;
-              $instock->quantity = $request->get('stockCapacity');
-              $instock->save();
+            //   $instock = new InStock();
+            //   $instock->user_id = Auth::user()->id;
+            //   $instock->guid = GuidHelper::getGuid();
+            //   if($request->get('auctioned') == 'true'){
+            //     $instock->listingdate = $request->get('auctionListing');
+            //   }else if($request->get('sellingNow') == 'true'){
+            //     $instock->listingdate = $request->get('listing');
+            //   }
+            //   $instock->productid = $product->id;
+            //   $instock->quantity = $request->get('stockCapacity');
+            //   $instock->save();
 
               /**
                * Stock Ends
             */
+         
             if($product){
-                return response()->json(['status'=>'true','data'=>"Product has been Created!"],200);
+                return response()->json(['status'=>'true','product' => $product->id, 'data'=>"Product has been Created!"],200);
             }else{
                 return response()->json(['status'=>'false','message'=>'Unable to Create Product!'],403);
             }
             
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        //     DB::commit();
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     throw $e;
+        // }
         // return $this->genericResponse(true, 'Product Created', 200, ['product' => $product->withCategory()->withShop()->withAttributes()]);
+        }); 
     }
     public function Imgupload(Request $request){
         return DB::transaction(function () use (&$request) {
@@ -754,6 +830,30 @@ class ProductController extends Controller
                     $query->select(Category::defaultSelect());
                 }])->get();
     }
+    public function active(Request $request)
+    {
+        $products = Product::where('active', true)
+            ->where('user_id', Auth::user()->id)
+            ->with('user')
+            ->get();
+            if($products){
+                    return response()->json(['status'=> true,'data' =>$products], 200);       
+                }else{
+                    return response()->json(['status'=> false,'data' =>"Unable to Get active Products"], 400);       
+                } 
+    }
+    public function inactive(Request $request)
+    {
+        $products = Product::where('active', false)
+            ->where('user_id', Auth::user()->id)
+            ->with('user')
+            ->get();
+             if($products){
+                    return response()->json(['status'=> true,'data' =>$products], 200);       
+                }else{
+                    return response()->json(['status'=> false,'data' =>"Unable to Get active Products"], 400);       
+                } 
+    }
     public function getProductAttributes(Request $request, $productID)
     {   
         $product = Product::where('guid', $productID)->first();
@@ -828,6 +928,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         return DB::transaction(function () use ($request, $product) { 
+           
             // $country = Countries::where('id', $request->get('country'))->first();
             // $states = State::where('id', $request->get('states'))->first();
             // $city = City::where('id', $request->get('city'))->first();
@@ -855,21 +956,23 @@ class ProductController extends Controller
                 "condition" => $request->get('condition'),
                 "model" => $request->get('model'),
                 "category_id" => $request->get('category'),
-                "brand" => $request->get('brand'),
-                "stockcapacity" => $request->get('stockCapacity'),
-                "attributes" => $request->get('sizes'),
-                "available_colors" => json_encode($request->get('availableColors')),
+                "brand_id" => $request->get('brand_id'),
+                // "stockcapacity" => $request->get('stockCapacity'),
+                "attributes" => json_encode($request->get('attributes')),
+                // "available_colors" => json_encode($request->get('availableColors')),
                 "description" => $request->get('description'),
                 "selling_now" => $sellingNow,
                 "price" => $request->get('price'),
-                "sale_price" => $request->get('saleprice'),
+                "postal_address" => $request->get('address'),
+                "street_address" => $request->get('address'),
+                // "sale_price" => $request->get('saleprice'),
                 "min_purchase" => $request->get('minpurchase'),
                 "listing" => $request->get('listing'),
                 "auctioned" => $auctioned,
                 "bids" => $request->get('bids'),
                 "durations" => $request->get('durations'),
                 "auction_listing" => $request->get('auctionListing'),
-                "auction_End_listing" => $request->get('auctionEndListing'),
+                // "auction_End_listing" => $request->get('auctionEndListing'),
                 "deliverd_domestic" => $deliverdDomestic,
                 "tags" => json_encode($request->get('tags')),
                 "deliverd_international" => $deliverdInternational,
@@ -878,12 +981,11 @@ class ProductController extends Controller
                 "city" => $request->get('city'),
                 "state" => $request->get('states'),
                 "shipping_price" => $request->get('shippingprice'),
-                "shipping_start" => $request->get('shippingstart'),
-                "shipping_end" => $request->get('shippingend'),
+                // "shipping_start" => $request->get('shippingstart'),
+                // "shipping_end" => $request->get('shippingend'),
                 "return_shipping_price" =>  $request->get('returnshippingprice'),
                 "return_ship_duration_limt" => $request->get('returndurationlimit'),
                 "return_ship_paid_by" => $request->get('returnshippingpaidby'),
-                "return_ship_location" => $request->get('returnshippinglocation'),
                 "shop_id" => $store->id,             
             ]);
             
@@ -896,54 +998,41 @@ class ProductController extends Controller
              */
             $imageName = [];
             if($request->hasFile('file')){
+                
                 foreach ($request->file('file') as $file) {
-                    // return $imageName;
-                    // $file =$request->file('images');
+                    
                     $extension = $file->getClientOriginalExtension();
-                    // if($extension != 'jpg' || $extension != 'png' || $extension != 'jpeg'){
-                    //     return $this->genericResponse(true, 'Invalid Format', 500, ['message'=>'Invalid Format Image must be jpg or png']);                
-                    // }
                     $guid = GuidHelper::getGuid();
-                    $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
-                    $name = $file->getClientOriginalName();
-                    // $path = User::getUploadPath() . StringHelper::trimLower(Media::PRODUCT_IMAGES);
-                    $imgName = "{$path}/{$guid}.{$extension}";
-                    array_push($imageName, $name);
+                    // $path = User::getUploadPath($user->id) . $entity::MEDIA_UPLOAD;
+                    $name = "{$guid}.{$extension}";
+                    $path = 'images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'. $product->id.'/'."{$guid}.{$extension}";
+                    $pathName = 'http://localhost:8000/images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'. $product->id.'/'."{$guid}.{$extension}/"."{$guid}.{$extension}";
                     $media = new Media();
-                    $media->fill([
-                        'name' => $name,
+                    // $name = 'images/'.Product::MEDIA_UPLOAD.'/'.$user->id.'/'. $product->id.'/'."{$guid}.{$extension}";
+                    $properties = [
+                        'name' => $pathName,
                         'extension' => $extension,
-                        'type' => Media::PRODUCT_IMAGES,
-                        'user_id' => \Auth::user()->id,
+                        'type' => Product::MEDIA_UPLOAD,
+                        'user_id' => Auth::user()->id,
                         'product_id' => $product->id,
-                        'active' => true,
-                    ]);
-            
+                        'url' => $pathName,
+                        'active' => true
+                    ];
+
+                    $media->fill($properties);
                     $media->save();
-                    $image = Image::make($file)->save(public_path('image/product/') . $name);
-                    // Storage::put('public/'. $imgName, $image->encode());
-                    // $image = Image::make($request->file('file'));
-                    //     $image->orientate();
-                    //     $image->resize(1024, null, function ($constraint) {
-                    //         $constraint->aspectRatio();
-                    //         $constraint->upsize();
-                    //    });
-                    // $image->stream();
-                    // Storage::put('public/'. $name, $image->encode());
-                    // return [
-                    //     'uid' => $media->id,
-                    //     'name' => $media->url,
-                    //     'status' => 'done',
-                    //     'url' => $media->url,
-                    //     'guid' => $media->guid,
-                    //     'productguid'=> 7
-                    // ];
-    
+                    // $path = User::getUploadPath(Auth::user()->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+                    $image = Image::make($file);
+                    $image->orientate();
+                    $image->resize(1024, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                    $image->stream();
+                    $file->move($path, "{$guid}.{$extension}");
                 }
             }
-            /**
-             * For Images Uploading End
-             */
+            
 
             /**
              * For Product Attributes Start
@@ -966,7 +1055,12 @@ class ProductController extends Controller
              * For Product Attributes Ends
              */
 
-        return $this->genericResponse(true, "$product->name Updated", 200, ['product' => $product->withCategory()]);
+            if($products){
+                return response()->json(['status'=>'true','product' => $product->id, 'data'=>"Product has been Updated!"],200);
+            }else{
+                return response()->json(['status'=>'false','message'=>'Unable to Update Product!'],403);
+            }
+        // return $this->genericResponse(true, "$product->name Updated", 200, ['product' => $product->withCategory()]);
         });
     }
     /**
@@ -981,6 +1075,8 @@ class ProductController extends Controller
             $product = Product::where('guid', $id)->first();
             Product::where('guid', $id)->delete();
             Stock::where('product_id', $product->id)->delete();
+            RecentView::where('product_id', $product->id)->delete();
+            RecentUserView::where('product_id', $product->id)->delete();
             return response()->json(['message' => 'Product Deleted Successfully'], 200);
         });
     }
@@ -1094,6 +1190,46 @@ class ProductController extends Controller
                 'productguid'=> $product->guid
             ];
         });
+    }
+    public function imageUploadProduct(Request $request){
+         //$file =$request->file('image');
+        //  if($request->hasFile('image')){
+           $imageName = [];
+            if($request->hasFile('image')){
+                foreach ($request->file('image') as $file) {
+                    $extension = $file->getClientOriginalExtension();
+                    $guid = GuidHelper::getGuid();
+                    // $path = User::getUploadPath($user->id) . $entity::MEDIA_UPLOAD;
+                    $name = "{$guid}.{$extension}";
+                    $path = 'images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'.$request->get("product_id").'/'."{$guid}.{$extension}";
+                    $pathName = 'http://localhost:8000/images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'.$request->get("product_id").'/'."{$guid}.{$extension}/"."{$guid}.{$extension}";
+                    $media = new Media();
+                    // $name = 'images/'.Product::MEDIA_UPLOAD.'/'.$user->id.'/'. $product->id.'/'."{$guid}.{$extension}";
+                    $properties = [
+                        'name' => $pathName,
+                        'extension' => $extension,
+                        'type' => Product::MEDIA_UPLOAD,
+                        'user_id' => Auth::user()->id,
+                        'product_id' => $request->get("product_id"),
+                        'url' => $pathName,
+                        'active' => true
+                    ];
+
+                    $media->fill($properties);
+                    $media->save();
+                    // $path = User::getUploadPath(Auth::user()->id) . StringHelper::trimLower(Media::PRODUCT_IMAGES);
+                    $image = Image::make($file);
+                    $image->orientate();
+                    $image->resize(1024, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                    $image->stream();
+                    $file->move($path, "{$guid}.{$extension}");
+                }
+            }         
+        //  }
+    
     }
 
     public function searched(Request $request)
@@ -1292,6 +1428,7 @@ class ProductController extends Controller
         }else{
             return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
         }
+
     }
     public function getProductBySize(Request $request, $size)
     {
@@ -1366,14 +1503,18 @@ class ProductController extends Controller
     //     $category = [];
     //     foreach($products as $pro){
     //         $cat = Category::where('id',$pro->category_id)->first();
-    //         array_push($category, $cat);
+    //         $category=[$cat->id];
+    //         // array_push($category, $cat->id);
+    //         return $category;
+    //         // array_push($category, $cat);
     //     }
     //     $resultCategory = array_unique($category);
-    //     if($resultCategory){
-    //         return response()->json(['status'=> true,'data' => $resultCategory], 200);       
-    //     }else{
-    //         return response()->json(['status'=> false,'data' => 'Unable to Fetch Category'], 400);        
-    //     }
+    //     return $resultCategory;
+    //     // if($resultCategory){
+    //     //     return response()->json(['status'=> true,'data' => $resultCategory], 200);       
+    //     // }else{
+    //     //     return response()->json(['status'=> false,'data' => 'Unable to Fetch Category'], 400);        
+    //     // }
     // }
     public function categories(Request $request){
         $products = Product::where('active',true)
@@ -1394,6 +1535,7 @@ class ProductController extends Controller
             return response()->json(['status'=> false,'data' => 'Unable to Fetch Category'], 400);        
         }
     }
+
     public function getSizes(Request $request)
     {
         $attributes = ProductAttributes::get();
@@ -1519,7 +1661,7 @@ class ProductController extends Controller
             ->first();
             
             if($user){
-                return response()->json(['status'=> true,'message' => 'Found WishList','data' => $user], 200);       
+                return response()->json(['status'=> true,'data' => $user], 200);       
             }else{
                 return response()->json(['status'=> false,'message' => 'Unable to get WishList'], 500);        
             }
@@ -1694,8 +1836,7 @@ class ProductController extends Controller
             ->get();
         return $products; 
     }
-
-    public function results(Request $request, $search)
+        public function results(Request $request, $search)
     {
         $products=Product::with('category') 
             ->where('name', 'like', '%' . $search . '%')
@@ -1763,7 +1904,7 @@ class ProductController extends Controller
         //     return response()->json(['status'=> false,'data' =>"Unable To Get Recomended Products"], 400);       
         // }
     }
-    public function getCompanies(Request $request){
+     public function getCompanies(Request $request){
         $deleiverycomapny =  DeliverCompany::get();
         if($deleiverycomapny){
             return response()->json(['status'=>'true','data'=>"Delivery Company Found!", 'data'=> $deleiverycomapny],200);
@@ -1772,4 +1913,28 @@ class ProductController extends Controller
         }
 
     }
+     public function getBrandsCompanies(Request $request){
+        $deleiverycomapny =  DeliverCompany::get();
+        $brands =  Brands::get();
+        if($deleiverycomapny && $brands){
+            return response()->json(['status'=>'true','data'=>"Data Found!", 'deleiverycomapny'=> $deleiverycomapny, 'brands'=> $brands],200);
+        }else{
+            return response()->json(['status'=>'false','message'=>'Unable to Find Delivery Company'],403);
+        }
+
+    }
+    public function getProductById(Request $request, $id)
+    {
+        $product = Product::where('guid', $id)
+        ->with('brand')
+        ->with('category')
+        ->with('user')
+        ->first();
+        if($product){
+            return response()->json(['status'=> true,'data' =>$product], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Product"], 400);       
+        }
+    }
+
 }

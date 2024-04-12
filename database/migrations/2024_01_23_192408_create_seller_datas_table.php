@@ -13,23 +13,23 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('seller_datas', function (Blueprint $table) {
-            // $table->bigIncrements('id')->index();
-            // $table->unsignedBigInteger('user_id')->index();
-            // $table->string('country_id');
-            // $table->string('state_id');
-            // $table->string('city_id');
-            // $table->string('fullname');
-            // $table->string('email');
-            // $table->string('phone');
-            // $table->string('address');
-            // $table->string('zip');
-            // $table->string('password');
-            // $table->string('password_confirmation');
-            // $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            // $table->uuid('guid')->unique()->default(\App\Helpers\GuidHelper::getGuid());
-            // $table->timestamps();
-        });
+        // Schema::create('seller_datas', function (Blueprint $table) {
+        //     // $table->bigIncrements('id')->index();
+        //     // $table->unsignedBigInteger('user_id')->index();
+        //     // $table->string('country_id');
+        //     // $table->string('state_id');
+        //     // $table->string('city_id');
+        //     // $table->string('fullname');
+        //     // $table->string('email');
+        //     // $table->string('phone');
+        //     // $table->string('address');
+        //     // $table->string('zip');
+        //     // $table->string('password');
+        //     // $table->string('password_confirmation');
+        //     // $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+        //     // $table->uuid('guid')->unique()->default(\App\Helpers\GuidHelper::getGuid());
+        //     // $table->timestamps();
+        // });
     }
 
     /**

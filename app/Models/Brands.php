@@ -21,15 +21,6 @@ class Brands extends Model
     /**
      * @var array
      */
-    protected $fillable = ['name', 'category_id', 'guid', 'created_at', 'updated_at'];
+    protected $fillable = ['name', 'guid', 'created_at', 'updated_at'];
 
-    public function category()
-    {
-        return $this->belongsTo('App\Models\Category', 'category_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo('App\Models\User', 'user_id');
-    }
 }

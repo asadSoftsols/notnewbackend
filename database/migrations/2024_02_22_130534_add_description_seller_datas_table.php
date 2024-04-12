@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('seller_datas', function (Blueprint $table) {
-            $table->longText('description');
+            // $table->longText('description');
         });
     }
 

@@ -32,7 +32,6 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
-                <th scope="col">Category</th>
                 <th scope="col">Action</th>
             </tr>
             </thead>
@@ -44,7 +43,6 @@
                 <tr>
                     <td>{{$count++}}</td>
                     <td>{{$item->name}}</td>
-                    <td>{{$item->category->name}}</td>
                     <td>
                         <a href="{{route('brands.edit', $item->id)}}" class="btn btn-info"><i
                                 class="fa fa-pen"></i></a>

@@ -18,7 +18,7 @@ class BrandsController extends Controller
     public function index()
     {
         return view('brands.index', [
-            'brands' => Brands::with('category')->paginate(10)
+            'brands' => Brands::paginate(10)
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Helpers\GuidHelper;
 use App\Helpers\StringHelper;
+use App\Helpers\ArrayHelper;
 use Illuminate\Http\Request;
 use App\Models\SellerData;
 use App\Models\User;
@@ -64,9 +65,10 @@ class SellerDataController extends Controller
     {
         
         return DB::transaction(function () use ($request) {
-            $checkseller = SellerData::where('email', $request->email)->first();
-            if($checkseller){
-                return response()->json(['status'=> false,'data' =>"Email is already Exists"], 409);       
+            // $checkseller = SellerData::where('email', $request->email)->first();
+            // if($checkseller){
+            if (SellerData::where('email', $request->email)->exists()) {
+                return response()->json(['status'=> false,'message'=>1,'data' =>"Email is already Exists"], 409);       
             }else{
                 SellerData::where('user_id', \Auth::user()->id)->delete();
                 // $checkseller = SellerData::where('user_id', \Auth::user()->id)->first();
@@ -115,6 +117,7 @@ class SellerDataController extends Controller
                         $sellerData->zip = $request->zip;
                         $sellerData->latitude = $request->latitude;
                         $sellerData->longitude = $request->longitude;
+                        $sellerData->description = $request->description;
                         // $sellerData->password = $request->password;
                         // $sellerData->password_confirmation = $request->password_confirmation;
                         $sellerData->guid = GuidHelper::getGuid();
@@ -272,7 +275,11 @@ class SellerDataController extends Controller
                 //     Storage::put('/'. $name, $image->encode());
                 // }
                 $sellData = SellerData::where('guid', $request->get('guid'))->first();
-                $hasPreviousImage = $sellData->getRawOriginal('cover_image');
+                $hasPreviousImage = "";
+                if(!empty($sellData->cover_image))
+                {
+                    $hasPreviousImage = $sellData->getRawOriginal('cover_image');
+                }
                 $coverImage= $hasPreviousImage;
                 if($request->hasFile('file')){
                 
@@ -289,18 +296,21 @@ class SellerDataController extends Controller
                     $uploadData = $this->uploadImage($request, $sellData);
                     $coverImage= $uploadData['url'];
                 }
-                $sellerData = SellerData::where('guid', $request->get('guid'))
+                $sellerData = SellerData::where('user_id', Auth::user()->id)
                 ->update([
                     // 'user_id' => $request->user_id,
-                    'country_id' => $request->country,
-                    'state_id' => $request->state,
-                    'city_id' => $request->city,
+                    'country_id' => $request->country_id,
+                    'state_id' => $request->state_id,
+                    'city_id' => $request->city_id,
                     'fullname' => $request->fullname,
                     'email' => $request->email,
                     'phone' => $request->phone,
                     'address' => $request->address,
                     'zip' => $request->zip,
-                    'cover_image' => $coverImage
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                    'cover_image' => $coverImage,
+                    'description' => $request->description,
                 ]);                     
                 if($sellerData){
                     return response()->json(['status'=> true,'data' =>'You have SuccessFully Update Shop Data!'], 200);       
@@ -329,15 +339,30 @@ class SellerDataController extends Controller
         // ->where('seller_id', Auth::user()->id)
         // ->get();
         $userOrder = DB::table('tbl_user_order')
-            ->selectRaw('count(*) as totalOrder, sum(`order_total`) as totalSum')
-            ->where('seller_id', Auth::user()->id)
-            // ->groupBy('id')
-            ->first();
-            if($userOrder){
-                return response()->json(['status'=> true,'data' =>$userOrder], 200);       
-            }else{
-                return response()->json(['status'=> false,'data' =>"Unable to Get User Data"], 400);       
-            } 
+        ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, CONCAT(users.name,"-",users.last_name) as "SellerName"' )
+        ->join('users','tbl_user_order.seller_id','=','users.id')
+        ->where('seller_id', Auth::user()->id)
+        ->where('tbl_user_order.status', 'COMPLETED')
+        // ->groupBy('id')
+         ->first();
+
+         $seller = DB::table('seller_datas')
+        ->selectRaw('fullname as "SellerName"' )
+        ->join('users','seller_datas.user_id','=','users.id')
+        ->where('users.id', Auth::user()->id)
+         ->first();
+        
+       
+        if($userOrder->totalOrder != 0 || $userOrder->totalSum != null){
+            return [$userOrder];
+
+        }else{
+            return [
+                'totalOrder' => 0,
+                'totalSum' => 0,
+                'SellerName' => $seller->SellerName,
+            ];
+        } 
     }
     public function getSaveSeller(Request $request, $storeId){
 
@@ -409,7 +434,12 @@ class SellerDataController extends Controller
         });
     }
     public function getBankDetails(Request $request){
-            return UserBank::where('user_id', \Auth::user()->id)->first();
+            $userbank = UserBank::where('user_id', \Auth::user()->id)->first();
+            if($userbank){
+                return response()->json(['status'=> true,'data' =>$userbank], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Get Bank"], 400);       
+            }
     }
 
     public function getFeatured()
@@ -417,7 +447,6 @@ class SellerDataController extends Controller
         $seller = SellerData::where('active', true)
         ->where('featured', true)
         ->get();
-
         if($seller){
             return response()->json(['status'=> true,'data' =>$seller], 200);       
         }else{

@@ -14,6 +14,7 @@ class UserOrder extends Model
         STATUS_REFUNDED = 'REFUNDED',
         DELIVERED = 'delivered',
         COMPLETED = 'completed',
+        BIDS='bids',
         REFUND = 'refund';
     /**
      * The table associated with the model.
@@ -105,6 +106,7 @@ class UserOrder extends Model
             self::COMPLETED,
             self::STATUS_PENDING,
             self::REFUND,
+            self::BIDS
         ];
     }
 }

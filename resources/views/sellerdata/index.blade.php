@@ -12,9 +12,11 @@
             </div>
         @endif
         <div class="row">
-            <div class="col-md-8">
-                <a href="{{route('sellerdata.create')}}" class="btn btn-primary">Add New</a>
-            </div>
+            {{--
+                <!-- <div class="col-md-8">
+                    <a href="{{route('sellerdata.create')}}" class="btn btn-primary">Add New</a>
+                </div> -->
+            --}}
             <div class="col-md-4 text-right">
                 <form action="{{route('sellerdata.search')}}" method="GET">
                     <div class="input-group">
