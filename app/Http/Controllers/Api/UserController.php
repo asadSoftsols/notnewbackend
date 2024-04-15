@@ -155,6 +155,8 @@ class UserController extends Controller
             $user = '';
             if (Auth::check()) {
                 $data = [
+                    "name" => $request->get('name'),
+                    "last_name" => $request->get('lastname'),
                     "email" => $request->get('email'),
                     "phone" => $request->get('phone'),
                     "site" => $request->get('site'),

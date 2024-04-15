@@ -193,6 +193,13 @@ class LoginController extends Controller
             // $googleUser = $request->get('user');
             $internalUser = User::where('email', $googleUser['email'])->first();
             if ($internalUser === null) {
+                $familyName="";
+                if (array_key_exists("family_name",$googleUser)){
+                // if(!$googleUser['family_name']){
+                    $familyName=$googleUser['family_name'];
+                }else{
+                    $familyName="Family";
+                }
                 $internalUser = new User(array_merge(
                     $googleUser,
                     [
@@ -202,7 +209,7 @@ class LoginController extends Controller
                         'email_verified_at' => Carbon::now(),
                         'profile_image' => $googleUser['picture'],
                         'name'=> $googleUser['name'],
-                        'last_name'=> $googleUser['family_name'],
+                        'last_name'=> $familyName,//$googleUser['family_name']? $googleUser['family_name']:"family Name",
                         'register_type' => "google"
                     ]
                 ));

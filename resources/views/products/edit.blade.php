@@ -15,11 +15,20 @@
                 <input readonly type="text" name="name" class="form-control" placeholder="Enter Product Name"
                        value="{{$product->name}}">
             </div>
+            @if($product->selling_now == 1)
             <div class="form-group">
                 <label>Price</label>
                 <input readonly type="number" step="0.00" min="0" name="price" class="form-control"
                        placeholder="Enter Product Price $" value="{{$product->price}}" required>
             </div>
+            @elseif($product->auctioned == 1)
+            <div class="form-group">
+                <label>Bids</label>
+                <input readonly type="number" step="0.00" min="0" name="price" class="form-control"
+                       placeholder="Enter Product Price $" value="{{$product->bids}}" required>
+            </div>
+            @endif
+            
             <div class="form-group">
                 <label>Category</label>
                 <select readonly id="categories" name="category_id" class="form-control" onchange="onCategorySelect(this)">
