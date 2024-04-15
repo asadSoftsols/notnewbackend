@@ -30,7 +30,7 @@
                 <th scope="col">Product Name</th>
                 <th scope="col">Product Type</th>
                 <th scope="col">Status</th>
-                <th scope="col">Price</th>
+                <th scope="col">Price/Bids</th>
                 <th scope="col">Created By</th>
                 {{--<th scope="col">Category</th>--}}
                 {{--<th scope="col">Created At</th>--}}

@@ -116,10 +116,30 @@ class UserCartController extends Controller
 
     public function self()
     {
+        // $user = Auth::user();
+        // $cart = UserCart::where('user_id', $user->id)
+        //     ->with(['products'])
+        //     ->where('ordered', false)->get();
+        //     $products = [];
+        //     foreach($cart as $c){
+        //         $products['height'] = '10';//$c->products->height;
+        //         $products['width'] = '10';//$c->products->width;
+        //         $products['length'] = '10';//$c->products->length;
+        //         $products['actual_weight'] ='10';// $c->products->weight;
+        //         // array_push($products, $c->products);
+        //     }
+        // return [
+        //     'products'=>$products,
+        //     'cart'=>$cart
+        // ];
         $user = Auth::user();
         $cart = UserCart::where('user_id', $user->id)
             ->with(['products'])
-            ->where('ordered', false)->get();
+            ->with(['user'])
+            ->with(['shop'])
+            ->with(['savelater'])
+            ->get();
+            // ->where('ordered', false)->get();
             $products = [];
             foreach($cart as $c){
                 $products['height'] = '10';//$c->products->height;
@@ -128,10 +148,11 @@ class UserCartController extends Controller
                 $products['actual_weight'] ='10';// $c->products->weight;
                 // array_push($products, $c->products);
             }
-        return [
-            'products'=>$products,
-            'cart'=>$cart
-        ];
+            if($cart){
+                return response()->json(['status'=> true,'data' =>$cart], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable to Get Cart"], 400);       
+            } 
     }
 
     /**
@@ -178,9 +199,9 @@ class UserCartController extends Controller
             'message' => "Item Deleted"
         ], 200);
     }
-    public function clear($id)
+    public function clear()
     {
-        UserCart::where('user_id', $id)->delete();
+        UserCart::where('user_id', Auth::user()->id)->delete();
         return response()->json([
             'success' => true,
             'message' => "Cart has been Clear"

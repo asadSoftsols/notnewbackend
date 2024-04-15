@@ -122,7 +122,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/add', [Api\UserCartController::class, 'store']);
             Route::get('/', [Api\UserCartController::class, 'index']);
             Route::get('/self', [Api\UserCartController::class, 'self']);    
-            Route::post('/clear/{id}', [Api\UserCartController::class, 'clear']);    
+            Route::post('/clear', [Api\UserCartController::class, 'clear']);    
             Route::delete('/destroy/{id}', [Api\UserCartController::class, 'destroy']);    
             Route::put('/update/{id}', [Api\UserCartController::class, 'update']); 
             Route::get('/count', [Api\UserCartController::class, 'count']); 
@@ -150,12 +150,6 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/get', [Api\NotificationController::class, 'index']);
             Route::get('/count', [Api\NotificationController::class, 'count']);
             Route::patch('/update/{notificationId}', [Api\NotificationController::class, 'update']);
-        });
-        Route::group(['prefix' => '/savelater'], function () {
-            Route::post('/add', [Api\SaveCartLaterController::class, 'store']);
-            Route::get('/', [Api\SaveCartLaterController::class, 'index']);
-            Route::get('/getById/{id}', [Api\SaveCartLaterController::class, 'getById']);
-            Route::get('/getByUser', [Api\SaveCartLaterController::class, 'getByUser']);
         });
         Route::group(['prefix' => '/savelater'], function () {
             Route::post('/add', [Api\SaveCartLaterController::class, 'store']);

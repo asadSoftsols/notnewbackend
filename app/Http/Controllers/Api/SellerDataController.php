@@ -135,7 +135,7 @@ class SellerDataController extends Controller
                             User::where('id', \Auth::user()->id)->update([
                                 "isTrustedSeller"=>true
                             ]);
-                        $user->notify(new SellerDataNotify($user));
+                        // $user->notify(new SellerDataNotify($user));
                         // return $this->genericResponse(true, "Seller Register Successfully!", 200);
                         if($selldata){
                             return response()->json(['status'=> true,'data' =>"Seller Created SuccessFully"], 200);       
@@ -392,6 +392,7 @@ class SellerDataController extends Controller
             $userbank->save();
             User::where('id',\Auth::user()->id)->update(['isTrustedSeller'=>true]);
             $user = User::where('id',\Auth::user()->id)->first();
+            $user->notify(new SellerDataNotify($user));
             return [
                 "user" => $user,
                 "message" =>"Your Info is Save!"
