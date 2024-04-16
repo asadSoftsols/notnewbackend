@@ -163,14 +163,15 @@ class UserCartController extends Controller
      */
     public function edit($id)
     {
-        $userCart = UserCart::where('id', $id)
-        ->update($request->all());
-            return response()->json([
-            'success' => true,
-            'cart' => $userCart,
-            'message' => "Cart Updated"
-            ], 200);
+        // $userCart =UserCart::where('id', $id)->first();
 
+        // $userCart = UserCart::where('id', $id)
+        // ->update($request->all());
+        //     return response()->json([
+        //     'success' => true,
+        //     'cart' => $userCart,
+        //     'message' => "Cart Updated"
+        //     ], 200);
     }
 
     /**
@@ -182,7 +183,19 @@ class UserCartController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $userCart =UserCart::where('id', $id)->first();
+        $product = Product::where('id', $userCart->product_id)->first();
+        $price = "";
+        if($product->auctioned){
+           $price = $product->bids * $request->get('quantity');     
+        }else if($product->selling_now){
+           $price = $product->price * $request->get('quantity');
+        }
+        $update = UserCart::where('id', $id)->update([
+            "quantity"=>$request->get('quantity'),
+            "price"=>$price,
+        ]);
+        return UserCart::where('id', $id)->first();
     }
 
     /**
