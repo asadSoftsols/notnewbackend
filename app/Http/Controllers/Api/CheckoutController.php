@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Helpers\GuidHelper;
 use App\Models\CheckOut;
+use App\Models\Product;
+use App\Models\UserCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -50,22 +52,36 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         return DB::transaction(function () use ($request) {
-            CheckOut::where('user_id', \Auth::user()->id)->delete();
+            
+            // CheckOut::where('user_id', \Auth::user()->id)->delete();
+            
+            // $cart = UserCart::where('id',$request->get('cart_id'))->first();
+            $product= Product::where('id', $request->get('product_id'))->first();
             $checkout = new CheckOut();
             $checkout->guid = GuidHelper::getGuid();
             $checkout->cart_id = "";//$request->get('cart_id');
             $checkout->user_id = \Auth::user()->id;
-            $checkout->dicount_code = $request->get('dicount_code');
-            $checkout->items_number = $request->get('items_number');
+            $checkout->dicount_code = "";//$request->get('dicount_code');
+            $checkout->items_number = "";//$request->get('items_number');
             $checkout->sub_total = $request->get('sub_total');
+            $checkout->quantity = $request->get('quantity');
             $checkout->shipping_total = $request->get('shipping_total');
-            $checkout->admin_prices = json_encode($request->get('admin_prices'));
-            $checkout->order_total = $request->get('order_total');
+            $checkout->admin_prices = "";//json_encode($request->get('admin_prices'));
+            $checkout->order_total = "";//$request->get('order_total');
+            $checkout->product_id = $request->get('product_id');//$request->get('order_total');
+            $checkout->store_id = $product->shop_id;//$request->get('shop_id');
             $checkout->save();
-            return response()->json([
-                'success'=> true,
-                'message' => 'Checkout added'
-            ]);
+            if($checkout){
+                return response()->json([
+                    'success'=> true,
+                    'message' => 'Checkout Added!'
+                ]);
+            }else{
+                return response()->json([
+                    'success'=> false,
+                    'message' => 'Unable to Add Checkout!'
+                ]);
+            }
         });
     }
 

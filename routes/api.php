@@ -124,7 +124,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/self', [Api\UserCartController::class, 'self']);    
             Route::post('/clear', [Api\UserCartController::class, 'clear']);    
             Route::delete('/destroy/{id}', [Api\UserCartController::class, 'destroy']);    
-            Route::put('/update/{id}', [Api\UserCartController::class, 'update']); 
+            Route::post('/update/{id}', [Api\UserCartController::class, 'update']); 
             Route::get('/count', [Api\UserCartController::class, 'count']); 
         });
         Route::group(['prefix' => '/notificationsettings'], function () {
@@ -267,6 +267,7 @@ Route::group(['prefix' => '/categories', ['middleware' => 'throttle:20,5']], fun
     Route::get('/', [Api\CategoryController::class, 'index']);
     Route::get('/overAll', [Api\CategoryController::class, 'all']);
 });
+Route::get('/getshopData/{id}', [Api\SellerDataController::class, 'getShopDetail']);
 Route::get('/recursiveCategories', [Api\CategoryController::class, 'recursive']);
 Route::group(['prefix' => '/seller'], function () {
     Route::get('/getfeatured', [Api\SellerDataController::class, 'getFeatured']);

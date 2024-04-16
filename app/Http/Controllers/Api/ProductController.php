@@ -94,7 +94,70 @@ class ProductController extends Controller
         // die();
         // return Carbon::now()->format('Y-m-d');
         // die();
-        $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
+        if(\Auth::user()){
+            $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
+            ->where('products.active', true)
+            // ->where('products.weight', '<>', null)
+            ->where('products.price', '<>', null)
+            ->with(['user'])
+            ->with(['category'])
+            ->with(['brand'])
+            ->with(['media'])
+            ->with(['savedUsers'])
+            ->with(['shop'])
+            ->where($this->applyFilters($request))
+            ->where('products.is_sold', false)
+            ->where('user_id','<>', Auth::user()->id)
+            // ->where('products.listing','<>','0000-00-00 00:00:00')
+            // ->whereDate('products.listing','>=',Carbon::now()->format('Y-m-d'))
+            ->where('products.listing', '<=', date('Y-m-d'))
+            // ->orwhere('products.auction_End_listing' ,'>=', today())
+            // ->where('products.IsSaved', true)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get([
+                'categories.name as category',
+                'products.*'
+            ]);
+        $productAuctioned=Product::join('categories as categories','categories.id','=','products.category_id')
+            ->where('products.active', true)
+            // ->where('products.weight', '<>', null)
+            ->where('products.price', '<>', null)
+            ->with(['user'])
+            ->with(['brand'])
+            ->with(['category'])
+            ->with(['media'])
+            ->where('user_id','<>', Auth::user()->id)
+            ->with(['savedUsers'])
+            ->with(['shop'])
+            ->where($this->applyFilters($request))
+            ->where('products.is_sold', false)
+            // ->where('products.auction_listing', '<>', '0000-00-00 00:00:00')
+            ->where('products.auction_listing','<=', Carbon::now()->format('Y-m-d h:m:s'))
+            // ->orwhere('products.auction_End_listing' ,'>=', today())
+            // ->where('products.IsSaved', true)
+            ->orderByDesc('products.featured')
+            ->orderByDesc('products.created_at')
+            // ->paginate($this->pageSize, [
+            //     'categories.name as category',
+            //     'products.*'
+            // ]);
+            ->get([
+                'categories.name as category',
+                'products.*'
+            ]);
+            $product = array_merge(json_decode($productNormal), json_decode($productAuctioned));
+            if($product){
+                return response()->json(['status'=> true,'data' =>$product], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
+            }
+        }else{
+            $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
             ->where('products.active', true)
             // ->where('products.weight', '<>', null)
             ->where('products.price', '<>', null)
@@ -153,6 +216,8 @@ class ProductController extends Controller
             }else{
                 return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
             }
+
+        }
             
            /**
            * Below code for getting Products 

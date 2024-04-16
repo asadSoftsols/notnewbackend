@@ -195,7 +195,7 @@ class SellerDataController extends Controller
     {
         // $userId = \Auth::user()->id? \Auth::user()->id: $id;
         
-        $seller = SellerData::where('guid', $id)->first();
+        $seller = SellerData::where('id', $id)->first();
 
         if($seller){
             return response()->json(['status'=> true,'data' =>$seller], 200);       
