@@ -161,6 +161,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/add', [Api\CheckoutController::class, 'store']);
             Route::get('/', [Api\CheckoutController::class, 'index']);
             Route::get('/self', [Api\CheckoutController::class, 'self']);
+            Route::get('/selfcheckout', [Api\CheckoutController::class, 'selfCheckOut']);
             Route::get('/destroy/{id}', [Api\CheckoutController::class, 'destroy']);
         });
         // Route::get('/message/conversations/{productId}', [Api\MessageController::class, 'conversations']);
