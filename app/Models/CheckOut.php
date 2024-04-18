@@ -39,11 +39,11 @@ class CheckOut extends Model
 
     public function product(){
 
-        return $this->belongsTo('App\Models\Product');
+        return $this->belongsTo('App\Models\Product', 'product_id');
     }
 
     public function store(){
 
-        return $this->belongsTo('App\Models\SellerData');
+        return $this->belongsTo('App\Models\SellerData', 'store_id');
     }
 }

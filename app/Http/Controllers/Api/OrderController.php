@@ -314,6 +314,12 @@ class OrderController extends Controller
         // }
         // ->count();
     }
+    public function active(Request $request){
+        // $orders = UserOrder::where('status')
+    }
+    public function inactive(Request $request){
+
+    }
     public function getOrderSummary(Request $request){
         return UserOrderSummary::with(['buyer'])
         ->with(['product'])

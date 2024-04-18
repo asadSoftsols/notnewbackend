@@ -41,6 +41,11 @@ class SellerData extends Model
         return $this->belongsTo(State::class, 'state_id');
     }
 
+    public function products()
+    {
+        // return $this->hasMany('App\Models\Product');
+        return $this->hasMany(\App\Models\Product::class);
+    }
     public function cities()
     {
         return $this->belongsTo(City::class, 'city_id');
