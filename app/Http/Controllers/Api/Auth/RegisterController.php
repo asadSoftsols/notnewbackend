@@ -161,7 +161,7 @@ class RegisterController extends Controller
             if($checkUser){
                 return response()->json([
                     'success' => false,
-                    'status' => 'email',
+                    'status' => false,
                     'message' => "Email Already Exists"
                 ], 409);
             }else{

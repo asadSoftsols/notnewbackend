@@ -22,7 +22,7 @@ Route::post('/user/{id}', 'UserController@edit')->name('user.edit');
 Route::post('user/update/{id}', 'UserController@updateUser')->name('user.updateUser');
 Route::get('/user/show/{id}', 'UserController@show')->name('user.show');
 // Route::get('/user', 'UserController@destroy')->name('user.destroy');
-Route::post('/user/{id}', 'UserController@destroy')->name('user.destroy');
+Route::delete('/user/{id}', 'UserController@destroy')->name('user.destroy');
 Route::get('/flexe-fee', 'FlexeFeeController@index')->name('flexefee.index');
 Route::get('/flexe-fee/show/{id}', 'FlexeFeeController@show')->name('flexefee.show');
 Route::post('/flexe-fee/update/{id}', 'FlexeFeeController@update')->name('flexefee.update');

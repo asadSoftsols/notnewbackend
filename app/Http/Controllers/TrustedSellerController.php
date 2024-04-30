@@ -17,9 +17,14 @@ class TrustedSellerController extends Controller
      */
     public function index()
     {
+        // return view('trusted-seller.index', ['user' =>
+        // User::join('trusted_sellers', 'users.id', '=', 'trusted_sellers.user_id')
+        //       ->orderBy('trusted_sellers.created_at', 'ASC')
+        //     ->get()
+        // ]);
         return view('trusted-seller.index', ['user' =>
-        User::join('trusted_sellers', 'users.id', '=', 'trusted_sellers.user_id')
-              ->orderBy('trusted_sellers.created_at', 'ASC')
+        User::where('isTrustedSeller', true)
+              ->orderBy('created_at', 'ASC')
             ->get()
         ]);
     }
@@ -53,10 +58,16 @@ class TrustedSellerController extends Controller
      */
     public function show($id)
     {
-        return view('trusted-seller.detail', ['user' =>
-        TrustedSeller::where('user_id', $id)
+        // return view('trusted-seller.detail', ['user' =>
+        // TrustedSeller::where('user_id', $id)
+        //     ->first()
+        // ]);
+            return view('trusted-seller.detail', ['user' =>
+        User::where('id', $id)
+        ->with('shop')
             ->first()
         ]);
+
     }
 
     /**

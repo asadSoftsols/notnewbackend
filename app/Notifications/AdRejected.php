@@ -56,10 +56,10 @@ class AdRejected extends Notification
         $baseMailable = new BaseMailable();
         $status = $this->status;
         $product = $this->product;
-        $url = env('FRONT_END_URL', 'http://localhost:8000/');
+        $url = env('FRONT_END_URL', 'https://notnew.testingwebsitelink.com/');
 
         return $baseMailable->to($notifiable->email)
-        ->subject($status ? $notifiable->name . '- Your Ad has been rejected' : $notifiable->name . '- Your Ad has been rejected')
+        ->subject($status ? $notifiable->name . '- Product Listing Rejection Notification - Action Required' : $notifiable->name . '- Product Listing Rejection Notification - Action Required')
         ->markdown('emails.addRejected.reject', [
             'user' => $notifiable,
             'status' => $status,
@@ -77,7 +77,7 @@ class AdRejected extends Notification
     {
         $product = $this->product;
         return [
-            'message' => 'Your Add has been Rejected!',
+            'message' => 'Product Listing Rejection Notification - Action Required!',
             'url' => '/product/'.$product->guid,
         ];
     }

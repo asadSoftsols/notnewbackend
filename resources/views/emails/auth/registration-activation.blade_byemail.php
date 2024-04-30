@@ -7,10 +7,10 @@
         <p>
         Please click on the link below or copy and paste it into your web browser to verify your email address:
         </p>
-        <p>
-        @component('mail::button', ['url' => $verificationUrl, 'color' => 'blue', 'target' => '_blank'])
-        <a href="{{$verificationUrl}}">Verify Email Address</a>
-        </p>
+        <!--<p>-->
+        <!--@component('mail::button', ['url' => $verificationUrl, 'color' => 'blue', 'target' => '_blank'])-->
+        <!--<a href="{{$verificationUrl}}">Verify Email Address</a>-->
+        <!--</p>-->
         <p>
         Please remember that your email address is your username for accessing the NotNew platform.
         </p>

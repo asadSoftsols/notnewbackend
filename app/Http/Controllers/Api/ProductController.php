@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\Brands;
 use App\Models\Media;
 use App\Models\Stock;
+use App\Models\FeedBack;
 use App\Models\InStock;
 use App\Models\OutStock;
 use App\Models\Offer;
@@ -94,8 +95,8 @@ class ProductController extends Controller
         // die();
         // return Carbon::now()->format('Y-m-d');
         // die();
-        if(\Auth::user()){
-            $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
+        if(\Auth::check()){
+                    $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
             ->where('products.active', true)
             // ->where('products.weight', '<>', null)
             ->where('products.price', '<>', null)
@@ -107,7 +108,7 @@ class ProductController extends Controller
             ->with(['shop'])
             ->where($this->applyFilters($request))
             ->where('products.is_sold', false)
-            ->where('user_id','<>', Auth::user()->id)
+            ->where('user_id','<>', \Auth::user()->id)    
             // ->where('products.listing','<>','0000-00-00 00:00:00')
             // ->whereDate('products.listing','>=',Carbon::now()->format('Y-m-d'))
             ->where('products.listing', '<=', date('Y-m-d'))
@@ -131,11 +132,11 @@ class ProductController extends Controller
             ->with(['brand'])
             ->with(['category'])
             ->with(['media'])
-            ->where('user_id','<>', Auth::user()->id)
             ->with(['savedUsers'])
             ->with(['shop'])
             ->where($this->applyFilters($request))
             ->where('products.is_sold', false)
+            ->where('user_id','<>', \Auth::user()->id)
             // ->where('products.auction_listing', '<>', '0000-00-00 00:00:00')
             ->where('products.auction_listing','<=', Carbon::now()->format('Y-m-d h:m:s'))
             // ->orwhere('products.auction_End_listing' ,'>=', today())
@@ -157,7 +158,7 @@ class ProductController extends Controller
                 return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
             }
         }else{
-            $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
+                    $productNormal=Product::join('categories as categories','categories.id','=','products.category_id')
             ->where('products.active', true)
             // ->where('products.weight', '<>', null)
             ->where('products.price', '<>', null)
@@ -216,8 +217,8 @@ class ProductController extends Controller
             }else{
                 return response()->json(['status'=> false,'data' =>"Unable To Get Products"], 400);       
             }
-
         }
+
             
            /**
            * Below code for getting Products 
@@ -234,6 +235,14 @@ class ProductController extends Controller
 
 
     public function recentView(Request $request){
+        // $recentProducts = RecentView::with(['products'])
+        // ->orderBy('created_at', 'DESC')->get();
+        // $userProducts = [];
+        // foreach($recentProducts as $recentProduct){
+        //     //    $getRecent =  
+        //     array_push($userProducts, $recentProduct);
+        // }
+        // return $userProducts;
         $recentProducts = RecentView::with(['products'])
         ->join('products','recent_view.product_id','=','products.id')
         ->where('products.active', true)
@@ -591,8 +600,12 @@ class ProductController extends Controller
             $product->model = $request->get('model');
             $product->description = $request->get('description');
             $product->tags = json_encode($request->get('tags'));
-
-            $product->stockcapacity = 0;//$request->get('stockCapacity');
+            if($request->get('stockCapacity') > 1){
+                $product->recurring = true;
+            }else if($request->get('stockCapacity') == 1){
+                $product->recurring = false;
+            }
+            $product->stockcapacity = $request->get('stockCapacity');
             $product->attributes = json_encode($request->get('attributes'));//$request->get('sizes');
             // $product->available_colors =json_encode("['boys','gilrs']");// json_encode($request->get('availableColors'));
             $sellingNow = 0;
@@ -655,6 +668,7 @@ class ProductController extends Controller
             $product->return_city = $store->city_id;//$request->get('returncity');
             $product->return_zip = $store->zip;//$request->get('returnzip');
             $product->shop_id = $store->id;
+            $product->active = true;
             // $product->shop_id = $store->id;
             $product->save();
             //return $product;
@@ -675,7 +689,7 @@ class ProductController extends Controller
                     // $path = User::getUploadPath($user->id) . $entity::MEDIA_UPLOAD;
                     $name = "{$guid}.{$extension}";
                     $path = 'images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'. $product->id.'/'."{$guid}.{$extension}";
-                    $pathName = 'http://localhost:8000/images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'. $product->id.'/'."{$guid}.{$extension}/"."{$guid}.{$extension}";
+                    $pathName = 'https://notnewbackend.testingwebsitelink.com/images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'. $product->id.'/'."{$guid}.{$extension}/"."{$guid}.{$extension}";
                     $media = new Media();
                     // $name = 'images/'.Product::MEDIA_UPLOAD.'/'.$user->id.'/'. $product->id.'/'."{$guid}.{$extension}";
                     $properties = [
@@ -763,13 +777,12 @@ class ProductController extends Controller
              /**
               * Stock Starts
               */
-            //   store
-            //   $stock = new Stock();
-            //   $stock->user_id = Auth::user()->id;
-            //   $stock->guid = GuidHelper::getGuid();
-            //   $stock->product_id = $product->id;
-            //   $stock->quantity = $request->get('stockCapacity');
-            //   $stock->save();
+              $stock = new Stock();
+              $stock->user_id = Auth::user()->id;
+              $stock->guid = GuidHelper::getGuid();
+              $stock->product_id = $product->id;
+              $stock->quantity = $request->get('stockCapacity');
+              $stock->save();
 
             //   $instock = new InStock();
             //   $instock->user_id = Auth::user()->id;
@@ -899,6 +912,7 @@ class ProductController extends Controller
     {
         $products = Product::where('active', true)
             ->where('user_id', Auth::user()->id)
+            ->where('stockcapacity','>',0)
             ->with('user')
             ->get();
             if($products){
@@ -909,15 +923,35 @@ class ProductController extends Controller
     }
     public function inactive(Request $request)
     {
-        $products = Product::where('active', false)
+        $products = Product::
+            // where('active', false)
+            where('stockcapacity','0')
+            // ->orWhere('is_sold',true)
             ->where('user_id', Auth::user()->id)
             ->with('user')
             ->get();
-             if($products){
-                    return response()->json(['status'=> true,'data' =>$products], 200);       
+            $productList =array();
+            foreach($products as $product){
+                if($product->recurring){
+                    $product->soldstatus='Sold Out';
+                    array_push($productList, $product);    
+                }else{
+                    $product->soldstatus='Out of Stock';
+                    array_push($productList, $product);    
+                }
+    
+            }
+            //ArrayHelper::merge($request->all(), ['guid' => GuidHelper::getGuid()]))
+            if($productList){
+                    return response()->json(['status'=> true,'data' =>$productList], 200);       
                 }else{
                     return response()->json(['status'=> false,'data' =>"Unable to Get active Products"], 400);       
                 } 
+            //  if($products){
+            //         return response()->json(['status'=> true,'data' =>$products], 200);       
+            //     }else{
+            //         return response()->json(['status'=> false,'data' =>"Unable to Get active Products"], 400);       
+            //     } 
     }
     public function getProductAttributes(Request $request, $productID)
     {   
@@ -1015,6 +1049,13 @@ class ProductController extends Controller
             if($request->get('deliverdinternational') == 'true'){
                 $deliverdInternational = 1;
             }
+            $recurring=false;
+            if($request->get('stockCapacity') > 1){
+                $recurring = true;
+            }else if($request->get('stockCapacity') == 1){
+                $recurring = false;
+            }
+
            $products = Product::where('id', $product->id)->update([
                 "user_id" => Auth::user()->id,
                 "name" => $request->get('title'),
@@ -1052,6 +1093,7 @@ class ProductController extends Controller
                 "return_ship_duration_limt" => $request->get('returndurationlimit'),
                 "return_ship_paid_by" => $request->get('returnshippingpaidby'),
                 "shop_id" => $store->id,             
+                "recurring"=> $recurring
             ]);
             
           /**
@@ -1136,6 +1178,12 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
+        // return DB::transaction(function () use (&$request, &$id) {
+        //     $product = Product::where('guid', $id)->first();
+        //     Product::where('guid', $id)->delete();
+        //     Stock::where('product_id', $product->id)->delete();
+        //     return response()->json(['message' => 'Product Deleted Successfully'], 200);
+        // });
         return DB::transaction(function () use (&$request, &$id) {
             $product = Product::where('guid', $id)->first();
             Product::where('guid', $id)->delete();
@@ -1267,7 +1315,7 @@ class ProductController extends Controller
                     // $path = User::getUploadPath($user->id) . $entity::MEDIA_UPLOAD;
                     $name = "{$guid}.{$extension}";
                     $path = 'images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'.$request->get("product_id").'/'."{$guid}.{$extension}";
-                    $pathName = 'http://localhost:8000/images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'.$request->get("product_id").'/'."{$guid}.{$extension}/"."{$guid}.{$extension}";
+                    $pathName = 'https://notnewbackend.testingwebsitelink.com/images/'.Product::MEDIA_UPLOAD.'/'.Auth::user()->id.'/'.$request->get("product_id").'/'."{$guid}.{$extension}/"."{$guid}.{$extension}";
                     $media = new Media();
                     // $name = 'images/'.Product::MEDIA_UPLOAD.'/'.$user->id.'/'. $product->id.'/'."{$guid}.{$extension}";
                     $properties = [
@@ -1990,11 +2038,68 @@ class ProductController extends Controller
     }
     public function getProductById(Request $request, $id)
     {
-        $product = Product::where('guid', $id)
+        // $product = Product::where('guid', $id)
+        // ->with('brand')
+        // ->with('category')
+        // ->with('user')
+        // ->with('shop')
+        // // ->with('shop')->withFeedBack
+        // ->first();
+        // $sellerData = SellerData::with('feedback')->where('id', $product->shop_id)->first();
+        // $product->seller = $sellerData;
+        // if($product){
+        //     return response()->json(['status'=> true,'data' =>$product], 200);       
+        // }else{
+        //     return response()->json(['status'=> false,'data' =>"Unable To Get Product"], 400);       
+        // }
+        
+         $product = Product::where('guid', $id)
         ->with('brand')
         ->with('category')
         ->with('user')
+        ->with('shop')
+        // ->with('shop')->withFeedBack
         ->first();
+        $sellerData = SellerData::with('feedback')->where('id', $product->shop_id)->first();
+        $sellerDataCount = FeedBack::where('store_id', $product->shop_id)->count();//SellerData::with('feedback')->where('id', $product->shop_id)->count();
+        $feedbacks= FeedBack::where('store_id', $product->shop_id)->get();
+        $feedbacks_=array();
+        foreach($feedbacks as $feedback){
+            $newDateString = date_format($feedback->created_at,"Y-m-d");
+            // $month = $feedback->created_at->diffInMonths(Carbon::now());//Carbon::parse($newDateString)->diffInMonths(Carbon::now());
+            // $months="";
+            // if($month == 1){
+            //     $months ="month";    
+            // }
+            // else if($month > 1){
+            //     $months =$month ." month";    
+            // }
+            $data=[
+                'id'=>$feedback->id,
+                'user' => 
+                    [
+                        'image'=>$feedback->user->media[0]->name,
+                        'name'=>$feedback->user->name .''.$feedback->user->lastname,
+                        'period'=>date_format($feedback->created_at,"Y-m-d")
+                    ],
+                'comments'=> $feedback->comments,
+                'productname'=>$feedback->product->name
+                ];
+            array_push($feedbacks_,$data);  
+        }
+        $feedback=[
+            'count'=>$sellerDataCount,
+            'feedbacks'=> $feedbacks_
+            ];
+            $sellerData_=[
+                'sellerName' => $sellerData->fullname,
+                'sellerImage' => 'https://notnewbackend.testingwebsitelink.com/'.$sellerData->cover_image,
+                'positivefeedback'=> 90,
+                'feedback'=>
+                    $feedback
+                    
+                ];
+        $product->seller = $sellerData_;
         if($product){
             return response()->json(['status'=> true,'data' =>$product], 200);       
         }else{

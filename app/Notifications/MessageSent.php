@@ -48,7 +48,7 @@ class MessageSent extends Notification
     public function toMail($notifiable)
     {
         $baseMailable = new BaseMailable();
-        $url = env('FRONT_END_URL', 'http://localhost:8000/');
+        $url = env('FRONT_END_URL', 'https://notnew.apextechworldllc.com/');
 
         return $baseMailable->to($notifiable->email)
         ->subject($notifiable->name . ' - Message')

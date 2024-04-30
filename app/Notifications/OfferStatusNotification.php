@@ -47,7 +47,7 @@ class OfferStatusNotification extends Notification
     {
         $baseMailable = new BaseMailable();
         $status = $this->status;
-        $url = env('FRONT_END_URL', 'http://localhost:8000/');
+        $url = env('FRONT_END_URL', 'https://notnew.apextechworldllc.com/');
 
         return $baseMailable->to($notifiable->email)
         ->subject($status ? $notifiable->name . '- Offer Accepted' : $notifiable->name . '- Offer Rejected')

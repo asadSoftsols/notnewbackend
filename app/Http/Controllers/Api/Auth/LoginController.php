@@ -153,15 +153,18 @@ class LoginController extends Controller
     public function facebookLogin(Request $request)
     {
         \Artisan::call('config:clear');
+        // FACEBOOK_APP_ID=855777062581776
+// FACEBOOK_APP_SECRET=8b8d7459655b7f73c9d143186d09618d
         $fb = new Facebook([
-            'app_id' => config('app.facebook.app_id'),
-            'app_secret' => config('app.facebook.app_secret'),
+            'app_id' => '855777062581776',//config('app.facebook.app_id'),
+            'app_secret' =>'8b8d7459655b7f73c9d143186d09618d',// config('app.facebook.app_secret'),
             'default_graph_version' => 'v8.0',
         ]);
-      
+       
         $response = $fb->get('/me?fields=id,name,email,picture', $request->get('accessToken'));
-      
+     
         $fbUser = $response->getGraphUser();
+        
         $internalUser = User::where('email', $fbUser->getEmail())->first();
         if ($internalUser === null) {
             $internalUser = new User([
@@ -185,7 +188,7 @@ class LoginController extends Controller
 
     public function googleLogin(Request $request)
     {
-        // \Artisan::call('config:clear');
+        \Artisan::call('config:clear');
         $client = new \Google_Client(['client_id' => config('app.google.client_id')]);
         $googleUser = $client->verifyIdToken($request->get('credential'));
         // $valid = $client->verifyIdToken("eyJhbGciOiJSUzI1NiIsImtpZCI6IjdjMGI2OTEzZmUxMzgyMGEzMzMzOTlhY2U0MjZlNzA1MzVhOWEwYmYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI1NjQ5MzI1NjQ1MzEtYjl1Y2hrdmZsZGozdTFkcnQwZnZmM2w0ZTZjZThodTEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI1NjQ5MzI1NjQ1MzEtYjl1Y2hrdmZsZGozdTFkcnQwZnZmM2w0ZTZjZThodTEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDExNTI1MjI2NTk2Nzg0MzQ2NTgiLCJlbWFpbCI6InJhamFhc3NhZDMyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE2OTQ2MTQyOTYsIm5hbWUiOiJBc3NhZCBSYWphIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0lYUzg0TjMybG92UVVxR3piZ2xMbjBtdUZZMnN3NUlZeVNOeTFGdmV3YT1zOTYtYyIsImdpdmVuX25hbWUiOiJBc3NhZCIsImZhbWlseV9uYW1lIjoiUmFqYSIsImxvY2FsZSI6ImVuLUdCIiwiaWF0IjoxNjk0NjE0NTk2LCJleHAiOjE2OTQ2MTgxOTYsImp0aSI6ImRhZWMyZmUwNjAyOGNlYzhlMzZhOTBiMDk0YTYzOTkzODRmOWY5MmUifQ.M_SZh6amtBxyXrKDYLHETjlXJvTVU7_8e9N01x3MJc0_vYX2n3uC34x4hdaR7qYCeb1C_hykE27CMbnmMAJ53otmBrHU5ycCBOwxKycc97aEwfL7L8R4tL4UBW4tmKx-mN2IXtcdbOvIMmux4KZTkhv6mHwZ083gM-yymvgrpMsHPmq5nLyWGnLZ71BKW3GlGciPra1vJQVIcyVAzEZcLy0I2_I6GgTHPeJXDKG_-hSOYa9nwYIJ2e3vYWn13HV7KF9PYGlupsARM3QdMwmQITbcvpUzCREU1KhcjCAfXHhWXK66DMn0cNLjPTZq0Lxxrru6RhjDcF2245YbINnHKQ");
@@ -231,6 +234,7 @@ class LoginController extends Controller
 
     public function appleLogin(Request $request)
     {
+        \Artisan::call('config:clear');
         $identityToken = $request->get('identityToken');
         $authorizationCode = $request->get('authorizationCode');
         $appleUser = $request->get('user');

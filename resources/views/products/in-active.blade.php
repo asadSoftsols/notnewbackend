@@ -9,7 +9,7 @@
         @endif
         <div class="row">
         <div class="col-md-8">
-                {{--<!-- <a href="{{route('products.create')}}" class="btn btn-primary">Add New</a> -->--}}
+                {{--<!--<a href="{{route('products.create')}}" class="btn btn-primary">Add New</a>-->--}}
                 <form id="form-submit" role="form" action="{{route('products.active-all')}}" method="POST">
                     {{ csrf_field()}}
                     <button class="btn btn-success"><i class="fa fa-key"></i> Activate

@@ -24,7 +24,7 @@ class ForgotPasswordController extends Controller
     use SendsPasswordResetEmails;
 
     public function check(Request $request){
-        $user = User::where('email', '=', strtolower($request->email))->first();       
+        $user = User::where('email', '=', strtolower($request->email))->first(); 
         if ($user) {
             Otp::where('email','=',strtolower($user->email))->delete();
             Notification::send($user, new ForgetPasswordVerification());
@@ -124,5 +124,4 @@ class ForgotPasswordController extends Controller
             return response()->json(['status'=>'false','data'=>$e],500);
         }
     }
-    // Notification::send($user, new ForgetPassrdVerification());
 }

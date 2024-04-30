@@ -56,10 +56,10 @@ class AdApproved extends Notification
         $baseMailable = new BaseMailable();
         $status = $this->status;
         $product = $this->product;
-        $url = env('FRONT_END_URL', 'http://localhost:8000/');
+        $url = env('FRONT_END_URL', 'http://localhost:3000/');
 
         return $baseMailable->to($notifiable->email)
-        ->subject($status ? $notifiable->name . '- Your Ad is Now Live on NotNew!' : $notifiable->name . '- Your Ad is Now Live on NotNew!')
+        ->subject($status ? $notifiable->name . '- Your Product Listing Has Been Approved on NotNew!' : $notifiable->name . '- Your Product Listing Has Been Approved on NotNew!')
         ->markdown('emails.addApproved.add', [
             'user' => $notifiable,
             'status' => $status,
@@ -77,7 +77,7 @@ class AdApproved extends Notification
     {
         $product = $this->product;
         return [
-            'message' => 'Your Add has been Approved!',
+            'message' => 'Your Product Listing Has Been Approved on NotNew!',
             'url' => '/product/'.$product->guid,
         ];
     }

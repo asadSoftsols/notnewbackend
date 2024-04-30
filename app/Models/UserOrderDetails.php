@@ -28,6 +28,9 @@ class UserOrderDetails extends Model
         'price',
         'attributes',
         'guid',
+        'quantity',
+        'store_id',
+        'refunded',
         'created_at',
         'updated_at'
     ];
@@ -43,5 +46,10 @@ class UserOrderDetails extends Model
     public function product()
     {
         return $this->belongsTo('App\Models\Product', 'product_id');
+    }
+
+    public function store()
+    {
+        return $this->belongsTo('App\Models\SellerData', 'store_id');
     }
 }

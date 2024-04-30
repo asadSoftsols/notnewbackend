@@ -46,7 +46,7 @@
                                     <button class="btn btn-info" type="submit">{{ $item->isTrustedSeller == 0 ? 'Active' : 'In Active'}}</button>
                                 </form>
                             @endif
-                            <a style="margin-left: 3px" href="{{route('trusted-seller.show', $item->user_id)}}" class="btn btn-info"><i
+                            <a style="margin-left: 3px" href="{{route('trusted-seller.show', $item->id)}}" class="btn btn-info"><i
                                         class="fa fa-pen"></i></a>
                     </div>
                     </td>

@@ -3,18 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\GuidHelper;
+use App\Helpers\ArrayHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Offer;
 use App\Models\UserOrderSummary;
 use AP\Models\Transaction;
 use App\Models\UserNotification;
 use App\Models\Fedex;
+use App\Models\OutStock;
+use App\Models\SaveAddress;
 use App\Models\EasyPost;
+use App\Models\SellerData;
+use App\Models\UserOrderDetails;
 use App\Models\USPS;
+use App\Models\Stock;
 use App\Models\Order;
 use App\Models\UserCart;
 use App\Models\UserOrder;
-use App\Models\UserOrderDetails;
 use App\Models\Prices;
 use App\Models\Product;
 use App\Models\flexefee;
@@ -198,7 +203,8 @@ class OrderController extends Controller
        }
     }   
     public function store__(Request $request){
-
+        return "store_";
+        die();
         $request="";
         $order="";
         return DB::transaction(function () use ($request, $order) {  
@@ -296,29 +302,97 @@ class OrderController extends Controller
     public function getUserCompleted(Request $request){
         return UserOrder::where('status',UserOrder::COMPLETED)->get();
     }
-    public function getUserOffersCount(Request $request){
-        return UserOrder::where('seller_id', \Auth::user()->id)
-        ->where('order_type', UserOrder::BIDS)->count();
+    public function getUserCount_(Request $request){
+        
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        $buyercompleted = DB::select("SELECT count(`tbl_user_order`.id) as count FROM `tbl_user_order` where buyer_id =".Auth::user()->id." and status ='COMPLETED';");
+        $sellercompleted= DB::select("SELECT DISTINCT(`tbl_user_order`.id)FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id where tbl_user_order_details.store_id =".$seller->id." and status = 'COMPLETED';");
+        $totalCompleted = count($sellercompleted) + $buyercompleted[0]->count;
+        
+        $selleractive = DB::select("SELECT DISTINCT(`tbl_user_order`.id)FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id where tbl_user_order_details.store_id =".$seller->id." and status = 'pending';");
+        
+        $buyeractive = DB::select("SELECT count(`tbl_user_order`.id) as count FROM `tbl_user_order` where buyer_id =".Auth::user()->id." and status ='pending';");
+       
+        $totalactive = count($selleractive)+$buyeractive[0]->count;
+    //   $seller = SellerData::where('user_id', Auth::user()->id)
+    //     ->first();
+    //     $buyercompleted = "SELECT count(`tbl_user_order`.id) FROM `tbl_user_order` where buyer_id =".Auth::user()->id." and status ='COMPLETED';";
+    //     $sellercompleted="";
+        // $sellercompleted = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        //     ->where('tbl_user_order.status', 'COMPLETED')
+        //     ->where('store_id', $seller->id)->count();
+        // $buyercompleted = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        //     ->where('tbl_user_order.status', 'COMPLETED')
+        //     ->where('buyer_id', Auth::user()->id)->count();
+        // $totalCompleted = $sellercompleted + $buyercompleted;
+        
+        // $selleractive = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        // ->where('tbl_user_order.status', 'pending')
+        // ->where('store_id', $seller->id)->count();
+        
+        // $buyeractive = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        // ->where('tbl_user_order.status', 'pending')
+        // ->where('buyer_id', Auth::user()->id)->count();
+        // $totalactive = $selleractive+$buyeractive;
+        $data =[
+                'active'=> $totalactive,
+                'completed'=> $totalCompleted
+                ];
+            return response()->json(['status'=> true,'data' => $data], 200); 
+        
     }
-    public function getUserCompletedCount(Request $request){
-        return "10";
-        die();
-        // $count = UserOrderSummary::where('seller_id', \Auth::user()->id)
+    public function getUserCount(Request $request){
+       $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        $completed = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+            ->where('tbl_user_order.status', 'COMPLETED')
+            ->where('store_id', $seller->id)->count();
+            $active = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+            ->where('tbl_user_order.status', 'pending')
+            ->where('store_id', $seller->id)->count();
+      
+        //  $completed = DB::table('tbl_user_order')
+            // ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, CONCAT(users.name,"-",users.last_name) as "SellerName"' )
+            // ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, seller_datas.fullname as "SellerName"' )
+            // ->selectRaw('count(*) as completed' )
+            // ->join('tbl_user_order_details', 'tbl_user_order_details.order_id', 'tbl_user_order.id')
+            // // ->join('users','tbl_user_order.seller_id','=','users.id')
+            // // ->join('seller_datas','tbl_user_order.seller_id','=','seller_datas.user_id')
+            // ->where('store_id', $seller->id)
+            // ->where('tbl_user_order.status', 'COMPLETED')
+            // // ->groupBy('id')
+        //     // ->first();
+        //   $active = DB::table('tbl_user_order')
+        //     // ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, CONCAT(users.name,"-",users.last_name) as "SellerName"' )
+        //     // ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, seller_datas.fullname as "SellerName"' )
+        //     ->selectRaw('count(*) as active' )
+        //     ->join('tbl_user_order_details', 'tbl_user_order_details.order_id', 'tbl_user_order.id')
+        //     // ->join('users','tbl_user_order.seller_id','=','users.id')
+        //     // ->join('seller_datas','tbl_user_order.seller_id','=','seller_datas.user_id')
+        //     ->where('store_id', $seller->id)
+        //     ->where('tbl_user_order.status', 'pending')
+        //     // ->groupBy('id')
+        //     ->first();
+        // // $active = UserOrder::where('buyer_id', \Auth::user()->id)->where('status', UserOrder::STATUS_PENDING)->count();
+        // // $completed = UserOrder::where('buyer_id', \Auth::user()->id)
         //     ->where('status',UserOrder::COMPLETED)
         //     ->count();
-        //     return $count;
-        // if($count){
-        //     return response()->json(['status'=> true,'data' => $count], 200);       
+        $data =[
+                'active'=> $active,
+                'completed'=> $completed
+                ];
+            return response()->json(['status'=> true,'data' => $data], 200); 
+        // if($completed && $active){
+        //     $data =[
+        //         'active'=> $active,
+        //         'completed'=> $completed
+        //         ];
+        //     return response()->json(['status'=> true,'data' => $data], 200);       
         // }else{
         //     return response()->json(['status'=> false,'message' => 0], 400);        
         // }
         // ->count();
-    }
-    public function active(Request $request){
-        // $orders = UserOrder::where('status')
-    }
-    public function inactive(Request $request){
-
     }
     public function getOrderSummary(Request $request){
         return UserOrderSummary::with(['buyer'])
@@ -335,7 +409,204 @@ class OrderController extends Controller
         ->where('order_id', $id)
         ->first();
     }
+    public function store_stock(Request $request)
+    {
+        $orderItems = json_decode($request->get("orderItems"));
+        $stockData = array();
+        foreach($orderItems as $orderItem){
+            $stock = Stock::where('product_id', $orderItem->product_id)
+            ->where('user_id', Auth::user()->id)->first();
+            $quantity= 0;
+            if($stock){
+                $quantity = $stock->quantity - $orderItem->quantity;//array_push($stockData, $stock->quantity);
+                Stock::where('product_id', $orderItem->product_id)->update(['quantity' =>  $quantity]);
+            }
+        }
+        return $stockData;
+    }
     public function store(Request $request)
+    {    
+        return DB::transaction(function () use ($request) {
+        
+            $saveAddress= ShippingDetail::where('user_id', Auth::user()->id)->first();
+            if($saveAddress){
+               //
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Get Address!"], 400); 
+            }
+            
+
+
+            $user = User::where('id', Auth::user()->id)->first();
+            $shipping = new ShippingDetail();
+            if($request->get("other_address") == true){
+                $shipping->user_id = Auth::user()->id;
+                $shipping->name = $user->name;
+                $shipping->street_address = $request->get("secondaddress");
+                $shipping->state = $user->state_id;
+                $shipping->city = $user->city_id;
+                $shipping->latitude= $user->latitude;
+                $shipping->longitude= $user->longitude;
+                $shipping->zip = $request->get("zip");
+                $shipping->save();
+            }else{
+                ShippingDetail::where('user_id',Auth::user()->id)->delete();
+                
+                $shipping->user_id = Auth::user()->id;
+                $shipping->name = $user->name;
+                $shipping->street_address = $user->address;
+                $shipping->state = $user->state_id;
+                $shipping->city = $user->city_id;
+                $shipping->latitude= $user->latitude;
+                $shipping->longitude= $user->longitude;
+                $shipping->zip = address->zip;
+                $shipping->save();
+            }
+            $shippingDetails = ShippingDetail::where('user_id',Auth::user()->id)
+                ->orderBy('id', 'desc')
+                ->first(); 
+            
+               
+            $order = new UserOrder();
+            $order->orderid = GuidHelper::getShortGuid();
+            $order->buyer_id = Auth::user()->id;
+            // $order->seller_id = 1;
+            $order->payment_type = $request->get("payment_type");
+            $order->billing_address = $shippingDetails->street_address ? $shippingDetails->street_address : $user->address;
+            $order->fullname = $user->name;
+            $order->phone = $user->phone;
+            if($shippingDetails->street_address){
+                $order->address = $shippingDetails->street_address ? $shippingDetails->street_address: $request->get("secondaddress");
+            }else{
+                $order->address = $user->address ? $user->address: $request->get("secondaddress");
+                }
+            $order->discountcode = $request->get("discountcode");
+            // $order->orderItems = json_encode($request->get("orderItems"));
+            $order->subtotal_cost = $request->get("subtotal_cost") ? $request->get("subtotal_cost") : 0;
+            // $order->actual_cost = $request->get("actual_cost") ? $request->get("actual_cost") : 0;
+            $order->shipping_cost = $request->get("shipping_cost") ? $request->get("shipping_cost") : 0;
+            // $order->prices = json_encode($request->get("prices"));
+            $order->order_total = $request->get("order_total");
+            $order->status= UserOrder::STATUS_PENDING;
+            $order->payment_intents = $request->get("payment_intents");
+            $order->Curency = $request->get("Currency");
+            $order->order_type = $request->get("order_type");
+            $order->shipping_detail_id = $shippingDetails->id;
+            $order->latitude = $shippingDetails->latitude;
+            $order->longitude = $shippingDetails->longitude;
+            $order->zip = $shippingDetails->zip;
+            $order->country = $shippingDetails->country;
+            $order->state = $shippingDetails->state;
+            $order->city = $shippingDetails->city;
+            // $order->client_secret = $request->get("payment_intents");
+            $order->created_at = Carbon::now()->toDateTimeString();//'2023-01-30 17:40:31';
+            $order->updated_at = Carbon::now()->toDateTimeString();//'2023-01-30 17:40:31';
+            $order->save();
+            if($order){
+                $orderItems = json_decode($request->get("orderItems"));
+                foreach($orderItems as $orderItem){
+                    $product = Product::where('id',$orderItem->product_id)->first();
+                    $orderdetails = new UserOrderDetails();
+                    $orderdetails->order_id = $order->id;
+                    $orderdetails->guid = GuidHelper::getGuid();
+                    $orderdetails->product_id = $orderItem->product_id;
+                    $orderdetails->price = $orderItem->price;
+                    $orderdetails->store_id = $product->shop_id;
+                    $orderdetails->quantity = $orderItem->quantity;
+                    $orderdetails->attributes = $orderItem->attributes;
+                    $orderdetails->save();
+                    //For Stock Maintainance
+                    $stock = Stock::where('product_id', $orderItem->product_id)
+                    ->where('user_id', Auth::user()->id)->first();
+                    $quantity= 0;
+                    if($stock){
+                        $quantity = $stock->quantity - $orderItem->quantity;//array_push($stockData, $stock->quantity);
+                        Stock::where('product_id', $orderItem->product_id)
+                        ->where('user_id', Auth::user()->id)
+                        ->update(['quantity' =>  $quantity]);
+                        $product = Product::where('id', $request->product_id)->update([
+                            "stockcapacity"=>$quantity
+                        ]);
+                        $outstock = new OutStock();
+                        $outstock->user_id = Auth::user()->id;  
+                        $outstock->productid = $orderItem->product_id;  
+                        $outstock->quantity = $orderItem->quantity;  
+                        $outstock->guid = GuidHelper::getGuid();
+                        $outstock->save();
+                    }
+                }
+
+            }
+            // $orderItems = json_decode($request->get("orderItems"));
+            // foreach($orderItems as $items)
+            // {
+            //     $usersummary = new UserOrderSummary();
+            //     $usersummary->order_id = $order->id;
+            //     $usersummary->product_id = $items->id;
+            //     $usersummary->seller_id = $items->user_id;
+            //     $usersummary->save();
+            // }
+
+            if($request->get('payment_type') == 'Stripe'){
+                $this->stripe = new StripeClient('sk_test_51McZZOBL2ne1CK3D89BPN3QmKiF2hMTZI1IvcdkgZ5asDQrOghL2IC3RnqAAsQK2ctgezVbCUdiwEfu9rv93Visf00eHdE1vlk');       
+                $paymentIntent = $this->stripe->paymentIntents->create([
+                    // 'amount' => $product->getPrice() * 100,
+                    'amount' => $order->actual_cost * 100,
+                    'currency' => 'usd',
+                    // 'capture_method' => 'manual',
+                    // 'transfer_group' => $order->Amount,
+                    // 'transfer_data' => [
+                    //     // 'amount' => $remaining,
+                    //     'destination' => $product->user->stripe_account_id,
+                    // ],
+                ]);
+    
+                $payment_intents = $this->stripe->paymentIntents->retrieve(
+                    $paymentIntent->id,
+                    []
+                  );
+                  $order->update(
+                    [
+                        'payment_intents' => $payment_intents->id
+                    ]
+                );
+                if($paymentIntent->status === 'requires_capture')
+                {
+                  $paymentIntent->capture($order->payment_intents);
+                }
+                $metadata = null;
+                $paymentslog = PaymentsLog::request($paymentIntent,self::INCOMPLETE_STATUS,self::BUYING,$metadata);
+                //for notifications
+                $notificatioId = rand(15,35);
+                $notification = new  UserNotification();
+                // $notification->id = GuidHelper::getnotificationId();//(int)$notificatioId;
+                $notification->type = 'Order Generated';
+                $notification->notifiable_type = 'Order Generated';
+                $notification->notifiable_id = Auth::user()->id;
+                // $notification->uuid = GuidHelper::getGuid();//Auth::user()->id;
+                //$notification->data = "You Order Has Been Generated click the link -> <a href='http://localhost:3000/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
+                $notification->data = "You Order Has Been Generated click the link -> <a href='https://notnew.testingwebsitelink.com/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
+                $notification->save();  
+                $userCart = UserCart::where('user_id', '=' , Auth::user()->id)->delete();
+                /** @var User $user */
+                $user = Auth::user();
+                $user->notify(new OrderPlaced($order));
+            }
+            $userCart = UserCart::where('user_id', '=' , Auth::user()->id)->delete();
+            
+            /** @var User $user */
+            // $user = Auth::user();
+            // $user->notify(new OrderPlaced($order));
+            // dispatch(new captureFunds($order));
+            // return depositStripeFund::dispatch()->onQueue('processing');
+            if($order){
+                return response()->json(['status'=> true,'data' =>"your Order has been Submited!"], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"Unable To Submit Order!"], 400);       
+            }
+        });
+    }
+    public function store_(Request $request)
     {    
         return DB::transaction(function () use ($request) {
             $order = new Order();
@@ -425,7 +696,8 @@ class OrderController extends Controller
                 $notification->notifiable_type = 'Order Generated';
                 $notification->notifiable_id = Auth::user()->id;
                 // $notification->uuid = GuidHelper::getGuid();//Auth::user()->id;
-                $notification->data = "You Order Has Been Generated click the link -> <a href='http://localhost:8000/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
+                //$notification->data = "You Order Has Been Generated click the link -> <a href='http://localhost:3000/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
+                $notification->data = "You Order Has Been Generated click the link -> <a href='https://notnew.apextechworldllc.com/orderdetail/".$order->orderid."' target='_blank'>".$order->orderid."</a>";
                 $notification->save();  
                 $userCart = UserCart::where('user_id', '=' , Auth::user()->id)->delete();
                 /** @var User $user */
@@ -483,12 +755,396 @@ class OrderController extends Controller
         ])->get();
     }
 
-
-    public function getById($id){
-        return UserOrder::where('id', $id)
-            ->with("buyer")->first();
+public function getById($id){
+        $order= UserOrder::where('id', $id)
+                ->first();
+        $orderdetails = UserOrderDetails::where('order_id',$id)->get(); 
+        $orderdetailscount = UserOrderDetails::where('order_id',$id)->count(); 
+        $orderdtls = [];
+        foreach($orderdetails as $orderdetail){
+            $product = Product::with('shop')->where('id', $orderdetail->product_id)->first();
+           
+            // $data=[
+            //     "id" => $orderdetail->id,
+            //     "price" => $orderdetail->price,
+            //     "attributes" => $orderdetail->attributes,
+            //     "quantity" => $orderdetail->quantity,
+            //     "guid" => $orderdetail->guid,
+            //     "product"=> $singleProduct,
+            //     ];
+             $orderdetails =[
+                'id'=>$product->id,
+                'seller'=>$product->shop->fullname,
+                'name'=>$product->name,
+                'producttotal'=>$product->price,
+                'ordertotal'=>$orderdetail->price,
+                'attributes' => $orderdetail->attributes,
+                'quantity' => $orderdetail->quantity,
+                'guid' => $orderdetail->guid,
+                'media'=>$product->media,
+                ];
+            array_push($orderdtls,$orderdetails);
+        }
+        $data=[
+                'id'=>$order->id,
+                'orderid'=>$order->orderid,
+                'latitude'=>$order->latitude,
+                'longitude'=>$order->longitude,
+                'shipmentaddress'=>$order->billing_address,
+                'phone'=>$order->phone,
+                'name'=>$order->fullname,
+                'status'=>$order->status,
+                'products'=>$orderdtls,
+                'totalItems'=> $orderdetailscount,
+                'subtotal'=>$order->subtotal_cost,
+                'shippingcost'=>$order->shipping_cost,
+                'ordertotal'=>$order->order_total,
+            ];
+        if($order){
+            return response()->json(['status'=> true,'data' => $data], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => 'unable to get order Details'], 400);        
+        }
     }
-
+    public function getById_($id){
+        $order= UserOrder::where('id', $id)
+                ->first();
+        $orderdetails = UserOrderDetails::where('order_id',$id)->get(); 
+        $orderdetailscount = UserOrderDetails::where('order_id',$id)->count(); 
+        $orderdtls = [];
+        $storeIds=[];
+        foreach($orderdetails as $orderdetail){
+            array_push($storeIds, $orderdetail->store_id);
+            // $product = Product::with('shop')->where('id', $orderdetail->product_id)->first();
+            //  $orderdetails =[
+            //     'id'=>$product->id,
+            //     'seller'=>$product->shop->fullname,
+            //     'name'=>$product->name,
+            //     'producttotal'=>$product->price,
+            //     'ordertotal'=>$orderdetail->price,
+            //     'attributes' => $orderdetail->attributes,
+            //     'quantity' => $orderdetail->quantity,
+            //     'guid' => $orderdetail->guid,
+            //     'media'=>$product->media,
+            //     ];
+            //     $orderdetails =[
+            //         'id'=>$product->shop->id,
+            //         'Name'=>$product->shop->fullname,
+            //         'product'=>$product->name,
+            //         'producttotal'=>$product->price,
+            //         'ordertotal'=>$orderdetail->price,
+            //         'attributes' => $orderdetail->attributes,
+            //         'quantity' => $orderdetail->quantity,
+            //         'guid' => $orderdetail->guid,
+            //         'media'=>$product->media,
+            //     ];
+            // array_push($orderdtls,$orderdetails);
+        }
+        // if($order){
+        //     return response()->json(['status'=> true,'data' => $orderdtls], 200);       
+        // }else{
+        //     return response()->json(['status'=> false,'message' => 'unable to get order Details'], 400);        
+        // }
+        // die();
+        $store_ids = array_unique($storeIds);
+        $stores = [];
+        foreach($orderdetails as $orderdetail){
+            $store= SellerData::whereIn('id', $store_ids)->get();
+            array_push($stores, $store);
+        }
+        // print_r($store_ids);
+        // echo "<br />";
+        $storeData = [];
+        foreach($stores[0] as $store){
+            $orderdetails = UserOrderDetails::where('store_id',$store->id)->first(); 
+            // $orderdetailsproduts =UserOrderDetails::where('store_id',$store->id)->where('order_id',$id)->get();
+            // $orderdetailsproducts = [];
+            // foreach($orderdetailsproduts as $orderdetailsprodut){
+            //         array_push($orderdetailsproducts, $orderdetailsprodut->product_id);
+            // }
+            // // $orderdetailspros = array_unique($orderdetailsproducts);
+            $userdetailsOrds = UserOrderDetails::where('store_id',$store->id)->where('order_id',$id)->get();//Product::whereIn('id', $orderdetailspros)->get();
+            $pros = [];
+            foreach($userdetailsOrds as $userdetailOrd){
+                $product = Product::with('shop')->where('id',$userdetailOrd->product_id)->first();
+                $data =[
+                    "shopid"=>$product->shop->id,
+                    "id"=> $product->id,
+                    "name"=> $product->name,
+                    "refunded"=> $userdetailOrd->refunded,
+                    "producttotal"=>$product->price,
+                    "ordertotal"=>$userdetailOrd->price,
+                    "attributes" => $userdetailOrd->attributes,
+                    "quantity" => $userdetailOrd->quantity,
+                    'guid' => $userdetailOrd->guid,
+                    'media'=>$product->media[0],
+                ];
+                array_push($pros, $data);
+            }
+            $data=[
+                "id"=> $store->id,
+                "name"=>$store->fullname,
+                "products"=>$pros
+            ];
+            array_push($storeData, $data);
+        }
+        $data=[
+                'id'=>$order->id,
+                'orderid'=>$order->orderid,
+                'latitude'=>$order->latitude,
+                'longitude'=>$order->longitude,
+                'shipmentaddress'=>$order->billing_address,
+                'phone'=>$order->phone,
+                'name'=>$order->fullname,
+                'status'=>$order->status,
+                'stores'=>$storeData,
+                'totalItems'=> $orderdetailscount,
+                'subtotal'=>$order->subtotal_cost,
+                'shippingcost'=>$order->shipping_cost,
+                'ordertotal'=>$order->order_total,
+            ];
+        if($order){
+            return response()->json(['status'=> true,'data' => $data], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => 'unable to get order Details'], 400);        
+        }
+    }
+    public function active(Request $request){
+        // $orders = UserOrder::where('status','pending')
+        //     ->where('buyer_id', \Auth::user()->id)
+        //     ->get();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        $orders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+            ->where('tbl_user_order.status', 'pending')
+            ->where('store_id', $seller->id)->get();
+        if($orders){
+            return response()->json(['status'=> true,'data' => $orders], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => 0], 400);        
+        }
+    }
+    
+    public function active_Customer(Request $request){
+        // $orders = UserOrder::where('status','pending')
+        //     ->where('buyer_id', \Auth::user()->id)
+        //     ->get();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        
+        // $orders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        //     ->where('tbl_user_order.status', 'pending')
+        //     ->where('store_id', $seller->id)
+        //     //->where('buyer_id', Auth::user()->id)
+        //     ->orWhere('buyer_id', Auth::user()->id)
+        //     ->get(["tbl_user_order.id", "orderid", "buyer_id", "payment_type",
+        //         "billing_address","fullname", "phone", "address", "discountcode","orderItems", "subtotal_cost",
+        //         "actual_cost", "shipping_cost", "prices","order_total", "status", "deliver_status", "deliver_at",
+        //         "payment_intents", "Curency", "admin_notes", "shipping_detail_id", "delivered_at",
+        //         "customer_email_sent", "client_secret","shipment_paymentIntents", "shipment_clientSecret",
+        //         "parcel_size","parcel_width","parcel_height", "parcel_length", "delivery_days","read_by_admin",
+        //         "tbl_user_order.created_at", "tbl_user_order.updated_at","order_type","state","city", "order_id",
+        //         "price","attributes", "tbl_user_order_details.guid","quantity","store_id"]);
+        // $buyerorders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        //     ->where('tbl_user_order.status', 'pending')
+        //     ->where('buyer_id', Auth::user()->id)->get();
+        // $orders =   ArrayHelper::merge($sellerorders,$buyerorders);
+        $orders =
+        // DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,status,buyer_id,payment_type, billing_address, seller_datas.fullname,  discountcode,orderItems, subtotal_cost,
+        //         actual_cost, shipping_cost, prices,order_total, status, deliver_status, deliver_at,
+        //         payment_intents, Curency, admin_notes, shipping_detail_id, delivered_at,'seller' as user_tag,
+        //         customer_email_sent, client_secret,shipment_paymentIntents, shipment_clientSecret,
+        //         tbl_user_order.updated_at,country,order_type,state,city
+        //         FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id 
+        //         inner join seller_datas on tbl_user_order_details.store_id = seller_datas.id
+        //         where tbl_user_order_details.store_id =".$seller->id."  and status = 'pending'
+        //         union ALL");
+        //   $orders = DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,status,buyer_id,payment_type, billing_address, seller_datas.fullname,  discountcode,orderItems, subtotal_cost,
+        //         actual_cost, shipping_cost, prices,order_total, 'Delivery in progress' as status, deliver_status, deliver_at,
+        //         payment_intents, Curency, admin_notes, shipping_detail_id, delivered_at,'customer' as user_tag,
+        //         customer_email_sent, client_secret,shipment_paymentIntents, shipment_clientSecret,
+        //         tbl_user_order.updated_at,country,order_type,state,city FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id 
+        //         inner join seller_datas on tbl_user_order_details.store_id = seller_datas.id
+        //         where  tbl_user_order.buyer_id =".Auth::user()->id."  and status = 'pending';");
+         $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,'Delivery in progress' as status,
+                'customer' as user_tag FROM `tbl_user_order`
+                where  buyer_id =".Auth::user()->id."  and status = 'pending';");
+        if($orders){
+            return response()->json(['status'=> true,'data' => $orders], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => 0], 400);        
+        }
+    }
+    public function completed(Request $request){
+        // $orders = UserOrder::where('status','completed')
+        //     ->where('buyer_id', \Auth::user()->id)
+        //     ->get();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+         $orders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+            ->where('tbl_user_order.status', 'COMPLETED')
+            ->where('store_id', $seller->id)->get();
+        if($orders){
+            return response()->json(['status'=> true,'data' => $orders], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => "Unable to get Orders"], 400);        
+        }
+    }
+    public function completed_Customer_(Request $request){
+        // $orders = UserOrder::where('status','completed')
+        //     ->where('buyer_id', \Auth::user()->id)
+        //     ->get();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        //  $orders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        //     ->where('tbl_user_order.status', 'COMPLETED')
+        //     ->where('store_id', $seller->id)
+        //     //->where('buyer_id', Auth::user()->id)
+        //     ->orWhere('buyer_id', Auth::user()->id)
+        //     ->get(["tbl_user_order.id",  "buyer_id", "payment_type",
+        //         "billing_address", "phone", "address", "discountcode","orderItems", "subtotal_cost",
+        //         "actual_cost", "shipping_cost", "prices","order_total", "status", "deliver_status", "deliver_at",
+        //         "payment_intents", "Curency", "admin_notes", "shipping_detail_id", "delivered_at",
+        //         "customer_email_sent", "client_secret","shipment_paymentIntents", "shipment_clientSecret",
+        //         "parcel_size","parcel_width","parcel_height", "parcel_length", "delivery_days","read_by_admin",
+        //         "tbl_user_order.created_at", "tbl_user_order.updated_at","order_type","state","city"]);
+        
+            // $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,status,buyer_id,payment_type, billing_address, seller_datas.fullname, discountcode,orderItems, subtotal_cost,
+            //     actual_cost, shipping_cost, prices,order_total, status, deliver_status, deliver_at,
+            //     payment_intents, Curency, admin_notes, shipping_detail_id, delivered_at,'seller' as user_tag,
+            //     customer_email_sent, client_secret,shipment_paymentIntents, shipment_clientSecret,
+            //     tbl_user_order.updated_at,country,order_type,state,city
+            //     FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id 
+            //     inner join seller_datas on tbl_user_order_details.store_id = seller_datas.id
+            //     where tbl_user_order_details.store_id =".$seller->id."  and status = 'COMPLETED'
+            //     union ALL");
+                $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,'Delivered' as status,
+                'customer' as user_tag FROM `tbl_user_order`
+                where  buyer_id =".Auth::user()->id."  and status = 'COMPLETED';");
+                
+                //  $orders =UserOrder::where('buyer_id', Auth::user()->id)->where('status', 'COMPLETED')->get();
+                //  $userOrders=[];
+                //  foreach($orders as $order){
+                //      $data = [
+                //      'id'=>$order->id,
+                //      'orderId'=>$order->orderid,
+                //      'status'=>$order->status
+                //      ];
+                //      array_push($userOrders, $data);
+                //  }
+               
+                if($orders){
+                    return response()->json(['status'=> true,'data' => $orders], 200);       
+                }else{
+                    return response()->json(['status'=> false,'message' => 'Unable to get Orders'], 400);        
+                }
+    }
+    public function completed_Customer(Request $request){
+        // $orders = UserOrder::where('status','completed')
+        //     ->where('buyer_id', \Auth::user()->id)
+        //     ->get();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        //  $orders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        //     ->where('tbl_user_order.status', 'COMPLETED')
+        //     ->where('store_id', $seller->id)
+        //     //->where('buyer_id', Auth::user()->id)
+        //     ->orWhere('buyer_id', Auth::user()->id)
+        //     ->get(["tbl_user_order.id",  "buyer_id", "payment_type",
+        //         "billing_address", "phone", "address", "discountcode","orderItems", "subtotal_cost",
+        //         "actual_cost", "shipping_cost", "prices","order_total", "status", "deliver_status", "deliver_at",
+        //         "payment_intents", "Curency", "admin_notes", "shipping_detail_id", "delivered_at",
+        //         "customer_email_sent", "client_secret","shipment_paymentIntents", "shipment_clientSecret",
+        //         "parcel_size","parcel_width","parcel_height", "parcel_length", "delivery_days","read_by_admin",
+        //         "tbl_user_order.created_at", "tbl_user_order.updated_at","order_type","state","city"]);
+        
+            // $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,status,buyer_id,payment_type, billing_address, seller_datas.fullname, discountcode,orderItems, subtotal_cost,
+            //     actual_cost, shipping_cost, prices,order_total, status, deliver_status, deliver_at,
+            //     payment_intents, Curency, admin_notes, shipping_detail_id, delivered_at,'seller' as user_tag,
+            //     customer_email_sent, client_secret,shipment_paymentIntents, shipment_clientSecret,
+            //     tbl_user_order.updated_at,country,order_type,state,city
+            //     FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id 
+            //     inner join seller_datas on tbl_user_order_details.store_id = seller_datas.id
+            //     where tbl_user_order_details.store_id =".$seller->id."  and status = 'COMPLETED'
+            //     union ALL");
+                // $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,status,buyer_id,payment_type, billing_address, seller_datas.fullname, discountcode,orderItems, subtotal_cost,
+                // actual_cost, shipping_cost, prices,order_total, 'Delivered' as status, deliver_status, deliver_at,
+                // payment_intents, Curency, admin_notes, shipping_detail_id, delivered_at,'customer' as user_tag,
+                // customer_email_sent, client_secret,shipment_paymentIntents, shipment_clientSecret,
+                // tbl_user_order.updated_at,country,order_type,state,city FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id 
+                // inner join seller_datas on tbl_user_order_details.store_id = seller_datas.id
+                // where  tbl_user_order.buyer_id =".Auth::user()->id."  and status = 'COMPLETED';");
+                $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,'Delivered' as status,
+                'customer' as user_tag FROM `tbl_user_order`
+                where  buyer_id =".Auth::user()->id."  and status = 'COMPLETED';");
+        if($orders){
+            return response()->json(['status'=> true,'data' => $orders], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => 'Unable to get Orders'], 400);        
+        }
+    }
+     public function refund_Customer(Request $request){
+        // $orders = UserOrder::where('status','refund')
+        //     ->where('buyer_id', \Auth::user()->id)
+        //     ->get();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        //  $orders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+        //     ->where('tbl_user_order.status', 'refund')
+        //     ->where('tbl_user_order_details.store_id', $seller->id)
+        //     ->where('buyer_id', Auth::user()->id)
+        //     // ->orWhere('buyer_id', Auth::user()->id)
+        //     ->get(["tbl_user_order.id", "orderid", "buyer_id", "payment_type",
+        //         "billing_address","fullname", "phone", "address", "discountcode","orderItems", "subtotal_cost",
+        //         "actual_cost", "shipping_cost", "prices","order_total", "tbl_user_order.status", "deliver_status", "deliver_at",
+        //         "payment_intents", "Curency", "admin_notes", "shipping_detail_id", "delivered_at",
+        //         "customer_email_sent", "client_secret","shipment_paymentIntents", "shipment_clientSecret",
+        //         "parcel_size","parcel_width","parcel_height", "parcel_length", "delivery_days","read_by_admin",
+        //         "tbl_user_order.created_at", "tbl_user_order.updated_at","order_type","state","city", "order_id",
+        //         "price","attributes", "tbl_user_order_details.guid","quantity","store_id"]);
+        // $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,status,buyer_id,payment_type, billing_address,seller_datas.fullname, discountcode,orderItems, subtotal_cost,
+        //         actual_cost, shipping_cost, prices,order_total, status, deliver_status, deliver_at,
+        //         payment_intents, Curency, admin_notes, shipping_detail_id, delivered_at,'seller' as user_tag,
+        //         customer_email_sent, client_secret,shipment_paymentIntents, shipment_clientSecret,
+        //         tbl_user_order.updated_at,country,order_type,state,city
+        //         FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id 
+        //         inner join seller_datas on tbl_user_order_details.store_id = seller_datas.id
+        //         where tbl_user_order_details.store_id =".$seller->id."  and status = 'refund'
+        //         union ALL");
+                // $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,status,buyer_id,payment_type, billing_address, seller_datas.fullname, discountcode,orderItems, subtotal_cost,
+                // actual_cost, shipping_cost, prices,order_total, 'Refund' as status, deliver_status, deliver_at,
+                // payment_intents, Curency, admin_notes, shipping_detail_id, delivered_at,'customer' as user_tag,
+                // customer_email_sent, client_secret,shipment_paymentIntents, shipment_clientSecret,
+                // tbl_user_order.updated_at,country,order_type,state,city FROM `tbl_user_order` inner join tbl_user_order_details on `tbl_user_order`.id = tbl_user_order_details.order_id 
+                // inner join seller_datas on tbl_user_order_details.store_id = seller_datas.id
+                // where  tbl_user_order.buyer_id =".Auth::user()->id."  and status = 'refund';");
+                 $orders =DB::select("SELECT DISTINCT(`tbl_user_order`.id),orderid,'Refund' as status,
+                'customer' as user_tag FROM `tbl_user_order`
+                where  buyer_id =".Auth::user()->id."  and status = 'refund';");
+        if($orders){
+            return response()->json(['status'=> true,'data' => $orders], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => 0], 400);        
+        }
+    }
+    public function refund(Request $request){
+       
+        // $orders = UserOrder::where('status','refund')
+        //     ->where('buyer_id', \Auth::user()->id)
+        //     ->get();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+        
+         $orders = UserOrder::join('tbl_user_order_details','tbl_user_order.id','=','tbl_user_order_details.order_id')
+            ->with(['refund'])
+            ->where('tbl_user_order.status', 'refund')
+            ->where('store_id', $seller->id)->get();
+        if($orders){
+            return response()->json(['status'=> true,'data' => $orders], 200);       
+        }else{
+            return response()->json(['status'=> false,'message' => 0], 400);        
+        }
+    }
     /**
      * Show the form for editing the specified resource.
      *

@@ -255,6 +255,24 @@ return [
             'url' => 'admin/category ',
             'icon' => 'fa fa-list-alt'
         ],
+        ['header' => 'Brands'],
+        [
+            'text' => 'Active Brands',
+            'url' => 'admin/brands',
+            'icon' => 'fa fa-list-alt'
+        ],
+        ['header' => 'Stores'],
+        [
+            'text' => 'Active Stores',
+            'url' => 'admin/sellerdata',
+            'icon' => 'fa fa-list-alt'
+        ],
+        ['header' => 'Delivery'],
+        [
+            'text' => 'Active Company',
+            'url' => 'admin/deliverycompany',
+            'icon' => 'fa fa-list-alt'
+        ],
         [
             'text' => ' In-Active Categories',
             'url' => 'admin/in-active-category ',

@@ -47,6 +47,7 @@ class ForgetPasswordVerification extends Notification
         $otp->email = $notifiable->email;
         $otp->otp_type = "ForgetPassword";
         $otp->name = $notifiable->name;
+        $otp->otp_type = "ForgetPassword";
         $otp->save();
         // $otp = new Otp();
         // $otp->otp = $verificationCode;

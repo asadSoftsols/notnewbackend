@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Helpers\GuidHelper;
 use App\Helpers\StringHelper;
-use App\Helpers\ArrayHelper;
 use Illuminate\Http\Request;
 use App\Models\SellerData;
 use App\Models\User;
-use App\Models\Product;
-use App\Models\UserOrder;
 use App\Models\Media;
+use App\Models\UserOrder;
+use App\Models\Product;
 use App\Models\Feedback;
 use App\Models\UserBank;
 use App\Models\SaveSeller;
@@ -65,10 +64,15 @@ class SellerDataController extends Controller
     {
         
         return DB::transaction(function () use ($request) {
-            // $checkseller = SellerData::where('email', $request->email)->first();
-            // if($checkseller){
-            if (SellerData::where('email', $request->email)->exists()) {
-                return response()->json(['status'=> false,'message'=>1,'data' =>"Email is already Exists"], 409);       
+            $checkUser = SellerData::where('user_id', Auth::user()->id)->first();
+            if($checkUser)
+            {
+                return response()->json(['status'=> false,'data' =>"Your store is being verified by the admin!"], 409);       
+            }else{
+                $checkseller = SellerData::where('email', $request->email)->first();
+
+            if($checkseller){
+                return response()->json(['status'=> false,'data' =>"Email is already Exists"], 409);       
             }else{
                 SellerData::where('user_id', \Auth::user()->id)->delete();
                 // $checkseller = SellerData::where('user_id', \Auth::user()->id)->first();
@@ -115,8 +119,6 @@ class SellerDataController extends Controller
                         $sellerData->phone = $request->phone;
                         $sellerData->address = $request->address;
                         $sellerData->zip = $request->zip;
-                        $sellerData->latitude = $request->latitude;
-                        $sellerData->longitude = $request->longitude;
                         $sellerData->description = $request->description;
                         // $sellerData->password = $request->password;
                         // $sellerData->password_confirmation = $request->password_confirmation;
@@ -132,10 +134,7 @@ class SellerDataController extends Controller
                         
                         $selldata =  SellerData::where('id',$sellerData->id)->first();
                         $user = User::where('id', \Auth::user()->id)->first();
-                            User::where('id', \Auth::user()->id)->update([
-                                "isTrustedSeller"=>true
-                            ]);
-                        // $user->notify(new SellerDataNotify($user));
+                        //$user->notify(new SellerDataNotify($user));
                         // return $this->genericResponse(true, "Seller Register Successfully!", 200);
                         if($selldata){
                             return response()->json(['status'=> true,'data' =>"Seller Created SuccessFully"], 200);       
@@ -144,6 +143,7 @@ class SellerDataController extends Controller
                             return response()->json(['status'=> false,'data' =>"Unable To Get Seller Data"], 400);       
                         }
     
+            }   
             }
         }); 
         // return DB::transaction(function () use ($request) {
@@ -169,7 +169,6 @@ class SellerDataController extends Controller
         //     return "You have SuccessFully Registered as Seller in NotNew";
         // });
     }
-
     /**
      * Display the specified resource.
      *
@@ -183,7 +182,7 @@ class SellerDataController extends Controller
 
     public function getShopDetails()
     {
-        $seller = SellerData::where('user_id', \Auth::user()->id)->first();
+        $seller = SellerData::with('feedback')->where('user_id', \Auth::user()->id)->first();
         if($seller){
             return response()->json(['status'=> true,'data' =>$seller], 200);       
         }else{
@@ -195,7 +194,7 @@ class SellerDataController extends Controller
     {
         // $userId = \Auth::user()->id? \Auth::user()->id: $id;
         
-        $seller = SellerData::where('id', $id)->first();
+        $seller = SellerData::with('feedback')->where('guid', $id)->first();
 
         if($seller){
             return response()->json(['status'=> true,'data' =>$seller], 200);       
@@ -216,6 +215,7 @@ class SellerDataController extends Controller
         }else{
             return response()->json(['status'=> false,'data' =>"Unable To Get  Shop"], 400);       
         }
+        
     }
     /**
      * Show the form for editing the specified resource.
@@ -242,6 +242,72 @@ class SellerDataController extends Controller
 
     public function updateSellerData(Request $request)
     {
+        // return DB::transaction(function () use ($request) {
+        //         $name="";
+        //         // if($request->hasFile('file')){
+        //         //     $user = User::where('id', Auth::user()->id)->first();
+        //         //     $file = $request->file('file');
+        //         //     $extension = $file->getClientOriginalExtension();    
+        //         //     $guid = GuidHelper::getGuid();
+        //         //     $path = User::getUploadPath($user->id) . StringHelper::trimLower(Media::STORE);
+        //         //     $name = "{$path}/{$guid}.{$extension}";  
+        //         //     // $name = $file->getClientOriginalName();
+        //         //     // array_push($imageName, $name);
+        //         //     $media = new Media();
+        //         //     $media->fill([
+        //         //         'name' => $name,
+        //         //         'extension' => $extension,
+        //         //         'type' => Media::STORE,
+        //         //         'user_id' => $user->id,
+        //         //         'active' => true,
+        //         //     ]);
+            
+        //         //     $media->save();
+        //         //     // $image = Image::make($file)->save(public_path('image/product/') . $name);
+        //         //     $image = Image::make($file);
+        //         //         $image->orientate();
+        //         //         $image->resize(1024, null, function ($constraint) {
+        //         //             $constraint->aspectRatio();
+        //         //             $constraint->upsize();
+        //         //     });
+                    
+        //         //     $image->stream();
+        //         //     Storage::put('/'. $name, $image->encode());
+        //         // }
+        //         $sellData = SellerData::where('guid', $request->get('guid'))->first();
+        //         $hasPreviousImage = $sellData->getRawOriginal('cover_image');
+        //         $coverImage= $hasPreviousImage;
+        //         if($request->hasFile('file')){
+                
+        //             if (!empty($hasPreviousImage)) {
+        //                 $previous_media = Auth::user()->media()->where('type', SellerData::MEDIA_UPLOAD)->first();
+        //                 if($previous_media){
+        //                     if(File::exists($previous_media->url)) {
+        //                         File::delete($previous_media->url);
+        //                     }
+        //                     // Storage::delete('public/' . $hasPreviousImage);
+        //                     $previous_media->delete();
+        //                 }
+        //             }
+        //             $uploadData = $this->uploadImage($request, $sellData);
+        //             $coverImage= $uploadData['url'];
+        //         }
+        //         $sellerData = SellerData::where('guid', $request->get('guid'))
+        //         ->update([
+        //             // 'user_id' => $request->user_id,
+        //             'country_id' => $request->country,
+        //             'state_id' => $request->state,
+        //             'city_id' => $request->city,
+        //             'fullname' => $request->fullname,
+        //             'email' => $request->email,
+        //             'phone' => $request->phone,
+        //             'address' => $request->address,
+        //             'zip' => $request->zip,
+        //             'cover_image' => $coverImage
+        //         ]);                     
+                    
+        //         return $this->genericResponse(true, "You have SuccessFully Update Shop Data!", 200);
+        // }); 
         return DB::transaction(function () use ($request) {
                 $name="";
                 // if($request->hasFile('file')){
@@ -274,25 +340,24 @@ class SellerDataController extends Controller
                 //     $image->stream();
                 //     Storage::put('/'. $name, $image->encode());
                 // }
-                $sellData = SellerData::where('guid', $request->get('guid'))->first();
-                $hasPreviousImage = "";
-                if(!empty($sellData->cover_image))
-                {
+                $sellData = SellerData::where("user_id", Auth::user()->id)->first();
+               $coverImage="";
+                if($sellData->cover_image){
                     $hasPreviousImage = $sellData->getRawOriginal('cover_image');
+                    $coverImage= $hasPreviousImage;
                 }
-                $coverImage= $hasPreviousImage;
                 if($request->hasFile('file')){
                 
-                    if (!empty($hasPreviousImage)) {
-                        $previous_media = Auth::user()->media()->where('type', SellerData::MEDIA_UPLOAD)->first();
-                        if($previous_media){
-                            if(File::exists($previous_media->url)) {
-                                File::delete($previous_media->url);
-                            }
-                            // Storage::delete('public/' . $hasPreviousImage);
-                            $previous_media->delete();
-                        }
-                    }
+                    // if (!empty($hasPreviousImage)) {
+                    //     $previous_media = Auth::user()->media()->where('type', SellerData::MEDIA_UPLOAD)->first();
+                    //     if($previous_media){
+                    //         if(File::exists($previous_media->url)) {
+                    //             File::delete($previous_media->url);
+                    //         }
+                    //         // Storage::delete('public/' . $hasPreviousImage);
+                    //         $previous_media->delete();
+                    //     }
+                    // }
                     $uploadData = $this->uploadImage($request, $sellData);
                     $coverImage= $uploadData['url'];
                 }
@@ -310,7 +375,7 @@ class SellerDataController extends Controller
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                     'cover_image' => $coverImage,
-                    'description' => $request->description,
+                    'description' => $request->description
                 ]);                     
                 if($sellerData){
                     return response()->json(['status'=> true,'data' =>'You have SuccessFully Update Shop Data!'], 200);       
@@ -338,31 +403,40 @@ class SellerDataController extends Controller
         // $payments = UserOrder::select('COUNT(id) AS count', 'SUM(order_total) AS sum')
         // ->where('seller_id', Auth::user()->id)
         // ->get();
-        $userOrder = DB::table('tbl_user_order')
-        ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, CONCAT(users.name,"-",users.last_name) as "SellerName"' )
-        ->join('users','tbl_user_order.seller_id','=','users.id')
-        ->where('seller_id', Auth::user()->id)
-        ->where('tbl_user_order.status', 'COMPLETED')
-        // ->groupBy('id')
-         ->first();
+        $seller = SellerData::where('user_id', Auth::user()->id)
+        ->first();
+         $userOrder = DB::table('tbl_user_order')
+            // ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, CONCAT(users.name,"-",users.last_name) as "SellerName"' )
+            // ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum, seller_datas.fullname as "SellerName"' )
+            ->selectRaw('count(*) as totalOrder, sum(order_total) as totalSum' )
+            ->join('tbl_user_order_details', 'tbl_user_order_details.order_id', 'tbl_user_order.id')
+            // ->join('users','tbl_user_order.seller_id','=','users.id')
+            // ->join('seller_datas','tbl_user_order.seller_id','=','seller_datas.user_id')
+            ->where('store_id', $seller->id)
+            ->where('tbl_user_order.status', 'COMPLETED')
+            // ->groupBy('id')
+            ->first();
+            if($userOrder->totalOrder != 0 || $userOrder->totalSum != null){
+                // return $userOrder;
+                return [
+                    'totalOrder' => $userOrder->totalOrder,
+                    'totalSum' => $userOrder->totalSum,
+                    'SellerName' => $seller->fullname,
+                ];
+    
+            }else{
+                return [
+                    'totalOrder' => 0,
+                    'totalSum' => 0,
+                    'SellerName' => $seller->fullname,
+                ];
+            } 
 
-         $seller = DB::table('seller_datas')
-        ->selectRaw('fullname as "SellerName"' )
-        ->join('users','seller_datas.user_id','=','users.id')
-        ->where('users.id', Auth::user()->id)
-         ->first();
-        
-       
-        if($userOrder->totalOrder != 0 || $userOrder->totalSum != null){
-            return [$userOrder];
-
-        }else{
-            return [
-                'totalOrder' => 0,
-                'totalSum' => 0,
-                'SellerName' => $seller->SellerName,
-            ];
-        } 
+            // if($userOrder->totalOrder != 0 || $userOrder->totalSum != null){
+            //     return response()->json(['status'=> true,'data' =>[$userOrder]], 200);       
+            // }else{
+            //     return response()->json(['status'=> false,'data' =>"Unable to Get Seller Data"], 400);       
+            // } 
     }
     public function getSaveSeller(Request $request, $storeId){
 
@@ -418,7 +492,7 @@ class SellerDataController extends Controller
     // }
     public function updateBank(Request $request){
         return DB::transaction(function () use ($request) {
-            UserBank::where('user_id', \Auth::user()->id)
+            $userbank = UserBank::where('user_id', \Auth::user()->id)
                 ->update([
                     "bank_id" => $request->bank_id,
                     "accountName" => $request->accountName,
@@ -431,10 +505,16 @@ class SellerDataController extends Controller
             // $userbank->accountNumber = $request->accountNumber;
             // $userbank->bic_swift = $request->bic_swift;
             // $userbank->update();
-            return "You have SuccessFully Update Bank Details!";
+          
+            if($userbank){
+                return response()->json(['status'=> true,'data' =>"You have SuccessFully Update Bank Details!"], 200);       
+            }else{
+                return response()->json(['status'=> false,'data' =>"You have Not Update Bank Details!"], 400);       
+            }
         });
     }
     public function getBankDetails(Request $request){
+            //return UserBank::where('user_id', \Auth::user()->id)->first();
             $userbank = UserBank::where('user_id', \Auth::user()->id)->first();
             if($userbank){
                 return response()->json(['status'=> true,'data' =>$userbank], 200);       

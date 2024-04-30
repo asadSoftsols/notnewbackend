@@ -31,9 +31,14 @@ class UserCart extends Model
         return $this->belongsTo('App\Models\User');
     }
 
+    // public function products()
+    // {
+    //     return $this->belongsTo('App\Models\Product','product_id');
+    // }
+    
     public function products()
     {
-        return $this->belongsTo('App\Models\Product','product_id');
+        return $this->belongsTo('App\Models\Product', 'product_id');
     }
     public function shop(){
         return $this->belongsTo('App\Models\SellerData', 'shop_id');

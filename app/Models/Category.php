@@ -83,7 +83,7 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
-    public function brands()
+     public function brands()
     {
         return $this->belongsToMany(Brands::class);
     }

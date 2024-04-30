@@ -130,12 +130,10 @@ class Product extends Base implements IMediaInteraction
     {
         return $this->belongsTo('App\Models\Bids');
     }
-
     public function brand()
     {
         return $this->belongsTo('App\Models\Brands');
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -233,9 +231,15 @@ class Product extends Base implements IMediaInteraction
 
     public function cart()
     {
-        return $this->hasMany(UserCart::class);
+        return $this->hasMany(UserCart::class,'product_id');
     }
-
+    
+    public function withCart()
+    {
+        return $this->load(['cart' => function (BelongsTo $belongsTo) {
+            $belongsTo->select(['id']);
+        }]);
+    }
     public function withoutScopesQuery()
     {
         return function (Builder $query) use (&$request) {

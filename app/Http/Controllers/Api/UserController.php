@@ -28,7 +28,6 @@ use App\Images;
 use Image;
 use File;
 
-
 class UserController extends Controller
 {
     use InteractWithUpload;
@@ -36,18 +35,20 @@ class UserController extends Controller
     public function detail()
     {
         $user = User::find(\Auth::user()->id)
-        ->withMedia()
-        ->withNotifications()->trusted();
+            ->withMedia()
+            ->withNotifications()->trusted();
+
         // return encrypt($user);
         return $user;
     }
 
     public function self()
     {
-        $user = User::where('id',\Auth::user()->id)
-        ->with(['savelater'])
-        ->with(['media'])
-        ->first();
+        $user = User::where('id', \Auth::user()->id)
+            ->with(['savelater'])
+            ->with(['media'])
+            ->first();
+
         // return encrypt($user);
         return $user;
     }
@@ -58,9 +59,9 @@ class UserController extends Controller
     }
 
     /**
-     * @param Request $request
      * @throws \Throwable
      */
+    // public function upload(Request $request)
     public function upload(Request $request)
     {
         return DB::transaction(function () use ($request) {
@@ -94,6 +95,7 @@ class UserController extends Controller
     public function conversations()
     {
         $userId = Auth::user()->id;
+
         return DB::select("SELECT messages.*,
                      CASE
                       WHEN sender_id!=$userId  THEN (select name from users where id = sender_id)
@@ -111,8 +113,7 @@ class UserController extends Controller
 
     public function messages(User $user)
     {
-        return Message::
-             where('sender_id', Auth::user()->id)
+        return Message::where('sender_id', Auth::user()->id)
             ->orWhere('recipient_id', Auth::user()->id)
             // whereIn('sender_id', [Auth::user()->id, $user->id])
             // ->whereIn('recipient_id', [Auth::user()->id, $user->id])
@@ -126,7 +127,7 @@ class UserController extends Controller
 
     public function sendMessage(User $user, Request $request)
     {
-        $message = new Message();
+        $message = new Message;
         $message->sender_id = Auth::user()->id;
         $message->recipient_id = $user->id;
         $message->data = $request->get('message');
@@ -145,7 +146,7 @@ class UserController extends Controller
 
             User::where('id', Auth::user()->id)->update($request->all());
 
-            return $this->genericResponse(true, "Profile Updated");
+            return $this->genericResponse(true, 'Profile Updated');
         }
 
     }
@@ -187,23 +188,23 @@ class UserController extends Controller
         });
     }
 
-    public function setSecretQuestion(Request $request){
-        // if (Auth::check()) {
-           
+    public function setSecretQuestion(Request $request)
+    {
+        if (Auth::check()) {
             $user = User::where('id', Auth::user()->id)->update([
                 "secret_question" => $request->get('secret_question'),
                 "secret_answer" => $request->get('secret_answer')
             ]);
-            if($user){
-                return response()->json(['status'=>'true','message'=>'Secret Question is Set.'],200);
-            }else{
-                return response()->json(['status'=>'false','message'=>'Secret Questions is Not Set!'],500);
+            if ($user) {
+                return response()->json(['status' => 'true', 'message' => 'Secret Question is Set.'], 200);
+            } else {
+                return response()->json(['status' => 'false', 'message' => 'Secret Questions is Not Set!'], 500);
             }
-            
+
             // return $this->genericResponse(true, "Secret Question Updated");
         // }
     }
-  
+    }
     public function refreshOnboardingUrl(User $user)
     {
         $accountLink = StripeHelper::createAccountLink($user);
@@ -214,95 +215,94 @@ class UserController extends Controller
 
     public function deleteAccount($id)
     {
-        try{
-            $user = User::where('id',$id)->first();
+        try {
+            $user = User::where('id', $id)->first();
             $user->notify(new DeleteAccount($user));
             $user->notify(new DeleteAccountUserSendEmail($user));
-            
-            DB::update('update users set softdelete = ? where id = ?',[true,$id]);
-            return "Account deletion request has been sent successfully";
-        }
-        catch(\Exception $e){ 
+
+            DB::update('update users set softdelete = ? where id = ?', [true, $id]);
+
+            return 'Account deletion request has been sent successfully';
+        } catch (\Exception $e) {
             return 'Your Request has not been Send For delete Account!. Kindly try again';
-        }       
+        }
     }
+
     public function cancelDelete($id)
     {
-        try{
-            $user = User::where('id',$id)->first();
+        try {
+            $user = User::where('id', $id)->first();
             $user->notify(new CancelDelete($user));
-            
-            return "Your Request has been Send For Cancel delete Account!.";
-        }
-        catch(\Exception $e){ 
+
+            return 'Your Request has been Send For Cancel delete Account!.';
+        } catch (\Exception $e) {
             return 'Your Request has not been Send For delete Account!. Kindly try again';
-        }       
+        }
     }
 
     public function twoStepsVerifications(Request $request)
     {
-        $twosteps = false; 
-        if($request->get('twosteps') == "1"){
+        $twosteps = false;
+        if ('1' == $request->get('twosteps')) {
             $twosteps = true;
         }
         $user = User::where('id', Auth::user()->id)->update([
-            "twosteps" => $twosteps
+            'twosteps' => $twosteps,
         ]);
-        if($user){
-            return response()->json(['status'=>'true','message'=>'2 Factor status is Changed!'],200);
-        }else{
-            return response()->json(['status'=>'false','message'=>'Unable to Change 2 Factor status!'],500);
+        if ($user) {
+            return response()->json(['status' => 'true', 'message' => '2 Factor status is Changed!'], 200);
+        } else {
+            return response()->json(['status' => 'false', 'message' => 'Unable to Change 2 Factor status!'], 500);
         }
 
     }
 
     public function thirdParty(Request $request)
     {
-        $thirdparty = false; 
-        if($request->get('thirdparty') == "1"){
+        $thirdparty = false;
+        if ('1' == $request->get('thirdparty')) {
             $thirdparty = true;
         }
         $user = User::where('id', Auth::user()->id)->update([
-            "thirdparty" => $request->get('thirdparty')
+            'thirdparty' => $request->get('thirdparty'),
         ]);
-        if($user){
-            return response()->json(['status'=>'true','message'=>'Third Party App Access Changed!'],200);
-        }else{
-            return response()->json(['status'=>'false','message'=>'Unable to Change Third Party App Access!'],500);
+        if ($user) {
+            return response()->json(['status' => 'true', 'message' => 'Third Party App Access Changed!'], 200);
+        } else {
+            return response()->json(['status' => 'false', 'message' => 'Unable to Change Third Party App Access!'], 500);
         }
     }
 
     public function fbAccount(Request $request)
     {
-        $fbaccount = false; 
-        if($request->get('fbaccount') == "1"){
+        $fbaccount = false;
+        if ('1' == $request->get('fbaccount')) {
             $fbaccount = true;
         }
         $user = User::where('id', Auth::user()->id)->update([
-            "fbaccount" => $fbaccount
+            'fbaccount' => $fbaccount,
         ]);
-        if($user){
-            return response()->json(['status'=>'true','message'=>'FaceBook Status Changed!'],200);
-        }else{
-            return response()->json(['status'=>'false','message'=>'Unable to Change FaceBook Status!'],500);
+        if ($user) {
+            return response()->json(['status' => 'true', 'message' => 'FaceBook Status Changed!'], 200);
+        } else {
+            return response()->json(['status' => 'false', 'message' => 'Unable to Change FaceBook Status!'], 500);
         }
     }
 
     public function updateAddress(Request $request)
     {
         $user = User::where('id', Auth::user()->id)->update([
-            "address" => $request->get('address'),
-            "city_id" => $request->get('city_id'),
-            "country_id" => $request->get('country_id'),
-            "latitute" => $request->get('latitute'),
-            "longitude" => $request->get('longitude'),
-            "state_id" => $request->get('state_id')
+            'address' => $request->get('address'),
+            'city_id' => $request->get('city_id'),
+            'country_id' => $request->get('country_id'),
+            'latitute' => $request->get('latitute'),
+            'longitude' => $request->get('longitude'),
+            'state_id' => $request->get('state_id'),
         ]);
-        if($user){
-            return response()->json(['status'=>'true','message'=>'Address Created Successuly!'],200);
-        }else{
-            return response()->json(['status'=>'false','message'=>'Unable to Save Address Created Successuly!'],500);
+        if ($user) {
+            return response()->json(['status' => 'true', 'message' => 'Address Created Successuly!'], 200);
+        } else {
+            return response()->json(['status' => 'false', 'message' => 'Unable to Save Address Created Successuly!'], 500);
         }
     }
-
 }
