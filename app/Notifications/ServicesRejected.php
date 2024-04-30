@@ -56,7 +56,7 @@ class ServicesRejected extends Notification
         $baseMailable = new BaseMailable();
         // $status = $this->status;
         $service = $this->service;
-        $url = env('FRONT_END_URL', 'https://localhost:3000/');
+        $url = env('FRONT_END_URL', 'https://notnew.apextechworldllc.com/');
 
         return $baseMailable->to($notifiable->email)
         ->subject($notifiable->name .'- Your Ad has been rejected')

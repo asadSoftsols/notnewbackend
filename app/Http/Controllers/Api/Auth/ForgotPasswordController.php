@@ -24,7 +24,7 @@ class ForgotPasswordController extends Controller
     use SendsPasswordResetEmails;
 
     public function check(Request $request){
-        $user = User::where('email', '=', strtolower($request->email))->first();       
+        $user = User::where('email', '=', strtolower($request->email))->first(); 
         if ($user) {
             Otp::where('email','=',strtolower($user->email))->delete();
             Notification::send($user, new ForgetPasswordVerification());
@@ -46,6 +46,7 @@ class ForgotPasswordController extends Controller
         if (Otp::where('otp', $request->otp)->count() != 1) {
             throw ValidationException::withMessages(['message' => "Otp Is Incorrect"]);
         } 
+        Otp::where('otp', $request->otp)->delete();
         return $this->genericResponse(200, 'You can change your password.');
      
     }
@@ -104,5 +105,23 @@ class ForgotPasswordController extends Controller
             return response()->json(['status'=>'false','message'=>'Password is not Changed!'],400);
         }
 
+    }
+    public function resendForgetOtp(Request $request){
+        try{
+            $user =User::where('email', $request->get('email'))->first();
+            $checkOtp = Otp::where('email', $request->get('email'))
+            ->where('otp_type', 'ForgetPassword')
+            ->first();
+            if($checkOtp){
+                Otp::where('email', $request->get('email'))
+                ->where('otp_type', 'ForgetPassword')
+                ->delete();
+            }
+            $user->notify(new ForgetPasswordVerification($user));
+            return response()->json(['status'=>'true','data'=>"OTP has been Resend!!"],200);
+        }
+        catch(Exception $e) {
+            return response()->json(['status'=>'false','data'=>$e],500);
+        }
     }
 }

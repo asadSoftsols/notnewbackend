@@ -53,7 +53,7 @@ class Welcome extends Notification
         $user = $this->user;
 
         return $baseMailable->to($notifiable->email)
-        ->subject($notifiable->name . '- Welcome to NotNew')
+        ->subject($notifiable->name . '- Your Account has Been Created!')
         ->markdown('emails.auth.welcome', [
             'user' => $user
         ]);

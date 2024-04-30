@@ -71,8 +71,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     /**
      * @var array
      */
-    protected $fillable = ['name', 'email', 'email_verified_at', 'password', 'device_token', 'state_id', 'city_id', 'country_id', 'isTrustedSeller', 'location', 'status', 'phone', 'guid', 'profile_url', 'remember_token', 'created_at', 'updated_at', 'customer_stripe_id', 'softdelete', 'is_autoAdd',
-            'address', 'latitute', 'longitude', 'site', 'secret_question', 'secret_answer', 'twosteps', 'thirdparty', 'fbaccount'];
+    // protected $fillable = ['name', 'email', 'email_verified_at', 'password', 'device_token', 'state_id', 'city_id', 'country_id', 'isTrustedSeller', 'location', 'status', 'phone', 'guid', 'profile_url', 'remember_token', 'created_at', 'updated_at', 'customer_stripe_id', 'softdelete', 'is_autoAdd',
+    //         'address', 'latitute', 'longitude', 'site', 'secret_question', 'secret_answer', 'twosteps', 'thirdparty', 'fbaccount', 'profile_image'];
+    protected $fillable = ['name', 'email', 'email_verified_at','last_name', 'password', 'device_token', 'state_id', 'city_id', 'country_id', 'isTrustedSeller', 'location', 'status', 'phone', 'guid', 'profile_url', 'remember_token', 'created_at', 'updated_at', 'customer_stripe_id', 'softdelete', 'is_autoAdd',
+            'address', 'latitute', 'longitude', 'site', 'zip', 'secret_question', 'secret_answer', 'twosteps', 'thirdparty', 'fbaccount', 'profile_image', 'register_type'];
 
     protected $hidden = ['password'];
 
@@ -160,9 +162,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return [];
     }
 
-    public static function getUploadPath(): string
+    public static function getUploadPath($id): string
     {
-        return 'users/' . \Auth::user()->id . '/';
+        // return 'users/' . \Auth::user()->id . '/';
+        return 'users/' . $id . '/';
     }
 
     public function getProfileUrlAttribute($profile_url)
@@ -235,6 +238,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return ['id', 'name', 'profile_url'];
     }
+    public function withMedia()
+    {
+        return $this->load('media');
+    }
+
     public function withNotifications()
     {
         return $this->load('notifications');

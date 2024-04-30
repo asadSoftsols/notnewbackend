@@ -21,7 +21,8 @@ Route::get('/user', 'UserController@get')->name('user.get');
 Route::post('/user/{id}', 'UserController@edit')->name('user.edit');
 Route::post('user/update/{id}', 'UserController@updateUser')->name('user.updateUser');
 Route::get('/user/show/{id}', 'UserController@show')->name('user.show');
-Route::get('/user', 'UserController@destroy')->name('user.destroy');
+// Route::get('/user', 'UserController@destroy')->name('user.destroy');
+Route::delete('/user/{id}', 'UserController@destroy')->name('user.destroy');
 Route::get('/flexe-fee', 'FlexeFeeController@index')->name('flexefee.index');
 Route::get('/flexe-fee/show/{id}', 'FlexeFeeController@show')->name('flexefee.show');
 Route::post('/flexe-fee/update/{id}', 'FlexeFeeController@update')->name('flexefee.update');
@@ -29,7 +30,7 @@ Route::get('/trusted-seller', 'TrustedSellerController@index')->name('trusted-se
 Route::post('/trusted-seller/{id}', 'TrustedSellerController@edit')->name('trusted-seller.edit');
 Route::get('/trusted-seller/show/{id}', 'TrustedSellerController@show')->name('trusted-seller.show');
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-Route::get('/users', 'UserController@index')->name('users.index');
+// Route::get('/users', 'UserController@index')->name('users.index');
 
     Route::Resources([
         'category' => CategoryController::class,
@@ -40,12 +41,18 @@ Route::get('/users', 'UserController@index')->name('users.index');
         'media' => MediaController::class,
         'banks' => BankController::class,
         'price' => PriceController::class,
+        'brands' => BrandsController::class,
+        'deliverycompany' => DeliveryCompanyController::class,
+        'sellerdata' => SellerDataController::class,
     ]);
 
 
     Route::get('category', 'CategoryController@search')->name('category.search');
     
     Route::get('prices', 'PriceController@search')->name('prices.search');
+    Route::get('sellerdata', 'SellerDataController@search')->name('sellerdata.search');
+    Route::get('deliverycompanys', 'DeliveryCompanyController@search')->name('deliverycompany.search');
+    Route::get('brandss', 'BrandsController@search')->name('brands.search');
     Route::get('banks', 'BankController@search')->name('banks.search');
     Route::get('bank/{id}', 'BankController@edit')->name('bank.edit');
     Route::get('attributes', 'AttributeController@search')->name('attributes.search');
@@ -77,7 +84,9 @@ Route::get('/users', 'UserController@index')->name('users.index');
         Route::post('add/{category:guid}', 'CategoryController@addAttributes')->name('category.add-attributes');
         Route::post('attributes/{id}', 'CategoryController@deleteCategoryAttribute')->name('category.delete-attributes');
         Route::get('search', 'CategoryController@searchCatAttributes')->name('category.show-single-attributes');
-        
+    });
+    Route::group(['prefix' => 'properties'], function () {
+        Route::delete('/destroy/{id}', 'CategoryController@deleteCategoryAttribute')->name('properties.destroy');
     });
 });
 

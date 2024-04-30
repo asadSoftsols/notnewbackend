@@ -63,7 +63,7 @@
                                 <i class="fa fa-trash" style="color: white"></i></button>
                     </td>
                 </tr>
-                @include('partials.delete-modal',['data' => $unitType,'route'=> "item"])
+                @include('partials.delete-modal-attributes',['data' => $item,'route'=> "properties"])
             @empty
                 <p>No Active Properties</p>
             @endforelse

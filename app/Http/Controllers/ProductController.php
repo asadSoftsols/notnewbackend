@@ -90,6 +90,8 @@ class ProductController extends Controller
 
     public function search(Request $request)
     {
+        //  \Artisan::call('optimize');
+        //  die();
         $search = $request->get('search');
         $products = Product::withoutGlobalScope(ActiveScope::class)
             ->withoutGlobalScope(SoldScope::class)

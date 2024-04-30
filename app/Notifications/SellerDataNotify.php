@@ -52,7 +52,7 @@ class SellerDataNotify extends Notification
         $baseMailable = new BaseMailable();
        
         return $baseMailable->to($notifiable->email)
-        ->subject($notifiable->name . '- You Have Registered as Seller in NotNew')
+        ->subject($notifiable->name . '- Your Account has Been Created!')
         ->markdown('emails.seller.welcome', [
             'user' => $notifiable
         ]);

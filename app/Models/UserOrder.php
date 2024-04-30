@@ -14,6 +14,7 @@ class UserOrder extends Model
         STATUS_REFUNDED = 'REFUNDED',
         DELIVERED = 'delivered',
         COMPLETED = 'completed',
+        PAYMENTTYPE = 'Card',
         REFUND = 'refund';
     /**
      * The table associated with the model.
@@ -67,7 +68,13 @@ class UserOrder extends Model
         'read_by_admin',
         'product_id',
         'order_type',
-        'estimateDelivery'
+        'estimateDelivery',
+        'latitude',
+        'longitude',
+        'zip',
+        'country',
+        'state',
+        'city'
     ];
     protected $casts = [
         'created_at'  => 'date:Y-m-d',
@@ -90,7 +97,18 @@ class UserOrder extends Model
     {
         return $this->belongsTo('App\Models\ShippingDetail','shipping_detail_id');
     }
-
+    
+    public function orderDetails()
+    {
+        // return $this->belongsToMany(UserOrderDetails::class);
+        // return $this->hasMany(UserOrderDetails::class);
+        return $this->hasMany(UserOrderDetails::class, 'order_id');
+    }
+    
+    public function refund()
+    {
+        return $this->hasMany(Refund::class, 'order_id');
+    }
     // 
     public static function statuses() {
         return [

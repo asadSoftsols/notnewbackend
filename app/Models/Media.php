@@ -48,7 +48,7 @@ class Media extends Base
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'name', 'extension', 'type', 'active', 'system', 'guid', 'product_id', 'service_id', 'category_id', 'provider_id', 'created_at', 'updated_at'];
+    protected $fillable = ['url','user_id', 'name', 'extension', 'type', 'active', 'system', 'guid','order_id', 'product_id', 'service_id', 'category_id', 'provider_id', 'created_at', 'updated_at'];
 
     /**
      * @var array Append url
@@ -62,6 +62,8 @@ class Media extends Base
     public const PRODUCT_IMAGES = "PRODUCT";
     public const SERVICE_IMAGES = "SERVICE";
     public const TRUSTEDSELLER_FILES = "TRUSTEDSELLER";
+    public const USER = "USER";
+    public const STORE = "STORE";
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -74,7 +76,15 @@ class Media extends Base
     public function getUrlAttribute()
     {
         // return url(Storage::url($this->name));
-        return public_path('image\\product\\'.$this->name);
+        // return public_path('image\\product\\'.$this->name);
+         // return url(Storage::url($this->name));
+        if($this->type == 'User'){
+            // return url($this->type.'\\'.$this->user_id.'\\'.$this->name);
+            return  'images/'.$this->type.'/'.$this->user_id.'/'."$this->name";
+        }else  if($this->type == 'SellerData'){
+            // return url($this->type.'\\'.$this->user_id.'\\'.$this->name);
+            return  'images/'.$this->type.'/'.$this->user_id.'/'."$this->name";
+        }
         
     }
 

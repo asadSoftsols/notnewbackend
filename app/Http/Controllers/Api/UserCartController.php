@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserCart;
+use App\Models\Product;
+use App\Models\SellerData;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +41,7 @@ class UserCartController extends Controller
     {
          return Validator::make($data, [
             'price' => ['required'],
-            'quantity' => ['required', 'integer', 'max:10'],
+            //'quantity' => ['required', 'integer', 'max:10'],
             // 'user_id' => ['required', 'integer'],
             'product_id' => ['required', 'integer'],
             // 'attributes' => ['required'],
@@ -117,21 +119,64 @@ class UserCartController extends Controller
     public function self()
     {
         $user = Auth::user();
-        $cart = UserCart::where('user_id', $user->id)
+        $userCart = UserCart::where('user_id', $user->id)
             ->with(['products'])
-            ->where('ordered', false)->get();
-            $products = [];
-            foreach($cart as $c){
-                $products['height'] = '10';//$c->products->height;
-                $products['width'] = '10';//$c->products->width;
-                $products['length'] = '10';//$c->products->length;
-                $products['actual_weight'] ='10';// $c->products->weight;
-                // array_push($products, $c->products);
-            }
-        return [
-            'products'=>$products,
-            'cart'=>$cart
-        ];
+            ->with(['user'])
+            ->with(['shop'])
+            ->with(['savelater'])
+            ->get();
+            // ->where('ordered', false)->get();
+            // $products = [];
+            // foreach($cart as $c){
+            //     $products['height'] = '10';//$c->products->height;
+            //     $products['width'] = '10';//$c->products->width;
+            //     $products['length'] = '10';//$c->products->length;
+            //     $products['actual_weight'] ='10';// $c->products->weight;
+            //     // array_push($products, $c->products);
+            // }
+        //  if($cart){
+        //         return response()->json(['status'=> true,'data' =>$cart], 200);       
+        //     }else{
+        //         return response()->json(['status'=> false,'data' =>"Unable to Get Cart"], 400);       
+        //     } 
+        $shopId=array();
+        foreach($userCart as $cart){
+            array_push($shopId, $cart->shop_id);
+        }
+        $shops = SellerData::whereIn('id', $shopId)
+            ->with(['products'])
+            ->get();
+        $productId=array();
+        foreach($userCart as $cart){
+            array_push($productId, $cart->product_id);
+        }
+        $products = Product::whereIn('id', $productId)->get();
+        
+        $shipping = array();
+        foreach($products as $pro){
+            array_push($shipping, $pro->shipping_price);
+        }
+        $shippingTotal = array_sum($shipping);
+        
+        $total=array();
+        foreach($userCart as $cart){
+            array_push($total, $cart->price);
+        }
+        $orderTotal = array_sum($total);
+        $totalOrder = $orderTotal + $shippingTotal;
+        if($userCart){
+            return response()->json([
+                    'success'=> true,
+                    'total'=> $totalOrder,                    
+                    'shipping'=> $shippingTotal,
+                    'data'=> $userCart,
+                ]);  
+       }else{
+           return response()->json([
+                    'success'=> false,
+                    'message' => 'Unable to Get Cart'
+                ]);
+       }
     }
 
     /**
@@ -142,13 +187,15 @@ class UserCartController extends Controller
      */
     public function edit($id)
     {
-        $userCart = UserCart::where('id', $id)
-        ->update($request->all());
-            return response()->json([
-            'success' => true,
-            'cart' => $userCart,
-            'message' => "Cart Updated"
-            ], 200);
+        // $userCart =UserCart::where('id', $id)->first();
+        // return $id;
+        // $userCart = UserCart::where('id', $id)
+        // ->update($request->all());
+        //     return response()->json([
+        //     'success' => true,
+        //     'cart' => $userCart,
+        //     'message' => "Cart Updated"
+        //     ], 200);
 
     }
 
@@ -161,7 +208,21 @@ class UserCartController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+         $userCart =UserCart::where('id', $id)->first();
+         $product = Product::where('id', $userCart->product_id)->first();
+         $quantity = $userCart->quantity + $request->get('quantity');
+         $price = "";
+         if($product->auctioned){
+            $price = $product->bids * $request->get('quantity');     
+         }else if($product->selling_now){
+            $price = $product->price * $request->get('quantity');
+         }
+         $update = UserCart::where('id', $id)->update([
+             "quantity"=>$request->get('quantity'),
+             "price"=>$price,
+         ]);
+         return UserCart::where('id', $id)->first();
+         
     }
 
     /**
@@ -170,17 +231,17 @@ class UserCartController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $userCart = UserCart::where('id', $id)->delete();
+        $userCart = UserCart::where('id', $request->get('cart_id'))->delete();
         return response()->json([
             'success' => true,
             'message' => "Item Deleted"
         ], 200);
     }
-    public function clear($id)
+    public function clear()
     {
-        UserCart::where('user_id', $id)->delete();
+        UserCart::where('user_id', Auth::user()->id)->delete();
         return response()->json([
             'success' => true,
             'message' => "Cart has been Clear"

@@ -25,16 +25,7 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">{{$name}} Name</th>
-            <th scope="col">Status
-                <form style="display: unset" role="form"
-                      action="{{route("{$routeActivateAll}",$customer->id)}}"
-                      method="POST" id="form_submit_all">
-                    {{ csrf_field()}}
-                    <input type="checkbox" name="checkbox" {{$active->active == 1 ? 'checked' : ''}} value="0" onClick="toggle(this)"
-                           onchange="document.getElementById('form_submit_all').submit()"/>
-                    <input type="checkbox" name="checkbox" hidden value="1"/>
-                </form>
-            </th>
+            <th scope="col">Status</th>
             <th scope="col">Price</th>
             {{--<th scope="col">Category</th>--}}
             {{--<th scope="col">Created At</th>--}}

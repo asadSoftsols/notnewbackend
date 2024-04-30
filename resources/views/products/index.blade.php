@@ -8,9 +8,9 @@
             </div>
         @endif
         <div class="row">
-            <div class="col-md-8">
+            {{--<!-- <div class="col-md-8">
                 <a href="{{route('products.create')}}" class="btn btn-primary">Add New</a>
-            </div>
+            </div> -->--}}
             <div class="col-md-4 text-right">
                 <form action="{{route('products.search')}}" class="form-anticlear" method="GET">
                     <div class="input-group">
@@ -30,7 +30,7 @@
                 <th scope="col">Product Name</th>
                 <th scope="col">Product Type</th>
                 <th scope="col">Status</th>
-                <th scope="col">Price</th>
+                <th scope="col">Price/Bids</th>
                 <th scope="col">Created By</th>
                 {{--<th scope="col">Category</th>--}}
                 {{--<th scope="col">Created At</th>--}}
@@ -59,7 +59,13 @@
                             {{$item->active == 1 ? 'Active' : 'In-Active'}}
                         </button>
                     </td>
-                    <td>$ {{$item->price}}</td>
+                    <td>
+                        @if($item->selling_now == 1)
+                        $ {{$item->price}}
+                        @elseif($item->auctioned == 1)
+                        $ {{$item->bids}}
+                        @endif
+                    </td>
                     <td>
                        <a href="{{route('customer.products',$item->user->id)}}">{{$item->user->name}}</a>
                     </td>

@@ -39,11 +39,11 @@
             <label> Trusted Seller</label>
             <label class="form-control" >{{ $user->isTrustedSeller == 0 ? 'No' : 'Yes' }}</label>
         </div>
-        @if($user->profile_url)
+        @if($user->profile_image)
         <div class="form-group">
             <label>Profile Image</label>
             <br />
-            <img style="width: 100px; height: 100px;"  src="{{ $user->profile_url }}" />
+            <img style="width: 100px; height: 100px;"  src="/{{$user->profile_image}}" />
         </div>
         @endif
         <div class="form-group">

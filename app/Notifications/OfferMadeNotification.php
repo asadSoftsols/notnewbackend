@@ -48,7 +48,7 @@ class OfferMadeNotification extends Notification
     public function toMail($notifiable)
     {
         $baseMailable = new BaseMailable();
-        $url = env('FRONT_END_URL', 'https://localhost:3000/');
+        $url = env('FRONT_END_URL', 'https://notnew.apextechworldllc.com/');
 
         return $baseMailable->to($notifiable->email)
         ->subject($notifiable->name . '- Offer Made')

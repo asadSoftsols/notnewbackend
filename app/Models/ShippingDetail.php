@@ -29,7 +29,9 @@ class ShippingDetail extends Model
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'name', 'street_address', 'state', 'city', 'zip', 'created_at', 'updated_at'];
+    //protected $fillable = ['user_id', 'name', 'street_address', 'state', 'city', 'zip', 'created_at', 'updated_at'];
+        protected $fillable = ['user_id', 'name', 'latitude', 'longitude', 'country' ,'street_address', 'state', 'city', 'zip', 'created_at', 'updated_at'];
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

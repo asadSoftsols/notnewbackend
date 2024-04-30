@@ -115,85 +115,115 @@
       ),
       8 => 
       array (
+        'header' => 'Brands',
+      ),
+      9 => 
+      array (
+        'text' => 'Active Brands',
+        'url' => 'admin/brands',
+        'icon' => 'fa fa-list-alt',
+      ),
+      10 => 
+      array (
+        'header' => 'Stores',
+      ),
+      11 => 
+      array (
+        'text' => 'Active Stores',
+        'url' => 'admin/sellerdata',
+        'icon' => 'fa fa-list-alt',
+      ),
+      12 => 
+      array (
+        'header' => 'Delivery',
+      ),
+      13 => 
+      array (
+        'text' => 'Active Company',
+        'url' => 'admin/deliverycompany',
+        'icon' => 'fa fa-list-alt',
+      ),
+      14 => 
+      array (
         'text' => ' In-Active Categories',
         'url' => 'admin/in-active-category ',
         'icon' => 'fa fa-times',
       ),
-      9 => 
+      15 => 
       array (
         'header' => 'Products',
       ),
-      10 => 
+      16 => 
       array (
         'text' => 'Active Products',
         'url' => 'admin/products',
         'icon' => 'fab fa-product-hunt',
       ),
-      11 => 
+      17 => 
       array (
         'text' => 'In-Active Products',
         'url' => 'admin/in-active-products',
         'icon' => 'fa fa-times',
       ),
-      12 => 
+      18 => 
       array (
         'header' => 'Media',
       ),
-      13 => 
+      19 => 
       array (
         'text' => 'Media',
         'url' => 'admin/media',
         'icon' => 'fa fa-image',
       ),
-      14 => 
+      20 => 
       array (
         'header' => 'Attributes',
       ),
-      15 => 
+      21 => 
       array (
         'text' => 'Attributes',
         'url' => 'admin/attribute',
         'icon' => 'fa fa-bars',
       ),
-      16 => 
+      22 => 
       array (
         'text' => 'Unit Type',
         'url' => 'admin/unit-type',
         'icon' => 'fa fa-bars',
       ),
-      17 => 
+      23 => 
       array (
         'header' => 'account_settings',
       ),
-      18 => 
+      24 => 
       array (
         'text' => 'profile',
         'url' => 'admin/settings',
         'icon' => 'fas fa-fw fa-user',
       ),
-      19 => 
+      25 => 
       array (
         'text' => 'change_password',
         'url' => 'admin/settings',
         'icon' => 'fas fa-fw fa-lock',
       ),
-      20 => 
+      26 => 
       array (
         'text' => 'Bank',
         'url' => 'admin/banks',
         'icon' => 'fas fa-fw fa-lock',
       ),
-      21 => 
+      27 => 
       array (
         'header' => 'Settings',
       ),
-      22 => 
+      28 => 
       array (
         'text' => ' Active Prices',
         'url' => 'admin/price',
         'icon' => 'fa fa-list-alt',
       ),
-      23 => 
+      29 => 
       array (
         'text' => ' In-Active Prices',
         'url' => 'admin/in-active-prices',
@@ -309,24 +339,24 @@
     'name' => 'notnew',
     'env' => 'local',
     'debug' => true,
-    'url' => 'http://localhost',
-    'client_url' => 'http://localhost:3000',
+    'url' => 'https://notnewbackend.testingwebsitelink.com/',
+    'client_url' => 'https://notnew.apextechworldllc.com/',
     'asset_url' => NULL,
     'facebook' => 
     array (
-      'app_id' => NULL,
-      'app_secret' => NULL,
+      'app_id' => '855777062581776',
+      'app_secret' => '8b8d7459655b7f73c9d143186d09618d',
     ),
     'google' => 
     array (
-      'client_id' => NULL,
-      'client_secret' => NULL,
+      'client_id' => '76718945981-4cdd4pm2q2f3qjc6u095e9kufsvud8sj.apps.googleusercontent.com',
+      'client_secret' => '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',
     ),
     'timezone' => 'UTC',
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:Xu1yU3tMCA+IlRJsWukn/1C0VCM7OiiQADaaWI8oJlU=',
+    'key' => 'base64:iI0KB9pzm0kj9pKn3xb1zUSIAHOCK+INMXL9JmrhslM=',
     'cipher' => 'AES-256-CBC',
     'providers' => 
     array (
@@ -506,7 +536,7 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\framework/cache/data',
+        'path' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -584,7 +614,7 @@
       array (
         'driver' => 'sqlite',
         'url' => NULL,
-        'database' => 'notnew',
+        'database' => 'u609601505_notnew',
         'prefix' => '',
         'foreign_key_constraints' => true,
       ),
@@ -594,9 +624,9 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'notnew',
-        'username' => 'root',
-        'password' => '',
+        'database' => 'u609601505_notnew',
+        'username' => 'u609601505_notnewuser',
+        'password' => 'Notnew@1234567',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -614,9 +644,9 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'notnew',
-        'username' => 'root',
-        'password' => '',
+        'database' => 'u609601505_notnew',
+        'username' => 'u609601505_notnewuser',
+        'password' => 'Notnew@1234567',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -629,9 +659,9 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'notnew',
-        'username' => 'root',
-        'password' => '',
+        'database' => 'u609601505_notnew',
+        'username' => 'u609601505_notnewuser',
+        'password' => 'Notnew@1234567',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -673,13 +703,13 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
+        'root' => 'public/image',
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
-        'url' => 'http://localhost/storage',
+        'root' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/app',
+        'url' => 'https://notnewbackend.testingwebsitelink.com//storage',
         'visibility' => 'public',
       ),
       's3' => 
@@ -695,7 +725,7 @@
     ),
     'links' => 
     array (
-      'C:\\xamppp\\htdocs\\notnewbackend\\public\\storage' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\app',
+      '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/public/storage' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/app',
     ),
   ),
   'hashing' => 
@@ -765,13 +795,13 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/laravel.log',
+        'path' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/logs/laravel.log',
         'level' => 'debug',
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/laravel.log',
+        'path' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
       ),
@@ -821,13 +851,18 @@
       ),
       'emergency' => 
       array (
-        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/laravel.log',
+        'path' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/logs/laravel.log',
       ),
       'cronjobs' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\logs/cronjobs.log',
+        'path' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/logs/cronjobs.log',
         'level' => 'debug',
+      ),
+      'deprecations' => 
+      array (
+        'driver' => 'monolog',
+        'handler' => 'Monolog\\Handler\\NullHandler',
       ),
     ),
   ),
@@ -839,11 +874,11 @@
       'smtp' => 
       array (
         'transport' => 'smtp',
-        'host' => 'smtp.mail.yahoo.com',
-        'port' => '587',
+        'host' => 'smtp.gmail.com',
+        'port' => '465',
         'encryption' => 'tls',
-        'username' => 'assadali15@yahoo.com',
-        'password' => 'dctpaftrloygyapm',
+        'username' => 'notnewserver@gmail.com',
+        'password' => 'gdnjcgufjereofgv',
         'timeout' => NULL,
         'auth_mode' => NULL,
       ),
@@ -876,15 +911,15 @@
     ),
     'from' => 
     array (
-      'address' => 'assadali15@yahoo.com',
-      'name' => 'Example',
+      'address' => 'notnewserver@gmail.com',
+      'name' => 'notnew',
     ),
     'markdown' => 
     array (
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'C:\\xamppp\\htdocs\\notnewbackend\\resources\\views/vendor/mail',
+        0 => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/resources/views/vendor/mail',
       ),
     ),
   ),
@@ -963,7 +998,7 @@
     'lifetime' => '120',
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\framework/sessions',
+    'files' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -983,9 +1018,9 @@
   array (
     'paths' => 
     array (
-      0 => 'C:\\xamppp\\htdocs\\notnewbackend\\resources\\views',
+      0 => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/resources/views',
     ),
-    'compiled' => 'C:\\xamppp\\htdocs\\notnewbackend\\storage\\framework\\views',
+    'compiled' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/storage/framework/views',
   ),
   'websockets' => 
   array (
@@ -1037,7 +1072,7 @@
   ),
   'api-postman' => 
   array (
-    'base_url' => 'http://localhost',
+    'base_url' => 'https://notnewbackend.testingwebsitelink.com/',
     'filename' => '{timestamp}_{app}_collection.json',
     'structured' => false,
     'crud_folders' => true,
@@ -1164,7 +1199,7 @@
     array (
     ),
     'enable_runnable_solutions' => NULL,
-    'remote_sites_path' => 'C:\\xamppp\\htdocs\\notnewbackend',
+    'remote_sites_path' => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend',
     'local_sites_path' => '',
     'housekeeping_endpoint_prefix' => '_ignition',
     'settings_file_path' => '',
@@ -1203,7 +1238,7 @@
     'include_helpers' => false,
     'helper_files' => 
     array (
-      0 => 'C:\\xamppp\\htdocs\\notnewbackend/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
+      0 => '/home/u609601505/domains/testingwebsitelink.com/public_html/notnewbackend/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
     ),
     'model_locations' => 
     array (

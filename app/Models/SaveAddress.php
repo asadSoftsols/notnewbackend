@@ -22,5 +22,10 @@ class SaveAddress extends Model
      * @var array
      */
     protected $fillable = ['user_id', 'product_id', 'address', 'city', 'state', 'zip', 'created_at', 'updated_at'];
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
 }
