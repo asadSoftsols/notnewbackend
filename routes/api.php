@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
 Route::group(['prefix' => 'auth'], function () {
 //    Route::post('login', [Api\AuthController::class,'login']);
 //    Route::post('register', [Api\AuthController::class,'register']);
@@ -95,7 +97,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             // @TODO check why /upload is not working maybe another route with the same name (GIVING 404 on /upload route) is declared.
             // Route::post('image-upload/{product:guid}', [Api\ProductController::class, 'upload']);
             Route::post('/image-upload', [Api\ProductController::class, 'upload']);
-            Route::post('saved-users/{product:guid}', [Api\ProductController::class, 'saved']);
+            Route::post('/saved-users/{product:guid}', [Api\ProductController::class, 'saved']);
             Route::get('saved', [Api\ProductController::class, 'getSaved']);
             Route::get('getSaveByUser', [Api\ProductController::class, 'getSaveByUser']);
             Route::get('saved/{id}', [Api\ProductController::class, 'getSavedbyId']);
@@ -149,12 +151,6 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/get', [Api\NotificationController::class, 'index']);
             Route::get('/count', [Api\NotificationController::class, 'count']);
             Route::patch('/update/{notificationId}', [Api\NotificationController::class, 'update']);
-        });
-        Route::group(['prefix' => '/savelater'], function () {
-            Route::post('/add', [Api\SaveCartLaterController::class, 'store']);
-            Route::get('/', [Api\SaveCartLaterController::class, 'index']);
-            Route::get('/getById/{id}', [Api\SaveCartLaterController::class, 'getById']);
-            Route::get('/getByUser', [Api\SaveCartLaterController::class, 'getByUser']);
         });
         Route::group(['prefix' => '/savelater'], function () {
             Route::post('/add', [Api\SaveCartLaterController::class, 'store']);
@@ -289,6 +285,7 @@ Route::group(['prefix' => '/categories', ['middleware' => 'throttle:20,5']], fun
     Route::get('/tabs', [Api\CategoryController::class, 'tabs']);
     Route::get('tabs/list', [Api\CategoryController::class, 'tabs']);
     Route::get('/product-attributes/{category}', [Api\CategoryController::class, 'productAttributes']);
+    Route::get('/product-attributes-app/{category}', [Api\CategoryController::class, 'productAttributesNew']);
     Route::get('/', [Api\CategoryController::class, 'index']);
     Route::get('/recursive', [Api\CategoryController::class, 'recursive']);
     Route::get('/overAll', [Api\CategoryController::class, 'all']);

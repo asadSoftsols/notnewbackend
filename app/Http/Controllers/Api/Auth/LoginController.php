@@ -162,8 +162,7 @@ class LoginController extends Controller
         ]);
        
         $response = $fb->get('/me?fields=id,name,email,picture', $request->get('accessToken'));
-       return  $response;
-        die();
+     
         $fbUser = $response->getGraphUser();
         
         $internalUser = User::where('email', $fbUser->getEmail())->first();

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Core\Base;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Storage;
 
 /**
  * App\Models\Media
@@ -61,6 +61,7 @@ class Media extends Base
 
     public const PRODUCT_IMAGES = "PRODUCT";
     public const SERVICE_IMAGES = "SERVICE";
+    public const REFUND_IMAGES = "REFUND";
     public const TRUSTEDSELLER_FILES = "TRUSTEDSELLER";
     public const USER = "USER";
     public const STORE = "STORE";

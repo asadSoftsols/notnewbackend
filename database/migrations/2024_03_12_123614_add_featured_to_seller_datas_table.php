@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('seller_datas', function (Blueprint $table) {
-            $table->boolean('featured')->default(false);
+            // $table->boolean('featured')->default(false);
         });
     }
 

@@ -30,7 +30,6 @@ use Image;
 use File;
 
 
-
 class RegisterController extends Controller
 {
     use InteractWithUpload;

@@ -150,7 +150,6 @@ class UserController extends Controller
         }
 
     }
-
     public function profileUpdate(Request $request)
     {
         return DB::transaction(function () use ($request) {
@@ -203,9 +202,9 @@ class UserController extends Controller
             }
 
             // return $this->genericResponse(true, "Secret Question Updated");
-        }
+        // }
     }
-
+    }
     public function refreshOnboardingUrl(User $user)
     {
         $accountLink = StripeHelper::createAccountLink($user);

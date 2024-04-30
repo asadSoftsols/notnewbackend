@@ -200,10 +200,15 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     
     public function validateEmailVerification()
     {
-
         if (!$this->isVerified()) {
-            throw new NotAcceptableHttpException("Email not verified");
+            // throw new NotAcceptableHttpException("Email not verified");
+            return response()->json(['status'=> true,'data' =>$seller], 200);       
+        }else{
+            return response()->json(['status'=> false,'data' =>"Unable To Get Seller"], 400);       
         }
+        
+            // 
+        // }
     }
 
 
@@ -236,7 +241,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
     public static function defaultSelect()
     {
-        return ['id', 'name', 'profile_url'];
+        return ['id', 'name', 'profile_url', 'profile_image'];
     }
     public function withMedia()
     {

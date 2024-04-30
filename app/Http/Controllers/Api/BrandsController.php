@@ -24,13 +24,8 @@ class BrandsController extends Controller
 
     public function withCategory(Request $request, $id)
     {
-        // return Brands::with('category')
-        //     ->where('id', $id)
-        //     ->first();
-          $category = Category::where('id', $id)                
-        ->first();
-        return Brands::where('category_id', $category->id)
-            ->get(); 
+        return Brands::where('id', $id)
+            ->first();    
     }
 
     /**

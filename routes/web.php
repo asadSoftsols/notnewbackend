@@ -48,7 +48,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
 
     Route::get('category', 'CategoryController@search')->name('category.search');
-    
     Route::get('prices', 'PriceController@search')->name('prices.search');
     Route::get('sellerdata', 'SellerDataController@search')->name('sellerdata.search');
     Route::get('deliverycompanys', 'DeliveryCompanyController@search')->name('deliverycompany.search');

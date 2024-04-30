@@ -75,6 +75,37 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(CategoryRequest $request)
+    // {
+    //     return DB::transaction(function () use ($request) {
+    //         $category = new Category();
+    //         $category->guid = GuidHelper::getGuid();
+    //         $category->fill($request->all())->save();
+    //         if ($request->hasFile('file')) {
+    //             $image = Image::make($request->file('file'));
+    //             $imageName = time().'-'.$request->file('file')->getClientOriginalName();
+    //             $extension = $request->file('file')->getClientOriginalExtension();
+    //             $destinationPath = public_path('image/category/');
+    //             $image->resize(1024, 1024, function ($constraint) {
+    //                 $constraint->aspectRatio();
+    //                 $constraint->upsize();
+    //             });
+    //             $image->save($destinationPath.$imageName);
+    //             $media = new Media();
+    //             $guid = GuidHelper::getGuid();
+    //             $properties = [
+    //                 'name' => $imageName,
+    //                 'extension' => $extension,
+    //                 'type' => Category::MEDIA_UPLOAD,
+    //                 'user_id' => \Auth::user()->id,
+    //                 'active' => true,
+    //                 'category_id'=> $category->id,
+    //             ];
+    //             $media->fill($properties);
+    //             $media->save();
+    //         }
+    //         return redirect('admin/category')->with('success', 'Category Added.');
+    //     });
+    // }
     {
         return DB::transaction(function () use ($request) {
             $category = new Category();
@@ -98,7 +129,7 @@ class CategoryController extends Controller
                 $media = new Media();
                 $guid = GuidHelper::getGuid();
                 $properties = [
-                    'name' => $imageName,
+                    'name' => $imageNames,
                     'extension' => $extension,
                     'type' => Category::MEDIA_UPLOAD,
                     'user_id' => \Auth::user()->id,
@@ -111,7 +142,6 @@ class CategoryController extends Controller
             return redirect('admin/category')->with('success', 'Category Added.');
         });
     }
-
     /**
      * Display the specified resource.
      *
@@ -142,6 +172,50 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Category $category)
+    // {
+    //     return DB::transaction(function () use ($request, $category) {
+    //         $category->fill($request->all())->update();
+    //         if ($request->hasFile('file')) {
+    //             $media = Media::where('category_id', $category->id)->first();
+    //             if($media){
+    //                 $image_path = "http://localhost:8000/image/category/". $media->name;  // Value is not URL but directory file path
+    //                 if(File::exists($image_path)) {
+    //                     dd($image_path);
+    //                     File::delete($image_path);
+    //                 }
+    //                 Media::where('category_id', $category->id)->delete();
+    //             }
+    //             $image = Image::make($request->file('file'));
+    //             $imageName = time().'-'.$request->file('file')->getClientOriginalName();
+    //             $extension = $request->file('file')->getClientOriginalExtension();
+    //             $destinationPath = public_path('image/category/');
+    //             $image->resize(1024, 1024, function ($constraint) {
+    //                 $constraint->aspectRatio();
+    //                 $constraint->upsize();
+    //             });
+    //             $image->save($destinationPath.$imageName);
+    //             $media = new Media();
+    //             $guid = GuidHelper::getGuid();
+    //             $properties = [
+    //                 'name' => $imageName,
+    //                 'extension' => $extension,
+    //                 'type' => Category::MEDIA_UPLOAD,
+    //                 'user_id' => \Auth::user()->id,
+    //                 'active' => true,
+    //                 'category_id'=> $category->id,
+    //             ];
+    //             $media->fill($properties);
+    //             $media->save();
+    //         }
+    //         return redirect('admin/category')->with('success', 'Category Updated.');
+    //     });
+    //     // if ($request->get('activateOne') == "activateOnlyOne") {
+    //     //     $category->update(['active' => StringHelper::isValueTrue($request->get('active'))]);
+    //     //     return back()->with('success', "{$category->name} Activated Successfully.");
+    //     // }
+    //     // $category->fill($request->all())->update();
+    //     // return back()->with('success', 'Category Updated');
+    // }
     {
         return DB::transaction(function () use ($request, $category) {
             $category->fill($request->all())->update();
@@ -170,7 +244,7 @@ class CategoryController extends Controller
                 $media = new Media();
                 $guid = GuidHelper::getGuid();
                 $properties = [
-                    'name' => $imageName,
+                    'name' => $imageNames,
                     'extension' => $extension,
                     'type' => Category::MEDIA_UPLOAD,
                     'user_id' => \Auth::user()->id,

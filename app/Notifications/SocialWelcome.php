@@ -53,7 +53,11 @@ class SocialWelcome extends Notification
         $user = $this->user;
 
         return $baseMailable->to($notifiable->email)
+<<<<<<< HEAD
         ->subject($notifiable->name . '- Welcome to Zecodo')
+=======
+        ->subject($notifiable->name . '- Welcome to NotNew')
+>>>>>>> a1bd728a5f920a1dfa576022721a4819f502786b
         ->markdown('emails.auth.soicalwelcome', [
             'user' => $user
         ]);

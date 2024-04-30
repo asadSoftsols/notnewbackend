@@ -118,6 +118,22 @@ class UserCartController extends Controller
 
     public function self()
     {
+        // $user = Auth::user();
+        // $cart = UserCart::where('user_id', $user->id)
+        //     ->with(['products'])
+        //     ->where('ordered', false)->get();
+        //     $products = [];
+        //     foreach($cart as $c){
+        //         $products['height'] = '10';//$c->products->height;
+        //         $products['width'] = '10';//$c->products->width;
+        //         $products['length'] = '10';//$c->products->length;
+        //         $products['actual_weight'] ='10';// $c->products->weight;
+        //         // array_push($products, $c->products);
+        //     }
+        // return [
+        //     'products'=>$products,
+        //     'cart'=>$cart
+        // ];
         $user = Auth::user();
         $userCart = UserCart::where('user_id', $user->id)
             ->with(['products'])
@@ -197,6 +213,13 @@ class UserCartController extends Controller
         //     'message' => "Cart Updated"
         //     ], 200);
 
+        // $userCart = UserCart::where('id', $id)
+        // ->update($request->all());
+        //     return response()->json([
+        //     'success' => true,
+        //     'cart' => $userCart,
+        //     'message' => "Cart Updated"
+        //     ], 200);
     }
 
     /**

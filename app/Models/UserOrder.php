@@ -118,6 +118,7 @@ class UserOrder extends Model
             self::COMPLETED,
             self::STATUS_PENDING,
             self::REFUND,
+            self::BIDS
         ];
     }
 }

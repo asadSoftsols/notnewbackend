@@ -151,6 +151,36 @@
       ),
       15 => 
       array (
+        'header' => 'Brands',
+      ),
+      16 => 
+      array (
+        'text' => 'Active Brands',
+        'url' => 'admin/brands',
+        'icon' => 'fa fa-list-alt',
+      ),
+      11 => 
+      array (
+        'header' => 'Stores',
+      ),
+      12 => 
+      array (
+        'text' => 'Active Stores',
+        'url' => 'admin/sellerdata',
+        'icon' => 'fa fa-list-alt',
+      ),
+      13 => 
+      array (
+        'header' => 'Delivery',
+      ),
+      14 => 
+      array (
+        'text' => 'Active Company',
+        'url' => 'admin/deliverycompany',
+        'icon' => 'fa fa-list-alt',
+      ),
+      15 => 
+      array (
         'header' => 'Products',
       ),
       16 => 
@@ -339,8 +369,13 @@
     'name' => 'notnew',
     'env' => 'local',
     'debug' => true,
+<<<<<<< HEAD
     'url' => 'https://notnewbackend.testingwebsitelink.com/',
     'client_url' => 'https://notnew.apextechworldllc.com/',
+=======
+    'url' => 'http://localhost:8000/',
+    'client_url' => 'http://localhost:8000/',
+>>>>>>> a1bd728a5f920a1dfa576022721a4819f502786b
     'asset_url' => NULL,
     'facebook' => 
     array (
@@ -356,7 +391,11 @@
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
+<<<<<<< HEAD
     'key' => 'base64:iI0KB9pzm0kj9pKn3xb1zUSIAHOCK+INMXL9JmrhslM=',
+=======
+    'key' => 'base64:Qbd+s/yD8y0RzAzeYkNrEGxIaqH0XRPpASafQ9HtBsI=',
+>>>>>>> a1bd728a5f920a1dfa576022721a4819f502786b
     'cipher' => 'AES-256-CBC',
     'providers' => 
     array (
@@ -696,7 +735,7 @@
   ),
   'filesystems' => 
   array (
-    'default' => 'local',
+    'default' => 'public',
     'cloud' => 's3',
     'disks' => 
     array (
@@ -1072,7 +1111,11 @@
   ),
   'api-postman' => 
   array (
+<<<<<<< HEAD
     'base_url' => 'https://notnewbackend.testingwebsitelink.com/',
+=======
+    'base_url' => 'http://localhost:8000/',
+>>>>>>> a1bd728a5f920a1dfa576022721a4819f502786b
     'filename' => '{timestamp}_{app}_collection.json',
     'structured' => false,
     'crud_folders' => true,

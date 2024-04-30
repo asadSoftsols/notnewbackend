@@ -32,7 +32,6 @@ class CategoryController extends Controller
             }])
             ->get();
     }
-
     public function all(Request $request)
     {
         return Category::select(['id', 'name', 'guid', 'description'])

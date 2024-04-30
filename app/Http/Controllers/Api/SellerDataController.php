@@ -16,10 +16,10 @@ use App\Models\UserBank;
 use App\Models\SaveSeller;
 use App\Models\Bank;
 use App\Http\Requests\SellerDataRequest;
+use App\Traits\InteractWithUpload;
 use App\Notifications\SellerDataNotify;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Traits\InteractWithUpload;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Images;
@@ -528,7 +528,6 @@ class SellerDataController extends Controller
         $seller = SellerData::where('active', true)
         ->where('featured', true)
         ->get();
-
         if($seller){
             return response()->json(['status'=> true,'data' =>$seller], 200);       
         }else{

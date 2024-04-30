@@ -40,6 +40,7 @@ use phpDocumentor\Reflection\Types\Self_;
  * @property string $city
  * @property string $zip
  * @property string $state
+ * @property text $terms_descriptions
  * @property tinyinteger $steps
  * @property tinyinteger $shipment_type
  * @property User $user
@@ -107,11 +108,12 @@ class Product extends Base implements IMediaInteraction
      'created_at', 'updated_at', 'weight', 'height', 'IsSaved', 'ounces', 'parent_category_id',
     'length', 'width', 'policies', 'in_review', 'steps', 'shipment_type', 'condition','auctioned','state',
     'model', 'brand', 'stockcapacity', 'selling_now', 'listing','auction_listing', 'auction_End_listing',
-     'buyitnow', 'deliverd_domestic', 
+     'buyitnow', 'deliverd_domestic', 'hours', 'shiping_durations', 'return_country', 'return_state',
     'deliverd_international', 'company','country', 'shipping_price', 'shipping_start', 'shipping_end',
     'return_shipping_price', 'return_ship_duration_limt', 'return_ship_paid_by', 'return_ship_location', 'delivery_company',
     'featured', 'featured_until','shipping_type', 'city', 'ratings_count','attributes','scheduled','tags', 'min_purchase',
-    'available_colors', 'shop_id','return_ship_duration_limt','return_ship_location','return_ship_paid_by'];
+    'available_colors', 'shop_id','return_ship_duration_limt','return_ship_location','return_ship_paid_by','terms_descriptions',
+    'return_city', 'return_zip', 'brand_id'];
     
     protected $appends = ['cover_image', 'is_owner'];
 

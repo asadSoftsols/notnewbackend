@@ -278,6 +278,24 @@ return [
             'url' => 'admin/in-active-category ',
             'icon' => 'fa fa-times'
         ],
+        ['header' => 'Brands'],
+        [
+            'text' => 'Active Brands',
+            'url' => 'admin/brands',
+            'icon' => 'fa fa-list-alt'
+        ],
+        ['header' => 'Stores'],
+        [
+            'text' => 'Active Stores',
+            'url' => 'admin/sellerdata',
+            'icon' => 'fa fa-list-alt'
+        ],
+        ['header' => 'Delivery'],
+        [
+            'text' => 'Active Company',
+            'url' => 'admin/deliverycompany',
+            'icon' => 'fa fa-list-alt'
+        ],
         ['header' => 'Products'],
         [
             'text' => 'Active Products',
